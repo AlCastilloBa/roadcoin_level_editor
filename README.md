@@ -13,4 +13,4 @@ Uses python 3 and tkinter for building the user interface. The aim is to get a s
 
 # Current status
 
-Currently under development, not functional yet.
+Currently under development. Can load and show maps, pan and zoom operational, but editing is still not possible.
