@@ -119,6 +119,12 @@ class Map():
 	def __init__(self):
 		pass
 
+	def __del__(self):
+		logging.debug( "Destruyendo objeto clase Map" )
+		self.segment_dict.clear()
+		self.pinball_bumpers_dict.clear()
+		self.dict_round_acel_zones.clear()
+
 	def LoadFile(self, filename):
 		file1 = open( filename , 'r' )
 		Lines = file1.readlines()
