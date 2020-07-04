@@ -45,6 +45,8 @@ mode_names = {
 class RC_editor_GUI():
 
 	modo_actual = Mode.no_mode
+	map_loaded = False
+	loaded_map_filename = None
 
 	def __init__(self):
 		logging.debug( "Cargando fichero de preferencias" )
@@ -138,37 +140,46 @@ class RC_editor_GUI():
 		self.window_statusbar.pack(side=tk.BOTTOM, fill=tk.X)
 
 		logging.debug( "Creando botones de herramientas de cada modo" )	
+		# General mode buttons
 		self.button_gen1 = tk.Button( master = self.frame_left_toolbar, text="Gen1", width=6, command = do_nothing)
 		self.button_gen2 = tk.Button( master = self.frame_left_toolbar, text="Gen2", width=6, command = do_nothing)
 		self.button_gen3 = tk.Button( master = self.frame_left_toolbar, text="Gen3", width=6, command = do_nothing)
 		self.button_gen4 = tk.Button( master = self.frame_left_toolbar, text="Gen4", width=6, command = do_nothing)
 		self.buttons_gen_list = [ self.button_gen1, self.button_gen2, self.button_gen3, self.button_gen4 ]
+		# Image mode buttons
 		self.button_img1 = tk.Button( master = self.frame_left_toolbar, text="Img1", width=6, command = do_nothing)
 		self.button_img2 = tk.Button( master = self.frame_left_toolbar, text="Img2", width=6, command = do_nothing)
 		self.button_img3 = tk.Button( master = self.frame_left_toolbar, text="Img3", width=6, command = do_nothing)
 		self.button_img4 = tk.Button( master = self.frame_left_toolbar, text="Img4", width=6, command = do_nothing)
 		self.button_img5 = tk.Button( master = self.frame_left_toolbar, text="Img5", width=6, command = do_nothing)
 		self.buttons_img_list = [ self.button_img1, self.button_img2, self.button_img3, self.button_img4, self.button_img5 ]
+		# Rotating background mode buttons
 		self.button_rotbg1 = tk.Button( master = self.frame_left_toolbar, text="Rotbg1", width=6, command = do_nothing)
 		self.button_rotbg2 = tk.Button( master = self.frame_left_toolbar, text="Rotbg2", width=6, command = do_nothing)
 		self.button_rotbg3 = tk.Button( master = self.frame_left_toolbar, text="Rotbg3", width=6, command = do_nothing)
 		self.buttons_rotbg_list = [ self.button_rotbg1, self.button_rotbg2, self.button_rotbg3 ]
-		self.button_segm1 = tk.Button( master = self.frame_left_toolbar, text="Segm1", width=6, command = do_nothing)
-		self.button_segm2 = tk.Button( master = self.frame_left_toolbar, text="Segm2", width=6, command = do_nothing)
-		self.button_segm3 = tk.Button( master = self.frame_left_toolbar, text="Segm3", width=6, command = do_nothing)
+		# Segment mode buttons
+		self.button_new_segm = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_segm_icon, compound=tk.LEFT, width=None, command = do_nothing)
+		self.button_edit_segm = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_segm_icon, compound=tk.LEFT, width=None, command = do_nothing)
+		self.button_del_segm = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_segm_icon, compound=tk.LEFT, width=None, command = do_nothing)
 		self.button_segm4 = tk.Button( master = self.frame_left_toolbar, text="Segm4", width=6, command = do_nothing)
 		self.button_segm5 = tk.Button( master = self.frame_left_toolbar, text="Segm5", width=6, command = do_nothing)
 		self.button_segm6 = tk.Button( master = self.frame_left_toolbar, text="Segm6", width=6, command = do_nothing)
-		self.buttons_segm_list = [ self.button_segm1, self.button_segm2, self.button_segm3, self.button_segm4, self.button_segm5, self.button_segm6 ]
+		self.buttons_segm_list = [ self.button_new_segm, self.button_edit_segm, self.button_del_segm, self.button_segm4, self.button_segm5, self.button_segm6 ]
+		# Bumpers mode buttons
 		self.button_bump1 = tk.Button( master = self.frame_left_toolbar, text="Bump1", width=6, command = do_nothing)
 		self.button_bump2 = tk.Button( master = self.frame_left_toolbar, text="Bump2", width=6, command = do_nothing)
 		self.button_bump3 = tk.Button( master = self.frame_left_toolbar, text="Bump3", width=6, command = do_nothing)
 		self.buttons_bump_list = [ self.button_bump1, self.button_bump2, self.button_bump3 ]
+		# RACCZ mode buttons
 		self.button_raccz1 = tk.Button( master = self.frame_left_toolbar, text="Raccz1", width=6, command = do_nothing)
 		self.button_raccz2 = tk.Button( master = self.frame_left_toolbar, text="Raccz2", width=6, command = do_nothing)
 		self.button_raccz3 = tk.Button( master = self.frame_left_toolbar, text="Raccz3", width=6, command = do_nothing)
 		self.button_raccz4 = tk.Button( master = self.frame_left_toolbar, text="Raccz4", width=6, command = do_nothing)
 		self.buttons_raccz_list = [ self.button_raccz1, self.button_raccz2, self.button_raccz3, self.button_raccz4 ]
+
+		self.map_loaded = False
+		self.DisableMenuItems_MapUnloaded()
 
 		logging.debug( "Configurando gestores de eventos" )			
 		self.Set_UI_Event_Handlers()		# Desactivado temporalmente
@@ -251,6 +262,19 @@ class RC_editor_GUI():
 			self.button_raccz_mode.configure(bg = "green")
 		self.label_mode.configure(text=mode_names.get(new_mode))
 
+	def EnableMenuItems_MapLoaded( self ):
+		self.filemenu.entryconfig("Cerrar", state="normal")
+		self.editmenu.entryconfig("Deshacer", state="normal")
+		self.editmenu.entryconfig("Rehacer", state="normal")
+		self.viewmenu.entryconfig("Redibujar todo", state="normal")
+		self.viewmenu.entryconfig("Volver a (0,0)", state="normal")
+
+	def DisableMenuItems_MapUnloaded( self ):
+		self.filemenu.entryconfig("Cerrar", state="disabled")
+		self.editmenu.entryconfig("Deshacer", state="disabled")
+		self.editmenu.entryconfig("Rehacer", state="disabled")
+		self.viewmenu.entryconfig("Redibujar todo", state="disabled")
+		self.viewmenu.entryconfig("Volver a (0,0)", state="disabled")
 
 	def Load_UI_Icons(self):
 		logging.debug( "Cargando iconos del editor" )
@@ -268,6 +292,10 @@ class RC_editor_GUI():
 		self.img_img_icon = ImageTk.PhotoImage(Image.open("icons/img-16.png"))
 		self.img_raccz_icon = ImageTk.PhotoImage(Image.open("icons/raccz-16.png"))
 
+		self.img_new_segm_icon = ImageTk.PhotoImage(Image.open("icons/new_segm-16.png"))
+		self.img_edit_segm_icon = ImageTk.PhotoImage(Image.open("icons/edit_segm-16.png"))
+		self.img_del_segm_icon = ImageTk.PhotoImage(Image.open("icons/del_segm-16.png"))
+
 	def Set_UI_Event_Handlers(self):
 		# self.canvas_mapview.bind('<Motion>', self.mapview_mouse_motion_event_handler )			# For canvas without scrollbars
 		self.canvas_mapview.viewer.bind('<Motion>', self.mapview_mouse_motion_event_handler )			# For canvas with scrollbars
@@ -277,12 +305,15 @@ class RC_editor_GUI():
 	#############################################################################
 	# Event handlers
 	def mapview_mouse_motion_event_handler(self, event):
-		# When mouse moves over canvas, get the mouse coordinates
-		# x, y = event.x, event.y	# Does not take scrolling into account
-		x = self.canvas_mapview.viewer.canvasx(event.x)
-		y = self.canvas_mapview.viewer.canvasy(event.y)
-		# print('{}, {}'.format(x, y))
-		self.window_statusbar.set_field_2( "%s", "( " + str(x) + " , " + str(y) + " )" )
+		if self.map_loaded == True:
+			# When mouse moves over canvas, get the mouse coordinates
+			# x, y = event.x, event.y	# Does not take scrolling into account
+			canvas_x = self.canvas_mapview.viewer.canvasx(event.x)
+			canvas_y = self.canvas_mapview.viewer.canvasy(event.y)
+			map_x = int(canvas_x / self.canvas_mapview.zoomlevel)
+			map_y = int(canvas_y / self.canvas_mapview.zoomlevel)
+			# print('{}, {}'.format(x, y))
+			self.window_statusbar.set_field_2( "%s", "( " + str(map_x) + " , " + str(map_y) + " )" )
 
 	def bind_mapview_to_mousewheel( self, event ):
 		logging.debug("Raton entra en zona de visor de mapa")
@@ -326,71 +357,103 @@ class RC_editor_GUI():
 
 
 	def mouse_button_event_handler_linux( self, event ):
-		# with GNU/Linux OS + X11
-		if event.num == 5:
-			logging.debug("Aplicando desplazamiento al visor de mapa en dirección Y+ (version GNU/Linux)")
-			self.canvas_mapview.viewer.yview_scroll( 1 , "units" )
-		if event.num == 4:
-			logging.debug("Aplicando desplazamiento al visor de mapa en dirección Y- (version GNU/Linux)")
-			self.canvas_mapview.viewer.yview_scroll( -1 , "units" )
-		if event.num == 6:
-			logging.debug("Aplicando desplazamiento al visor de mapa en dirección X- (version GNU/Linux)")
-			self.canvas_mapview.viewer.xview_scroll( -1 , "units" )
-		if event.num == 7:
-			logging.debug("Aplicando desplazamiento al visor de mapa en dirección X+ (version GNU/Linux)")
-			self.canvas_mapview.viewer.xview_scroll( 1 , "units" )
+		if self.map_loaded == True:
+			# with GNU/Linux OS + X11
+			if event.num == 5:
+				logging.debug("Aplicando desplazamiento al visor de mapa en dirección Y+ (version GNU/Linux)")
+				self.canvas_mapview.viewer.yview_scroll( 1 , "units" )
+			if event.num == 4:
+				logging.debug("Aplicando desplazamiento al visor de mapa en dirección Y- (version GNU/Linux)")
+				self.canvas_mapview.viewer.yview_scroll( -1 , "units" )
+			if event.num == 6:
+				logging.debug("Aplicando desplazamiento al visor de mapa en dirección X- (version GNU/Linux)")
+				self.canvas_mapview.viewer.xview_scroll( -1 , "units" )
+			if event.num == 7:
+				logging.debug("Aplicando desplazamiento al visor de mapa en dirección X+ (version GNU/Linux)")
+				self.canvas_mapview.viewer.xview_scroll( 1 , "units" )
 
 
 
 	def mapview_vertical_mousewheel_event_handler_windows(self, event):
-		# with Windows OS
-		logging.debug("Aplicando desplazamiento al visor de mapa en dirección Y (version windows)")
-		self.canvas_mapview.viewer.yview_scroll( int(-1*(event.delta/120)), "units")
+		if self.map_loaded == True:
+			# with Windows OS
+			logging.debug("Aplicando desplazamiento al visor de mapa en dirección Y (version windows)")
+			self.canvas_mapview.viewer.yview_scroll( int(-1*(event.delta/120)), "units")
 
 
 
 	def mapview_horizontal_mousewheel_event_handler_windows(self, event):
-		logging.debug("Aplicando desplazamiento al visor de mapa en dirección X (version windows)")
-		# with Windows OS
-		self.canvas_mapview.viewer.xview_scroll( int(-1*(event.delta/120)), "units")	# (TODO) Horizontal MouseWheel is yet to be programmed
-
+		if self.map_loaded == True:
+			logging.debug("Aplicando desplazamiento al visor de mapa en dirección X (version windows)")
+			# with Windows OS
+			self.canvas_mapview.viewer.xview_scroll( int(-1*(event.delta/120)), "units")	# (TODO) Horizontal MouseWheel is yet to be programmed
 
 
 	def mapview_ctrl_vertical_mousewheel_event_handler(self, event):
-		logging.debug("Aplicando zoom al visor de mapa")
-		if sys.platform.startswith('win'):
-			# with Windows OS
-			self.canvas_mapview.zoomlevel += event.delta/120
-		elif 'linux' in sys.platform:
-			# with GNU/Linux OS + X11
-			if event.num == 5:
-				self.canvas_mapview.zoomlevel -= 0.1
-			if event.num == 4:
-				self.canvas_mapview.zoomlevel += 0.1
-		logging.debug("Nivel de zoom = " + str(self.canvas_mapview.zoomlevel))
-		self.canvas_mapview.DrawAll( self.mapa_cargado )
-		self.window_statusbar.set_field_3("%s", "Zoom: " + str(int(self.canvas_mapview.zoomlevel*100)) + "%")
+		if self.map_loaded == True:
+			logging.debug("Aplicando zoom al visor de mapa")
+			if sys.platform.startswith('win'):
+				# with Windows OS
+				self.canvas_mapview.zoomlevel += event.delta/120
+			elif 'linux' in sys.platform:
+				# with GNU/Linux OS + X11
+				if event.num == 5:
+					self.canvas_mapview.zoomlevel -= 0.1
+				if event.num == 4:
+					self.canvas_mapview.zoomlevel += 0.1
+			logging.debug("Nivel de zoom = " + str(self.canvas_mapview.zoomlevel))
+			self.canvas_mapview.DrawAll( self.mapa_cargado )
+			self.window_statusbar.set_field_3("%s", "Zoom: " + str(int(self.canvas_mapview.zoomlevel*100)) + "%")
 
 	##############################################################################
 
 	def LoadMapButton(self):
-		self.filename = filedialog.askopenfilename(initialdir = self.preferences.GamePath, title = "Select file",filetypes = (("all files","*"),("all files with ext","*.*"),("jpeg files","*.jpg")))
-		self.mapa_cargado = rceditor_maps.Map()
-		logging.debug( "Cargando mapa " + self.filename )
-		self.mapa_cargado.LoadFile( self.filename )
-		# aqui faltan muchas cosas mas ....
-		logging.debug( "Representando mapa en editor... " )
-		self.canvas_mapview.DrawAll( self.mapa_cargado )
-		self.window_main_editor.title( "RoadCoin Level Editor - " + self.filename )
+		if self.map_loaded == True:
+			answer = tk.messagebox.askyesnocancel("Abrir otro mapa", "¿Desea abrir otro mapa?\nSe perderán las modificaciones realizadas en el mapa actual")
+			logging.debug( "Pregunta abrir otro mapa, el usuario ha respondido answer = " + str(answer) )
+			if (answer is None) or (answer == False) :
+				return	# Do nothing
+
+		open_map_filename = filedialog.askopenfilename(initialdir = self.preferences.GamePath, title = "Select file",filetypes = (("all files","*"),("all files with ext","*.*"),("jpeg files","*.jpg")))
+		# Manage the user file selection
+		if isinstance( open_map_filename, str ) and (open_map_filename != "") :
+			# Note: when <type 'str'> # File selected, OK clicked
+			if self.map_loaded == True:
+				# If there is a map loaded, unload it before loading the new one
+				self.UnloadMap()
+			# Load the new map
+			self.mapa_cargado = rceditor_maps.Map()
+			logging.debug( "Cargando mapa " + open_map_filename )
+			self.mapa_cargado.LoadFile( open_map_filename )
+			self.loaded_map_filename = open_map_filename
+			# aqui faltan muchas cosas mas ....
+			logging.debug( "Representando mapa en editor... " )
+			self.canvas_mapview.DrawAll( self.mapa_cargado )
+
+			self.window_main_editor.title( "RoadCoin Level Editor - " + self.loaded_map_filename )
+			self.map_loaded = True
+			self.EnableMenuItems_MapLoaded()
+		#elif isinstance( chosen_new_game_path, unicode ):
+			# Note: when<type 'unicode'> # Nothing selected, Cancel clicked
+		#elif isinstance( chosen_new_game_path, tuple ):
+			# Note: when <type 'tuple'> # File selected, Cancel clicked
+			# Note: when <type 'tuple'> # Multiple files selected, OK clicked
+
 
 	def CloseMapButton(self):
-		answer = tk.messagebox.askyesnocancel("Cerrar mapa", "Desea cerrar el mapa?")
+		answer = tk.messagebox.askyesnocancel("Cerrar mapa", "¿Desea cerrar el mapa?")
 		if (answer is not None) and (answer != False) :
-			del self.mapa_cargado
-			logging.debug( "Mapa " + self.filename + " cerrado" )
-			self.filename = None
-			self.canvas_mapview.DisableViewer()
-			self.window_main_editor.title( "RoadCoin Level Editor" )
+			self.UnloadMap()
+
+
+	def UnloadMap(self):
+		del self.mapa_cargado
+		logging.debug( "Mapa " + self.loaded_map_filename + " cerrado" )
+		self.loaded_map_filename = None
+		self.canvas_mapview.DisableViewer()
+		self.window_main_editor.title( "RoadCoin Level Editor" )
+		self.map_loaded = False
+		self.DisableMenuItems_MapUnloaded()
 
 
 	def ShowPreferencesWindowButton(self):
