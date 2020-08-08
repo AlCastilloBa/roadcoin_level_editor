@@ -3,6 +3,8 @@ import tkinter as tk
 from PIL import ImageTk, Image		# Pillow
 import logging
 
+from rceditor_maps import Segment_Type, Segment_Type_Names
+
 
 def do_nothing():
 	x = 0
@@ -10,6 +12,8 @@ def do_nothing():
 
 class Canvas_WithScrollbars(tk.Frame):
 	zoomlevel = 1.0
+	segment_lines_dict = dict()	# Dictionary that links canvas lines and segments
+	segment_num_texts_dict = dict()	# Dictionary that links canvas texts and segments
 
 	def __init__(self, master):
 		tk.Frame.__init__(self, master)
@@ -42,26 +46,52 @@ class Canvas_WithScrollbars(tk.Frame):
 
 	def ClearViewer( self ):
 		self.viewer.delete("all")
+		self.segment_lines_dict.clear()
+		self.segment_num_texts_dict.clear()
 
 	def DisableViewer( self ):
 		self.viewer.delete("all")
+		self.segment_lines_dict.clear()
+		self.segment_num_texts_dict.clear()
 		self.viewer.config( background=self.orig_viewer_color )
+
 
 
 	def DrawSegments( self, Map ):
 		logging.debug( "Comenzando representacion de segmentos" )
 		self.viewer.config( background="white" )
 		for num_segm, segm in Map.segment_dict.items():
-			logging.debug( "Dibujando segmento " + str(num_segm) )
-			self.viewer.create_line(segm.start.x * self.zoomlevel, segm.start.y*self.zoomlevel, segm.end.x*self.zoomlevel, segm.end.y*self.zoomlevel)
+			ref_linea = self.viewer.create_line(segm.start.x * self.zoomlevel, segm.start.y*self.zoomlevel, segm.end.x*self.zoomlevel, segm.end.y*self.zoomlevel)
+			self.segment_lines_dict.setdefault(ref_linea, num_segm)	# Add to dictionary for later use
+			logging.debug( "Dibujando segmento " + str(num_segm) + ", ref linea = " + str(ref_linea) )
+			# Set color according to segment type
+			if Map.segment_dict.get(num_segm).segm_type == Segment_Type.wall.value:
+				self.viewer.itemconfig( ref_linea, fill="black")
+			elif Map.segment_dict.get(num_segm).segm_type == Segment_Type.goal.value:
+				self.viewer.itemconfig( ref_linea, fill="green")
+			elif Map.segment_dict.get(num_segm).segm_type == Segment_Type.death.value:
+				self.viewer.itemconfig( ref_linea, fill="red")
+			elif Map.segment_dict.get(num_segm).segm_type == Segment_Type.pinball_flipper_L.value:
+				self.viewer.itemconfig( ref_linea, fill="blue")
+			elif Map.segment_dict.get(num_segm).segm_type == Segment_Type.pinball_flipper_R.value:
+				self.viewer.itemconfig( ref_linea, fill="blue")
+			else:
+				logging.debug( "Al dar color al segmento " + str(num_segm) + ", tipo de segmento " + str(Map.segment_dict.get(num_segm).segm_type) + " no es conocido.")
+			# Set dash pattern according to visibility
+			if Map.segment_dict.get(num_segm).invisible == True:
+				self.viewer.itemconfig( ref_linea, dash=(3,3) )		# Dashed line: 3 pix line, 3 pix gap
+			else:
+				self.viewer.itemconfig( ref_linea, dash=() )	# Solid line
 
 
 	def DrawSegmentNumbers( self, Map ):
 		logging.debug( "Comenzando representacion de números de segmentos" )
 		self.viewer.config( background="white" )
 		for num_segm, segm in Map.segment_dict.items():
-			logging.debug( "Dibujando numero segmento " + str(num_segm) )
-			self.viewer.create_text( self.zoomlevel*(segm.start.x + segm.end.x)/2 , self.zoomlevel*(segm.start.y + segm.end.y)/2 , text=num_segm )
+			ref_texto = self.viewer.create_text( self.zoomlevel*(segm.start.x + segm.end.x)/2 , self.zoomlevel*(segm.start.y + segm.end.y)/2 , text=num_segm )
+			self.segment_num_texts_dict.setdefault(ref_texto, num_segm)     # Add to dictionary for later use
+			logging.debug( "Dibujando numero segmento " + str(num_segm) + ", ref texto = " + str(ref_texto) )
+
 
 	def DrawAll( self, Map ):
 		logging.debug( "Procediendo a redibujar todo" )
@@ -69,4 +99,34 @@ class Canvas_WithScrollbars(tk.Frame):
 		self.DrawSegments( Map )
 		self.DrawSegmentNumbers( Map )
 
+
+	def GoTo_Origin( self ):
+		self.viewer.xview(tk.MOVETO, 0)
+		self.viewer.yview(tk.MOVETO, 0)
+
+
+	def UnHighlight_Segments( self ):
+		logging.debug( "Marcando todos los segmentos como no seleccionados." )
+		for line_ref in self.segment_lines_dict:
+			#self.viewer.itemconfig( line_ref, fill="black")
+			self.viewer.itemconfig( line_ref, width=1)
+		for text_ref in self.segment_num_texts_dict:
+			#self.viewer.itemconfig( text_ref, fill="black")
+			pass	# TODO Falta poner fuente estandar
+
+
+	def Highlight_Segments( self, segm_list_to_highlight ):
+		logging.debug( "Marcando como seleccionados los segmentos: " + str(segm_list_to_highlight) )
+		if segm_list_to_highlight:	# If the list is not empty
+			for segm in segm_list_to_highlight:
+				# Inverse lookup in dictionary to get canvas lines and text references
+				# Note: this could be slow !!
+				line_ref = next( line_ref for line_ref, value in self.segment_lines_dict.items() if value == segm )
+				text_ref = next( text_ref for text_ref, value in self.segment_num_texts_dict.items() if value == segm )
+				logging.debug( "Marcando segmento " + str(segm) + " con referencia de linea " + str(line_ref) )
+				#self.viewer.itemconfig( line_ref, fill="red")
+				self.viewer.itemconfig( line_ref, width=3)
+				logging.debug( "Marcando texto segmento " + str(segm) + " con referencia de texto " + str(text_ref) )
+				#self.viewer.itemconfig( text_ref, fill="red")
+				pass	# TODO Falta poner la fuente grande
 
