@@ -212,7 +212,7 @@ class RC_editor_GUI():
 		self.property_rotbg3 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="rotbg 3", callback=do_nothing )
 		self.properties_rotbg_list = [ self.property_rotbg1, self.property_rotbg2, self.property_rotbg3 ]
 		# Segment mode properties widgets
-		self.property_segm_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero segmento:", callback=do_nothing )
+		self.property_segm_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero segmento:", callback=do_nothing, state='readonly' )
 		self.property_segm_start_label = tk.Label(master=self.frame_properties,text="Start:")
 		self.property_segm_start_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", callback=do_nothing )
 		self.property_segm_start_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", callback=do_nothing )
@@ -227,8 +227,10 @@ class RC_editor_GUI():
 							rceditor_maps.Segment_Type_Names.get(rceditor_maps.Segment_Type.pinball_flipper_L), \
 							rceditor_maps.Segment_Type_Names.get(rceditor_maps.Segment_Type.pinball_flipper_R)  ]
 		self.property_segm_type = tk.OptionMenu( self.frame_properties, self.property_segm_type_variable, *self.property_segm_type_choices )
-		self.property_segm_invis = tk.Checkbutton(master=self.frame_properties, text="Invisible")
-		self.properties_segm_list = [ self.property_segm_number, self.property_segm_start_label, self.property_segm_start_x, self.property_segm_start_y, self.property_segm_end_label, self.property_segm_end_x, self.property_segm_end_y, self.property_segm_type_label, self.property_segm_type, self.property_segm_type, self.property_segm_invis ]
+		self.property_segm_invis_variable = tk.BooleanVar()
+		self.property_segm_invis = tk.Checkbutton(master=self.frame_properties, text="Invisible", var=self.property_segm_invis_variable )
+		self.property_segm_apply = tk.Button( master = self.frame_properties, text="Forzar aplicar cambios", command = self.Apply_Selected_Segment_Changes)
+		self.properties_segm_list = [ self.property_segm_number, self.property_segm_start_label, self.property_segm_start_x, self.property_segm_start_y, self.property_segm_end_label, self.property_segm_end_x, self.property_segm_end_y, self.property_segm_type_label, self.property_segm_type, self.property_segm_type, self.property_segm_invis, self.property_segm_apply ]
 		# Bumpers mode properties widgets
 		self.property_bump1 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="bump 1", callback=do_nothing )
 		self.property_bump2 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="bump 2", callback=do_nothing )
@@ -663,8 +665,11 @@ class RC_editor_GUI():
 
 
 	def Update_Selected_Segment_Properties( self, segm_number ):
+		# When a segment is selected, this function updates the properties frame on the right
 		# Write number and coords
+		self.property_segm_number.config_entry( state='normal' )	# Note: When entrybox is disabled or readonly, insert and delete are ignored
 		self.property_segm_number.set_value( segm_number )
+		self.property_segm_number.config_entry( state='readonly' )
 		self.property_segm_start_x.set_value(  self.mapa_cargado.segment_dict.get(segm_number).start.x  ) 
 		self.property_segm_start_y.set_value(  self.mapa_cargado.segment_dict.get(segm_number).start.y  )
 		self.property_segm_end_x.set_value(  self.mapa_cargado.segment_dict.get(segm_number).end.x  ) 
@@ -676,5 +681,44 @@ class RC_editor_GUI():
 			self.property_segm_invis.select()
 		else:
 			self.property_segm_invis.deselect()
+
+
+	def Apply_Selected_Segment_Changes( self ):
+		# When a segment is selected, and some values are changed in the properties frame, this function applies the changes to the "segment dictionary"
+		# Only to be taken into account in the segment edit mode
+		if self.current_mode == Mode.segment and self.current_segment_submode == Segment_SubMode.edit:
+			logging.debug( "Funcion Apply_Selected_Segment_Changes llamada, se intentan aplicar los cambios al diccionario." )
+			try:
+				# Read selected segment
+				segm_number = int( self.property_segm_number.get_value_string() )
+				# Get segment coordinates
+				self.mapa_cargado.segment_dict.get(segm_number).start.x = float( self.property_segm_start_x.get_value_string() )
+				self.mapa_cargado.segment_dict.get(segm_number).start.y = float( self.property_segm_start_y.get_value_string() )
+				self.mapa_cargado.segment_dict.get(segm_number).end.x = float( self.property_segm_end_x.get_value_string() )
+				self.mapa_cargado.segment_dict.get(segm_number).end.y = float( self.property_segm_end_y.get_value_string() )
+				# Get segment type
+				read_segm_type = self.property_segm_type_variable.get()
+				for type_num, segm_type_to_compare in enumerate(self.property_segm_type_choices, start=0) :
+					if read_segm_type == segm_type_to_compare:
+						self.mapa_cargado.segment_dict.get(segm_number).segm_type = type_num
+						break	# Exit for
+				# Get segment visibility
+				self.mapa_cargado.segment_dict.get(segm_number).invisible = self.property_segm_invis_variable.get()  
+				# Update canvas display
+				self.canvas_mapview.Update_Segments_Display( [segm_number], self.mapa_cargado )
+				self.canvas_mapview.Highlight_Segments( [segm_number] )		# Type cast into list. After update, we need to highlight again
+				self.Update_Selected_Segment_Properties( segm_number )
+				logging.debug( "Modificaciones segmento leidas: segm_num = " + str(segm_number) + \
+						", start: x= " + str(self.mapa_cargado.segment_dict.get(segm_number).start.x) + \
+						", y= " + str( self.mapa_cargado.segment_dict.get(segm_number).start.y ) + \
+						", end: x= " + str(self.mapa_cargado.segment_dict.get(segm_number).end.x) + \
+						", y= " + str( self.mapa_cargado.segment_dict.get(segm_number).end.y) + \
+						". Tipo = " + str( type_num ) + "(" + read_segm_type + ")" + \
+						". Invisible = " + str( self.mapa_cargado.segment_dict.get(segm_number).invisible ) )
+			except Exception as e:
+				logging.exception(e)
+				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+		else:
+			logging.debug( "Funcion Apply_Selected_Segment_Changes llamada, pero en el modo incorrecto. No se hace nada." )
 
 		
