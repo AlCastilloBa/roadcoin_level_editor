@@ -1,7 +1,8 @@
 
 import tkinter as tk
-from PIL import ImageTk, Image		# Pillow
+from PIL import ImageTk, Image, ImageEnhance		# Pillow
 import logging
+import sys
 
 from rceditor_maps import Segment_Type, Segment_Type_Names
 
@@ -14,6 +15,12 @@ class Canvas_WithScrollbars(tk.Frame):
 	zoomlevel = 1.0
 	segment_lines_dict = dict()	# Dictionary that links canvas lines and segments
 	segment_num_texts_dict = dict()	# Dictionary that links canvas texts and segments
+	bumpers_dict = dict()		# Dictionary that links canvas circles and bumpers
+	bumpers_num_texts_dict = dict()	# Dictionary that links canvas texts and bumpers
+	rotbg_canvas_object_ref = None	# Rotating background canvas reference
+	rotbg_image = None		# Rotating background image (PIL image object)
+	rotbg_image_resized = None	# Rotating background resized image (PIL Photoimage object)
+
 
 	def __init__(self, master):
 		tk.Frame.__init__(self, master)
@@ -113,8 +120,11 @@ class Canvas_WithScrollbars(tk.Frame):
 	def DrawAll( self, Map ):
 		logging.debug( "Procediendo a redibujar todo" )
 		self.ClearViewer()
+		self.Draw_RotBG( Map )
 		self.DrawAllSegments( Map )
 		self.DrawAllSegmentNumbers( Map )
+		self.DrawAllBumpers( Map )
+		self.DrawAllBumpersNumbers( Map )
 
 
 	def GoTo_Origin( self ):
@@ -166,5 +176,85 @@ class Canvas_WithScrollbars(tk.Frame):
 				self.DrawSingleSegment( Map, segm )
 				self.DrawSingleSegmentNumber( Map, segm )
 
+
+	def Load_Images( self, Map, preferences ):
+		if Map.rotating_background == True:
+			logging.debug( "Cargando imagenes del mapa" )
+			try:
+				self.rotbg_image = Image.open( preferences.GamePath + "/" + Map.rotating_background_path  )			# PIL Image Solution --> Can be manipulated (but not used directly for Tkinter)
+				# self.rotbg_image = ImageTk.PhotoImage(  Image.open( preferences.GamePath + "/" + Map.rotating_background_path  )  )	# PIL Image + PhotoImage Solution --> Cannot be manipulated (but shown on Tkinter)
+
+			except Exception as e:
+				logging.exception(e)
+				tk.messagebox.showerror(title="Error", message="No se ha podido cargar la imagen del fondo giratorio.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+			else:
+				logging.debug( "Imagen " + preferences.GamePath + "/" + Map.rotating_background_path + " cargada.")
+
+	def Draw_RotBG( self, Map ):
+		if self.rotbg_image is not None:	# If the image is loaded
+			logging.debug( "Creando imagen de fondo giratorio, en x=" + str( Map.rotating_background_left_x_pos ) + ", y=" + str( Map.rotating_background_up_y_pos ) )
+			# Resize image and 
+			# Note: Keep the reference (if not, the image will be garbage-collected)
+			self.rotbg_image_resized = self.rotbg_image.resize( (int(self.rotbg_image.size[0]*self.zoomlevel), int(self.rotbg_image.size[1]*self.zoomlevel)) , Image.LANCZOS )
+			# Enhance image: colour, contrast and brightness
+			enhancer = ImageEnhance.Color(self.rotbg_image_resized)
+			self.rotbg_image_resized = enhancer.enhance( 1.0 )
+			enhancer = ImageEnhance.Contrast(self.rotbg_image_resized)
+			self.rotbg_image_resized = enhancer.enhance( 0.2 )
+			enhancer = ImageEnhance.Brightness(self.rotbg_image_resized)
+			self.rotbg_image_resized = enhancer.enhance( 1.5 )
+			# Convert to Photoimage (in order to show on Tkinter)
+			self.rotbg_image_resized = ImageTk.PhotoImage( self.rotbg_image_resized )
+			# Draw image on canvas
+			rotbg_canvas_object_ref = self.viewer.create_image( 	int( Map.rotating_background_left_x_pos * self.zoomlevel ), \
+										int( Map.rotating_background_up_y_pos * self.zoomlevel ), \
+										image=self.rotbg_image_resized ,\
+										anchor=tk.NW)
+
+
+	def DrawAllBumpers( self, Map ):
+		logging.debug( "Comenzando representacion de bumpers" )
+		self.viewer.config( background="white" )
+		for num_bumper, bumper in Map.pinball_bumpers_dict.items():
+			self.DrawSingleBumper( Map, num_bumper )
+
+
+	def DrawSingleBumper( self, Map, num_bumper ):
+		center = Map.pinball_bumpers_dict.get(num_bumper).center
+		radius = Map.pinball_bumpers_dict.get(num_bumper).radius
+		ref_circ = self.viewer.create_oval(	( center.x-radius ) * self.zoomlevel, \
+								( center.y-radius ) * self.zoomlevel, \
+								( center.x+radius ) * self.zoomlevel, \
+								( center.y+radius ) * self.zoomlevel, \
+								outline="black") 	
+		# Add to dictionary for later use
+		self.bumpers_dict.setdefault(ref_circ, num_bumper)	
+		logging.debug( "Dibujando bumper " + str(num_bumper) + ", ref circulo = " + str(ref_circ) )
+
+
+	def DrawAllBumpersNumbers( self, Map ):
+		logging.debug( "Comenzando representacion de números de bumpers" )
+		self.viewer.config( background="white" )
+		for num_bumper, bumper in Map.pinball_bumpers_dict.items():
+			self.DrawSingleBumperNumber( Map, num_bumper ) 
+
+
+	def DrawSingleBumperNumber( self, Map, num_bumper ):
+		ref_text = self.viewer.create_text( 	self.zoomlevel * (Map.pinball_bumpers_dict.get(num_bumper).center.x), \
+							self.zoomlevel * (Map.pinball_bumpers_dict.get(num_bumper).center.y), \
+							text=num_bumper )
+		# Add to dictionary for later use
+		self.bumpers_num_texts_dict.setdefault(ref_text, num_bumper)
+		logging.debug( "Dibujando numero bumper " + str(num_bumper) + ", ref texto = " + str(ref_text) )	
+
+
+	def UnHighlight_Bumpers( self ):
+		pass
+
+	def Highlight_Bumpers( self, bumper_list_to_highlight ):
+		pass
+
+	def Update_Bumpers_Display( self, bumper_list_to_update, Map ):
+		pass
 
 

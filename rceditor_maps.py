@@ -208,10 +208,10 @@ class Map():
 				logging.debug( "Encontrado imagen_fnd_giratorio = " + self.rotating_background_path )
 			elif line.find("pos_fnd_giratorio") != -1:
 				# Cadena a descomponer pos_fnd_giratorio=((%d,%d),(%d,%d))
-				rotating_background_left_x_pos = int(  line.split("((",1)[1].split(",",1)[0] )  
-				rotating_background_up_y_pos = int(  line.split(",",1)[1].split("),(",1)[0]  ) 
-				rotating_background_right_x_pos = int(  line.split("),(",1)[1].split(",",1)[0]  )
-				rotating_background_down_y_pos = int(  line.split(",",5)[3].strip(")") ) 
+				self.rotating_background_left_x_pos = int(  line.split("((",1)[1].split(",",1)[0] )  
+				self.rotating_background_up_y_pos = int(  line.split(",",1)[1].split("),(",1)[0]  ) 
+				self.rotating_background_right_x_pos = int(  line.split("),(",1)[1].split(",",1)[0]  )
+				self.rotating_background_down_y_pos = int(  line.split(",",5)[3].strip(")") ) 
 				logging.debug( "Encontrado pos_fnd_giratorio, izq = " + str( self.rotating_background_left_x_pos ) + ", arr = " + str( self.rotating_background_up_y_pos ) + \
 					", der = " + str( self.rotating_background_right_x_pos) + ", aba = " + str( self.rotating_background_down_y_pos ) )
 			elif line.find("centro_giro_fnd_gir") != -1:

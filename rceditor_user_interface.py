@@ -525,22 +525,35 @@ class RC_editor_GUI():
 			logging.debug("Pulsado boton " + str( event.num ) + " en x=" + str(map_x) + ", y=" + str(map_y) +", modo = " + mode_names.get( self.current_mode ) )
 			if event.num == 1:	# Left mouse button clicked
 				if self.current_mode == Mode.segment and self.current_segment_submode == Segment_SubMode.edit:
+
+					# logging.debug("Los objetos proximos son " + str( self.canvas_mapview.viewer.find_closest(canvas_x, canvas_y) ) )
+					logging.debug("Los objetos encima son " + str( self.canvas_mapview.viewer.find_overlapping(canvas_x-10, canvas_y-10, canvas_x+10, canvas_y+10) ) )
+					# canvas_object_found = self.canvas_mapview.viewer.find_closest(canvas_x, canvas_y)[0]
+					canvas_object_found_list = self.canvas_mapview.viewer.find_overlapping(canvas_x-10, canvas_y-10, canvas_x+10, canvas_y+10)
+					# logging.debug("Encontrado objeto con identificador " + str( canvas_object_found ) + " en el lienzo" )
 					segment_found = None
-					canvas_object_found = self.canvas_mapview.viewer.find_closest(canvas_x, canvas_y)[0]
-					logging.debug("Encontrado objeto con identificador " + str( canvas_object_found ) + " en el lienzo" )
-					if canvas_object_found in self.canvas_mapview.segment_lines_dict:
-						segment_found = self.canvas_mapview.segment_lines_dict.get(canvas_object_found)
-						logging.debug("Encontrado segmento " + str( segment_found ) )
-					elif canvas_object_found in self.canvas_mapview.segment_num_texts_dict:
-						segment_found = self.canvas_mapview.segment_num_texts_dict.get(canvas_object_found)
-						logging.debug("Encontrado texto numero segmento " + str( segment_found ) )
-					else:
-						segment_found = None	# We found something that was not a line segment
-						logging.debug("No se ha encontrado nada.")
+					for canvas_object_found in canvas_object_found_list:
+						if canvas_object_found in self.canvas_mapview.segment_lines_dict:
+							segment_found = self.canvas_mapview.segment_lines_dict.get(canvas_object_found)
+							logging.debug("Encontrado segmento " + str( segment_found ) )
+							break
+						elif canvas_object_found in self.canvas_mapview.segment_num_texts_dict:
+							segment_found = self.canvas_mapview.segment_num_texts_dict.get(canvas_object_found)
+							logging.debug("Encontrado texto numero segmento " + str( segment_found ) )
+							break
+						else:
+							# We found something that was not a line segment
+							continue 
+					
 					if segment_found is not None:
 						self.canvas_mapview.UnHighlight_Segments()
 						self.canvas_mapview.Highlight_Segments( [ segment_found ] )		# Type cast into list
 						self.Update_Selected_Segment_Properties( segment_found )
+					else:
+						logging.debug("No se ha encontrado ningun segmento.")
+						self.UnSelect_Segment()
+						self.canvas_mapview.UnHighlight_Segments()
+
 				# elif bla bla bla, other modes
 				# elif bla bla bla, other modes
 			if event.num == 2:	# Middle mouse button clicked
@@ -601,6 +614,9 @@ class RC_editor_GUI():
 			self.mapa_cargado.LoadFile( open_map_filename )
 			self.loaded_map_filename = open_map_filename
 			# aqui faltan muchas cosas mas ....
+
+			# Load map images
+			self.canvas_mapview.Load_Images( self.mapa_cargado, self.preferences )
 			logging.debug( "Representando mapa en editor... " )
 			self.canvas_mapview.DrawAll( self.mapa_cargado )
 
@@ -612,6 +628,9 @@ class RC_editor_GUI():
 		#elif isinstance( chosen_new_game_path, tuple ):
 			# Note: when <type 'tuple'> # File selected, Cancel clicked
 			# Note: when <type 'tuple'> # Multiple files selected, OK clicked
+
+
+			
 
 
 	def CloseMapButton(self):
@@ -722,3 +741,21 @@ class RC_editor_GUI():
 			logging.debug( "Funcion Apply_Selected_Segment_Changes llamada, pero en el modo incorrecto. No se hace nada." )
 
 		
+	def UnSelect_Segment( self ):
+		# When a segment was selected, and we want to deselect it, this function updates the properties frame on the right
+		logging.debug( "Segmento " +  self.property_segm_number.get_value_string() + " deseleccionado." )
+		# Erase number and coords
+		self.property_segm_number.config_entry( state='normal' )	# Note: When entrybox is disabled or readonly, insert and delete are ignored
+		self.property_segm_number.set_value( "" )
+		self.property_segm_number.config_entry( state='readonly' )
+		self.property_segm_start_x.set_value( "" ) 
+		self.property_segm_start_y.set_value( "" )
+		self.property_segm_end_x.set_value( "" ) 
+		self.property_segm_end_y.set_value( "" ) 
+		# Erase segment type
+		self.property_segm_type_variable.set( "" )
+		# Erase segment visibility
+		self.property_segm_invis.deselect()
+
+
+
