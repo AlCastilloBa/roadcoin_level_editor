@@ -14,4 +14,5 @@ Uses python 3 and tkinter for building the user interface. The aim is to get a s
 
 # Current status
 
-Currently under development. Can load and show maps, pan and zoom operational, but editing is still not possible.
+Currently under development. The application can load and show maps, the panning and zooming is operational. Items can be selected and modified. 
+However, practical editing is not possible yet.
