@@ -49,9 +49,35 @@ class Segment_SubMode(Enum):
 
 segment_submode_names = {
 	Segment_SubMode.no_mode		: "Ningun submodo seleccionado",
-	Segment_SubMode.add		: "Submodo añadir",
-	Segment_SubMode.edit		: "Submodo editar",
-	Segment_SubMode.delete		: "Submodo eliminar"
+	Segment_SubMode.add		: "Submodo añadir segmento",
+	Segment_SubMode.edit		: "Submodo editar segmento",
+	Segment_SubMode.delete		: "Submodo eliminar segmento"
+}
+
+class Bumper_SubMode(Enum):
+	no_mode = 0
+	add = 1
+	edit = 2
+	delete = 3
+
+bumper_submode_names = {
+	Bumper_SubMode.no_mode		: "Ningun submodo seleccionado",
+	Bumper_SubMode.add		: "Submodo añadir bumper",
+	Bumper_SubMode.edit		: "Submodo editar bumper",
+	Bumper_SubMode.delete		: "Submodo eliminar bumper"
+}
+
+class RACCZ_SubMode(Enum):
+	no_mode = 0
+	add = 1
+	edit = 2
+	delete = 3
+
+raccz_submode_names = {
+	RACCZ_SubMode.no_mode		: "Ningun submodo seleccionado",
+	RACCZ_SubMode.add		: "Submodo añadir zona aceleracion circular",
+	RACCZ_SubMode.edit		: "Submodo editar zona aceleracion circular",
+	RACCZ_SubMode.delete		: "Submodo eliminar zona aceleracion circular"
 }
 
 ##########################################################################
@@ -60,6 +86,8 @@ class RC_editor_GUI():
 
 	current_mode = Mode.no_mode
 	current_segment_submode = Segment_SubMode.no_mode
+	current_bumper_submode = Bumper_SubMode.no_mode
+	current_raccz_submode = RACCZ_SubMode.no_mode
 	map_loaded = False
 	loaded_map_filename = None
 
@@ -140,8 +168,8 @@ class RC_editor_GUI():
 
 		# Aqui faltan muchas cosas.....
 		logging.debug( "Inicializando canvas para dibujar el mapa" )
-		# self.canvas_mapview = tk.Canvas( master = self.frame_mapview )				# Without scrollbars
-		self.canvas_mapview = rceditor_mapview.Canvas_WithScrollbars( master = self.frame_mapview )	# With scrollbars
+		# self.canvas_mapview = tk.Canvas( master = self.frame_mapview )						# Without scrollbars
+		self.canvas_mapview = rceditor_mapview.Canvas_WithScrollbars( master = self.frame_mapview, owner_object=self )	# With scrollbars
 		self.canvas_mapview.pack(fill=tk.BOTH , expand=True )
 
 
@@ -183,16 +211,16 @@ class RC_editor_GUI():
 		self.button_segm6 = tk.Button( master = self.frame_left_toolbar, text="Segm6", width=6, command = do_nothing)
 		self.buttons_segm_list = [ self.button_new_segm, self.button_edit_segm, self.button_del_segm, self.button_segm4, self.button_segm5, self.button_segm6 ]
 		# Bumpers mode buttons
-		self.button_bump1 = tk.Button( master = self.frame_left_toolbar, text="Bump1", width=6, command = do_nothing)
-		self.button_bump2 = tk.Button( master = self.frame_left_toolbar, text="Bump2", width=6, command = do_nothing)
-		self.button_bump3 = tk.Button( master = self.frame_left_toolbar, text="Bump3", width=6, command = do_nothing)
-		self.buttons_bump_list = [ self.button_bump1, self.button_bump2, self.button_bump3 ]
+		self.button_new_bumper = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.add))
+		self.button_edit_bumper = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.edit ) )
+		self.button_del_bumper = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.delete ) )
+		self.buttons_bump_list = [ self.button_new_bumper, self.button_edit_bumper, self.button_del_bumper ]
 		# RACCZ mode buttons
-		self.button_raccz1 = tk.Button( master = self.frame_left_toolbar, text="Raccz1", width=6, command = do_nothing)
-		self.button_raccz2 = tk.Button( master = self.frame_left_toolbar, text="Raccz2", width=6, command = do_nothing)
-		self.button_raccz3 = tk.Button( master = self.frame_left_toolbar, text="Raccz3", width=6, command = do_nothing)
+		self.button_new_raccz = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_raccz_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_RACCZSubMode, RACCZ_SubMode.add))
+		self.button_edit_raccz = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_raccz_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_RACCZSubMode, RACCZ_SubMode.edit ) )
+		self.button_del_raccz = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_raccz_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_RACCZSubMode, RACCZ_SubMode.delete ) )
 		self.button_raccz4 = tk.Button( master = self.frame_left_toolbar, text="Raccz4", width=6, command = do_nothing)
-		self.buttons_raccz_list = [ self.button_raccz1, self.button_raccz2, self.button_raccz3, self.button_raccz4 ]
+		self.buttons_raccz_list = [ self.button_new_raccz, self.button_edit_raccz, self.button_del_raccz, self.button_raccz4 ]
 
 
 		logging.debug( "Creando widgets del panel de propiedades para cada modo " )
@@ -394,6 +422,57 @@ class RC_editor_GUI():
 				self.button_del_segm.configure( bg = "green" )
 
 
+	def Reconf_UI_To_BumperSubMode(self, new_bumper_submode):
+		# Restore colors of old mode button
+		if self.current_bumper_submode == Bumper_SubMode.add:
+			self.button_new_bumper.configure( bg = self.orig_button_bg_color )
+		elif self.current_bumper_submode == Bumper_SubMode.edit:
+			self.button_edit_bumper.configure( bg = self.orig_button_bg_color )
+		elif self.current_bumper_submode == Bumper_SubMode.delete:
+			self.button_del_bumper.configure( bg = self.orig_button_bg_color )
+
+		if new_bumper_submode == self.current_bumper_submode:
+			logging.debug( "Ningun submodo bumper seleccionado")
+			
+			self.current_bumper_submode = Bumper_SubMode.no_mode
+			return
+		else:
+			logging.debug( "Activando submodo bumper " + bumper_submode_names.get(new_bumper_submode) )
+			self.current_bumper_submode = new_bumper_submode
+			# Draw color of new mode button
+			if new_bumper_submode == Bumper_SubMode.add:
+				self.button_new_bumper.configure( bg = "green" )
+			elif new_bumper_submode == Bumper_SubMode.edit:
+				self.button_edit_bumper.configure( bg = "green" )
+			elif new_bumper_submode == Bumper_SubMode.delete:
+				self.button_del_bumper.configure( bg = "green" )
+
+
+	def Reconf_UI_To_RACCZSubMode(self, new_raccz_submode):
+		# Restore colors of old mode button
+		if self.current_raccz_submode == RACCZ_SubMode.add:
+			self.button_new_raccz.configure( bg = self.orig_button_bg_color )
+		elif self.current_raccz_submode == RACCZ_SubMode.edit:
+			self.button_edit_raccz.configure( bg = self.orig_button_bg_color )
+		elif self.current_raccz_submode == RACCZ_SubMode.delete:
+			self.button_del_raccz.configure( bg = self.orig_button_bg_color )
+
+		if new_raccz_submode == self.current_raccz_submode:
+			logging.debug( "Ningun submodo de zona de aceleracion circular seleccionado")
+			
+			self.current_raccz_submode = RACCZ_SubMode.no_mode
+			return
+		else:
+			logging.debug( "Activando submodo bumper " + raccz_submode_names.get(new_raccz_submode) )
+			self.current_raccz_submode = new_raccz_submode
+			# Draw color of new mode button
+			if new_raccz_submode == RACCZ_SubMode.add:
+				self.button_new_raccz.configure( bg = "green" )
+			elif new_raccz_submode == RACCZ_SubMode.edit:
+				self.button_edit_raccz.configure( bg = "green" )
+			elif new_raccz_submode == RACCZ_SubMode.delete:
+				self.button_del_raccz.configure( bg = "green" )
+
 
 
 	def EnableMenuItems_MapLoaded( self ):
@@ -429,6 +508,14 @@ class RC_editor_GUI():
 		self.img_new_segm_icon = ImageTk.PhotoImage(Image.open("icons/new_segm-16.png"))
 		self.img_edit_segm_icon = ImageTk.PhotoImage(Image.open("icons/edit_segm-16.png"))
 		self.img_del_segm_icon = ImageTk.PhotoImage(Image.open("icons/del_segm-16.png"))
+
+		self.img_new_raccz_icon = ImageTk.PhotoImage(Image.open("icons/new_raccz-16.png"))
+		self.img_edit_raccz_icon = ImageTk.PhotoImage(Image.open("icons/edit_raccz-16.png"))
+		self.img_del_raccz_icon = ImageTk.PhotoImage(Image.open("icons/del_raccz-16.png"))
+
+		self.img_new_bumper_icon = ImageTk.PhotoImage(Image.open("icons/new_bumper-16.png"))
+		self.img_edit_bumper_icon = ImageTk.PhotoImage(Image.open("icons/edit_bumper-16.png"))
+		self.img_del_bumper_icon = ImageTk.PhotoImage(Image.open("icons/del_bumper-16.png"))
 
 	def Set_UI_Event_Handlers(self):
 		# self.canvas_mapview.bind('<Motion>', self.mapview_mouse_motion_event_handler )			# For canvas without scrollbars
