@@ -140,6 +140,13 @@ class Canvas_WithScrollbars(tk.Frame):
 		self.DrawAllRACCZNumbers( Map )
 
 
+	def UnHighlight_All( self ):
+		logging.debug( "Procediendo a deseleccionar todo" )
+		self.UnHighlight_Segments()
+		self.UnHighlight_Bumpers()
+		self.UnHighlight_RACCZ()
+
+
 	def GoTo_Origin( self ):
 		self.viewer.xview(tk.MOVETO, 0)
 		self.viewer.yview(tk.MOVETO, 0)
@@ -385,11 +392,11 @@ class Canvas_WithScrollbars(tk.Frame):
 				# Inverse lookup in dictionary to get canvas polygons, lines and text references
 				# Note: this could be slow !!
 				polygon_ref = next( polygon_ref for polygon_ref, value in self.raccz_dict.items() if value == raccz )
-				circle_ref = next( circle_ref for circle_ref, value in self.raccz_circles_dict() if value == raccz )
+				circle_ref = next( circle_ref for circle_ref, value in self.raccz_circles_dict.items() if value == raccz )
 				text_ref = next( text_ref for text_ref, value in self.raccz_num_texts_dict.items() if value == raccz )
 				logging.debug( "Marcando zona de aceleración circular " + str(raccz) + " con referencia de poligono " + str(polygon_ref) )
 				#self.viewer.itemconfig( line_ref, fill="red")
-				self.viewer.itemconfig( line_ref, width=3)
+				self.viewer.itemconfig( polygon_ref, width=3)
 				logging.debug( "Marcando zona de aceleración circular " + str(raccz) + " con referencia de circulo " + str(circle_ref) )
 				#self.viewer.itemconfig( circle_ref, fill="red")
 				self.viewer.itemconfig( circle_ref, width=3)
@@ -405,7 +412,7 @@ class Canvas_WithScrollbars(tk.Frame):
 				# Inverse lookup in dictionary to get canvas polygons, circles and text references
 				# Note: this could be slow !!
 				polygon_ref = next( polygon_ref for polygon_ref, value in self.raccz_dict.items() if value == raccz )
-				circle_ref = next( circle_ref for circle_ref, value in self.raccz_circles_dict() if value == raccz )
+				circle_ref = next( circle_ref for circle_ref, value in self.raccz_circles_dict.items() if value == raccz )
 				text_ref = next( text_ref for text_ref, value in self.raccz_num_texts_dict.items() if value == raccz )
 				# Delete old line and text from canvas
 				self.viewer.delete( polygon_ref )

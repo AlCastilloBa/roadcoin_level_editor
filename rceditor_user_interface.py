@@ -260,15 +260,31 @@ class RC_editor_GUI():
 		self.property_segm_apply = tk.Button( master = self.frame_properties, text="Forzar aplicar cambios", command = self.Apply_Selected_Segment_Changes)
 		self.properties_segm_list = [ self.property_segm_number, self.property_segm_start_label, self.property_segm_start_x, self.property_segm_start_y, self.property_segm_end_label, self.property_segm_end_x, self.property_segm_end_y, self.property_segm_type_label, self.property_segm_type, self.property_segm_type, self.property_segm_invis, self.property_segm_apply ]
 		# Bumpers mode properties widgets
-		self.property_bump1 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="bump 1", callback=do_nothing )
-		self.property_bump2 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="bump 2", callback=do_nothing )
-		self.property_bump3 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="bump 3", callback=do_nothing )
-		self.properties_bump_list = [ self.property_bump1, self.property_bump2, self.property_bump3 ]
+		self.property_bumper_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero bumper:", callback=do_nothing, state='readonly' )
+		self.property_bumper_center_label = tk.Label(master=self.frame_properties,text="Centro:")
+		self.property_bumper_center_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", callback=do_nothing )
+		self.property_bumper_center_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", callback=do_nothing )
+		self.property_bumper_radius_label = tk.Label(master=self.frame_properties,text="Radio:")
+		self.property_bumper_radius = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Radio:", callback=do_nothing )
+		self.property_bumper_speed_label = tk.Label(master=self.frame_properties, text="Velocidad de salida:")
+		self.property_bumper_speed = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="V salida:", callback=do_nothing )
+		self.property_bumper_apply = tk.Button( master = self.frame_properties, text="Forzar aplicar cambios", command = self.Apply_Selected_Bumper_Changes)
+		self.properties_bump_list = [ self.property_bumper_number, self.property_bumper_center_label, self.property_bumper_center_x, self.property_bumper_center_y, self.property_bumper_radius_label, self.property_bumper_radius, self.property_bumper_speed_label, self.property_bumper_speed, self.property_bumper_apply ]
 		# RACCZ mode properties widgets
-		self.property_raccz1 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="raccz 1", callback=do_nothing )
-		self.property_raccz2 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="raccz 2", callback=do_nothing )
-		self.property_raccz3 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="raccz 3", callback=do_nothing )
-		self.properties_raccz_list = [ self.property_raccz1, self.property_raccz2, self.property_raccz3 ]
+		self.property_raccz_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero bumper:", callback=do_nothing, state='readonly' )
+		self.property_raccz_center_label = tk.Label(master=self.frame_properties,text="Centro:")
+		self.property_raccz_center_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", callback=do_nothing )
+		self.property_raccz_center_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", callback=do_nothing )
+		self.property_raccz_radius_label = tk.Label(master=self.frame_properties,text="Radio:")
+		self.property_raccz_radius = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Radio:", callback=do_nothing )
+		self.property_raccz_angle_label = tk.Label(master=self.frame_properties,text="Angulo:")
+		self.property_raccz_angle = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Angulo:", callback=do_nothing )
+		self.property_raccz_accel_label = tk.Label(master=self.frame_properties, text="Aceleracion:")
+		self.property_raccz_accel = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Aceleracion:", callback=do_nothing )
+		self.property_raccz_invis_variable = tk.BooleanVar()
+		self.property_raccz_invis = tk.Checkbutton(master=self.frame_properties, text="Invisible", var=self.property_raccz_invis_variable )
+		self.property_raccz_apply = tk.Button( master = self.frame_properties, text="Forzar aplicar cambios", command = self.Apply_Selected_RACCZ_Changes)
+		self.properties_raccz_list = [ self.property_raccz_number, self.property_raccz_center_label, self.property_raccz_center_x, self.property_raccz_center_y, self.property_raccz_radius_label, self.property_raccz_radius, self.property_raccz_angle_label, self.property_raccz_angle, self.property_raccz_accel_label, self.property_raccz_accel, self.property_raccz_apply ]
 
 
 		self.map_loaded = False
@@ -292,6 +308,8 @@ class RC_editor_GUI():
 		self.Pack_Properties( new_mode )
 		self.ChangeModeUpperToolbar( new_mode )
 		self.current_mode = new_mode
+		# Unselect everything (segments, bumpers, raccz, etc) when mode changes
+		self.Unselect_All()
 
 
 	def UnPack_LeftToolbar_Buttons(self, old_mode):
@@ -612,7 +630,6 @@ class RC_editor_GUI():
 			logging.debug("Pulsado boton " + str( event.num ) + " en x=" + str(map_x) + ", y=" + str(map_y) +", modo = " + mode_names.get( self.current_mode ) )
 			if event.num == 1:	# Left mouse button clicked
 				if self.current_mode == Mode.segment and self.current_segment_submode == Segment_SubMode.edit:
-
 					# logging.debug("Los objetos proximos son " + str( self.canvas_mapview.viewer.find_closest(canvas_x, canvas_y) ) )
 					logging.debug("Los objetos encima son " + str( self.canvas_mapview.viewer.find_overlapping(canvas_x-10, canvas_y-10, canvas_x+10, canvas_y+10) ) )
 					# canvas_object_found = self.canvas_mapview.viewer.find_closest(canvas_x, canvas_y)[0]
@@ -641,6 +658,61 @@ class RC_editor_GUI():
 						self.UnSelect_Segment()
 						self.canvas_mapview.UnHighlight_Segments()
 
+				if self.current_mode == Mode.bumper and self.current_bumper_submode == Bumper_SubMode.edit:
+					logging.debug("Los objetos encima son " + str( self.canvas_mapview.viewer.find_overlapping(canvas_x-10, canvas_y-10, canvas_x+10, canvas_y+10) ) )
+					canvas_object_found_list = self.canvas_mapview.viewer.find_overlapping(canvas_x-10, canvas_y-10, canvas_x+10, canvas_y+10)
+					bumper_found = None
+					for canvas_object_found in canvas_object_found_list:
+						if canvas_object_found in self.canvas_mapview.bumpers_dict:
+							bumper_found = self.canvas_mapview.bumpers_dict.get(canvas_object_found)
+							logging.debug("Encontrado bumper " + str( bumper_found ) )
+							break
+						elif canvas_object_found in self.canvas_mapview.bumpers_num_texts_dict:
+							bumper_found = self.canvas_mapview.bumpers_num_texts_dict.get(canvas_object_found)
+							logging.debug("Encontrado texto numero bumper " + str( bumper_found ) )
+							break
+						else:
+							# We found something that was not a bumper
+							continue 
+					
+					if bumper_found is not None:
+						self.canvas_mapview.UnHighlight_Bumpers()
+						self.canvas_mapview.Highlight_Bumpers( [ bumper_found ] )		# Type cast into list
+						self.Update_Selected_Bumper_Properties( bumper_found )
+					else:
+						logging.debug("No se ha encontrado ningun bumper.")
+						self.UnSelect_Bumper()
+						self.canvas_mapview.UnHighlight_Bumpers()
+
+				if self.current_mode == Mode.round_accel_zone and self.current_raccz_submode == RACCZ_SubMode.edit:
+					logging.debug("Los objetos encima son " + str( self.canvas_mapview.viewer.find_overlapping(canvas_x-10, canvas_y-10, canvas_x+10, canvas_y+10) ) )
+					canvas_object_found_list = self.canvas_mapview.viewer.find_overlapping(canvas_x-10, canvas_y-10, canvas_x+10, canvas_y+10)
+					raccz_found = None
+					for canvas_object_found in canvas_object_found_list:
+						if canvas_object_found in self.canvas_mapview.raccz_dict:
+							raccz_found = self.canvas_mapview.raccz_dict.get(canvas_object_found)
+							logging.debug("Encontrado poligono de zona de aceleracion circular " + str( raccz_found ) )
+							break
+						if canvas_object_found in self.canvas_mapview.raccz_circles_dict:
+							raccz_found = self.canvas_mapview.raccz_circles_dict.get(canvas_object_found)
+							logging.debug("Encontrado circulo de zona de aceleracion circular " + str( raccz_found ) )
+							break
+						elif canvas_object_found in self.canvas_mapview.raccz_num_texts_dict:
+							raccz_found = self.canvas_mapview.raccz_num_texts_dict.get(canvas_object_found)
+							logging.debug("Encontrado texto numero zona de aceleracion circular " + str( raccz_found ) )
+							break
+						else:
+							# We found something that was not a round acceleration zone
+							continue 
+					
+					if raccz_found is not None:
+						self.canvas_mapview.UnHighlight_RACCZ()
+						self.canvas_mapview.Highlight_RACCZ( [ raccz_found ] )		# Type cast into list
+						self.Update_Selected_RACCZ_Properties( raccz_found )
+					else:
+						logging.debug("No se ha encontrado ninguna zona de aceleracion circular.")
+						self.UnSelect_RACCZ()
+						self.canvas_mapview.UnHighlight_RACCZ()
 				# elif bla bla bla, other modes
 				# elif bla bla bla, other modes
 			if event.num == 2:	# Middle mouse button clicked
@@ -769,6 +841,13 @@ class RC_editor_GUI():
 		logging.debug("Nivel de zoom = " + str(self.canvas_mapview.zoomlevel) + " (ajustado)" )
 
 
+	def Unselect_All( self ):
+		self.UnSelect_Segment()
+		self.UnSelect_Bumper()
+		self.UnSelect_RACCZ()
+		self.canvas_mapview.UnHighlight_All()
+
+
 
 	def Update_Selected_Segment_Properties( self, segm_number ):
 		# When a segment is selected, this function updates the properties frame on the right
@@ -844,5 +923,140 @@ class RC_editor_GUI():
 		# Erase segment visibility
 		self.property_segm_invis.deselect()
 
+
+	def Update_Selected_Bumper_Properties( self, bumper_number ):
+		# When a pinball bumper is selected, this function updates the properties frame on the right
+		# Write number and coords
+		self.property_bumper_number.config_entry( state='normal' )	# Note: When entrybox is disabled or readonly, insert and delete are ignored
+		self.property_bumper_number.set_value( bumper_number )
+		self.property_bumper_number.config_entry( state='readonly' )
+		self.property_bumper_center_x.set_value(  self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).center.x  ) 
+		self.property_bumper_center_y.set_value(  self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).center.y  )
+		# Write radius
+		self.property_bumper_radius.set_value(  self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).radius  ) 
+		# Write exit speed
+		self.property_bumper_speed.set_value(  self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).exit_speed  ) 
+
+
+	def Apply_Selected_Bumper_Changes( self ):
+		# When a pinball bumper is selected, and some values are changed in the properties frame, this function applies the changes to the "pinball bumper dictionary"
+		# Only to be taken into account in the bumper edit mode
+		if self.current_mode == Mode.bumper and self.current_bumper_submode == Bumper_SubMode.edit:
+			logging.debug( "Funcion Apply_Selected_Bumper_Changes llamada, se intentan aplicar los cambios al diccionario." )
+			try:
+				# Read selected bumper
+				bumper_number = int( self.property_bumper_number.get_value_string() )
+				# Get bumper coordinates
+				self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).center.x = float( self.property_bumper_center_x.get_value_string() )
+				self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).center.y = float( self.property_bumper_center_y.get_value_string() )
+				# Get bumper radius
+				self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).radius = float( self.property_bumper_radius.get_value_string() )
+				# Get bumper exit speed
+				self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).exit_speed = float( self.property_bumper_speed.get_value_string() )
+				# Update canvas display
+				self.canvas_mapview.Update_Bumpers_Display( [bumper_number], self.mapa_cargado )
+				self.canvas_mapview.Highlight_Bumpers( [bumper_number] )		# Type cast into list. After update, we need to highlight again
+				self.Update_Selected_Bumper_Properties( bumper_number )
+				logging.debug( "Modificaciones bumper leidas: bumper_num = " + str(bumper_number) + \
+						", centro: x= " + str(self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).center.x) + \
+						", y= " + str( self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).center.y ) + \
+						", radio= " + str(self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).radius) + \
+						", vel_salida= " + str( self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).exit_speed) )
+			except Exception as e:
+				logging.exception(e)
+				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+		else:
+			logging.debug( "Funcion Apply_Selected_Bumper_Changes llamada, pero en el modo incorrecto. No se hace nada." )
+
+
+	def UnSelect_Bumper( self ):
+		# When a bumper was selected, and we want to deselect it, this function updates the properties frame on the right
+		logging.debug( "Bumper " +  self.property_bumper_number.get_value_string() + " deseleccionado." )
+		# Erase number and coords
+		self.property_bumper_number.config_entry( state='normal' )	# Note: When entrybox is disabled or readonly, insert and delete are ignored
+		self.property_bumper_number.set_value( "" )
+		self.property_bumper_number.config_entry( state='readonly' )
+		self.property_bumper_center_x.set_value( "" ) 
+		self.property_bumper_center_y.set_value( "" )
+		self.property_bumper_radius.set_value( "" ) 
+		self.property_bumper_speed.set_value( "" ) 
+
+
+
+	def Update_Selected_RACCZ_Properties( self, raccz_number ):
+		# When a raccz is selected, this function updates the properties frame on the right
+		# Write number and coords
+		self.property_raccz_number.config_entry( state='normal' )	# Note: When entrybox is disabled or readonly, insert and delete are ignored
+		self.property_raccz_number.set_value( raccz_number )
+		self.property_raccz_number.config_entry( state='readonly' )
+		self.property_raccz_center_x.set_value(  self.mapa_cargado.dict_round_acel_zones.get(raccz_number).center.x  ) 
+		self.property_raccz_center_y.set_value(  self.mapa_cargado.dict_round_acel_zones.get(raccz_number).center.y  )
+		# Write radius
+		self.property_raccz_radius.set_value(  self.mapa_cargado.dict_round_acel_zones.get(raccz_number).radius  ) 
+		# Write angle
+		self.property_raccz_angle.set_value(  self.mapa_cargado.dict_round_acel_zones.get(raccz_number).angle  ) 
+		# Write acceleration
+		self.property_raccz_accel.set_value(  self.mapa_cargado.dict_round_acel_zones.get(raccz_number).acceleration  ) 
+		# Write segment visibility
+		if self.mapa_cargado.dict_round_acel_zones.get(raccz_number).invisible == True:
+			self.property_raccz_invis.select()
+		else:
+			self.property_raccz_invis.deselect()
+
+
+	def Apply_Selected_RACCZ_Changes( self ):
+		# When a raccz is selected, and some values are changed in the properties frame, this function applies the changes to the "raccz dictionary"
+		# Only to be taken into account in the raccz edit mode
+		if self.current_mode == Mode.round_accel_zone and self.current_raccz_submode == RACCZ_SubMode.edit:
+			logging.debug( "Funcion Apply_Selected_RACCZ_Changes llamada, se intentan aplicar los cambios al diccionario." )
+			try:
+				# Read selected raccz
+				raccz_number = int( self.property_raccz_number.get_value_string() )
+				# Get raccz coordinates
+				self.mapa_cargado.dict_round_acel_zones.get(raccz_number).center.x = float( self.property_raccz_center_x.get_value_string() )
+				self.mapa_cargado.dict_round_acel_zones.get(raccz_number).center.y = float( self.property_raccz_center_y.get_value_string() )
+				# Get radius
+				self.mapa_cargado.dict_round_acel_zones.get(raccz_number).radius = float( self.property_raccz_radius.get_value_string() )
+				# Get angle coordinates
+				self.mapa_cargado.dict_round_acel_zones.get(raccz_number).angle = float( self.property_raccz_angle.get_value_string() )
+				# Get accel
+				self.mapa_cargado.dict_round_acel_zones.get(raccz_number).acceleration = float( self.property_raccz_accel.get_value_string() )
+				# Get raccz visibility
+				self.mapa_cargado.dict_round_acel_zones.get(raccz_number).invisible = self.property_raccz_invis_variable.get()  
+				# Update canvas display
+				self.canvas_mapview.Update_RACCZ_Display( [raccz_number], self.mapa_cargado )
+				self.canvas_mapview.Highlight_RACCZ( [raccz_number] )		# Type cast into list. After update, we need to highlight again
+				self.Update_Selected_RACCZ_Properties( raccz_number )
+				logging.debug( "Modificaciones zona de aceleracion circular leidas: raccz_num = " + str(raccz_number) + \
+						", centro: x= " + str(self.mapa_cargado.dict_round_acel_zones.get(raccz_number).center.x) + \
+						", y= " + str( self.mapa_cargado.dict_round_acel_zones.get(raccz_number).center.y ) + \
+						", radio= " + str(self.mapa_cargado.dict_round_acel_zones.get(raccz_number).radius) + \
+						", angulo= " + str(self.mapa_cargado.dict_round_acel_zones.get(raccz_number).angle) + \
+						", aceleracion= " + str( self.mapa_cargado.dict_round_acel_zones.get(raccz_number).acceleration) + \
+						". Invisible = " + str( self.mapa_cargado.dict_round_acel_zones.get(raccz_number).invisible ) )
+			except Exception as e:
+				logging.exception(e)
+				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+		else:
+			logging.debug( "Funcion Apply_Selected_RACCZ_Changes llamada, pero en el modo incorrecto. No se hace nada." )
+
+
+	def UnSelect_RACCZ( self ):
+		# When a raccz was selected, and we want to deselect it, this function updates the properties frame on the right
+		logging.debug( "Zona de aceleracion circular " +  self.property_raccz_number.get_value_string() + " deseleccionado." )
+		# Erase number and coords
+		self.property_raccz_number.config_entry( state='normal' )	# Note: When entrybox is disabled or readonly, insert and delete are ignored
+		self.property_raccz_number.set_value( "" )
+		self.property_raccz_number.config_entry( state='readonly' )
+		self.property_raccz_center_x.set_value( "" ) 
+		self.property_raccz_center_y.set_value( "" )
+		# Erase radius
+		self.property_raccz_radius.set_value( "" ) 
+		# Erase angle
+		self.property_raccz_angle.set_value( "" ) 
+		# Erase acceleration
+		self.property_raccz_accel.set_value( "" ) 
+		# Erase segment visibility
+		self.property_raccz_invis.deselect()
 
 
