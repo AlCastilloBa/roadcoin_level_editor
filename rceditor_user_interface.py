@@ -13,10 +13,18 @@ import rceditor_maps
 import rceditor_mapview
 import rceditor_preferences
 import rceditor_custom_widgets
+import rceditor_tables
 
 
 def do_nothing():
 	x = 0
+
+def isFloat(string):
+    try:
+        float(string)
+        return True
+    except ValueError:
+        return False
 
 
 ##########################################################################
@@ -90,6 +98,7 @@ class RC_editor_GUI():
 	current_raccz_submode = RACCZ_SubMode.no_mode
 	map_loaded = False
 	loaded_map_filename = None
+	segment_table = None
 
 
 	def __init__(self):
@@ -102,6 +111,7 @@ class RC_editor_GUI():
 		self.window_main_editor.title( "RoadCoin Level Editor" )
 		self.window_main_editor.minsize(600, 600)
 		#self.window_main_editor.wm_iconbitmap('icon.ico')
+		self.window_main_editor.protocol("WM_DELETE_WINDOW", self.window_close_button_handler)
 
 		self.Load_UI_Icons()
 		
@@ -206,47 +216,54 @@ class RC_editor_GUI():
 		self.button_new_segm = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_segm_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_SegmentSubMode, Segment_SubMode.add) )
 		self.button_edit_segm = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_segm_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_SegmentSubMode, Segment_SubMode.edit ) )
 		self.button_del_segm = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_segm_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_SegmentSubMode, Segment_SubMode.delete ) )
+		self.button_table_segm = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = self.Toggle_Show_Hide_Table )
 		self.button_segm4 = tk.Button( master = self.frame_left_toolbar, text="Segm4", width=6, command = do_nothing)
 		self.button_segm5 = tk.Button( master = self.frame_left_toolbar, text="Segm5", width=6, command = do_nothing)
 		self.button_segm6 = tk.Button( master = self.frame_left_toolbar, text="Segm6", width=6, command = do_nothing)
-		self.buttons_segm_list = [ self.button_new_segm, self.button_edit_segm, self.button_del_segm, self.button_segm4, self.button_segm5, self.button_segm6 ]
+		self.buttons_segm_list = [ self.button_new_segm, self.button_edit_segm, self.button_del_segm, self.button_table_segm, self.button_segm4, self.button_segm5, self.button_segm6 ]
 		# Bumpers mode buttons
 		self.button_new_bumper = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.add))
 		self.button_edit_bumper = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.edit ) )
 		self.button_del_bumper = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.delete ) )
-		self.buttons_bump_list = [ self.button_new_bumper, self.button_edit_bumper, self.button_del_bumper ]
+		self.button_table_bumper = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = do_nothing )
+		self.buttons_bump_list = [ self.button_new_bumper, self.button_edit_bumper, self.button_del_bumper, self.button_table_bumper ]
 		# RACCZ mode buttons
 		self.button_new_raccz = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_raccz_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_RACCZSubMode, RACCZ_SubMode.add))
 		self.button_edit_raccz = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_raccz_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_RACCZSubMode, RACCZ_SubMode.edit ) )
 		self.button_del_raccz = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_raccz_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_RACCZSubMode, RACCZ_SubMode.delete ) )
+		self.button_table_raccz = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = do_nothing )
 		self.button_raccz4 = tk.Button( master = self.frame_left_toolbar, text="Raccz4", width=6, command = do_nothing)
-		self.buttons_raccz_list = [ self.button_new_raccz, self.button_edit_raccz, self.button_del_raccz, self.button_raccz4 ]
+		self.buttons_raccz_list = [ self.button_new_raccz, self.button_edit_raccz, self.button_del_raccz, self.button_table_raccz, self.button_raccz4 ]
 
 
 		logging.debug( "Creando widgets del panel de propiedades para cada modo " )
+		# Register validation methods
+		Segment_RealNumber_Validation = self.window_main_editor.register(self.Segment_Property_RealNumber_Change_FocusOut_Validation_Callback)
+		Bumper_RealNumber_Validation = self.window_main_editor.register(self.Bumper_Property_RealNumber_Change_FocusOut_Validation_Callback)
+		RACCZ_RealNumber_Validation = self.window_main_editor.register(self.RACCZ_Property_RealNumber_Change_FocusOut_Validation_Callback)
 		# General mode properties widgets
-		self.property_gen1 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Gen 1", callback=do_nothing )
-		self.property_gen2 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Gen 2", callback=do_nothing )
-		self.property_gen3 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Gen 3", callback=do_nothing )
+		self.property_gen1 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Gen 1", validatecommand=do_nothing )
+		self.property_gen2 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Gen 2", validatecommand=do_nothing )
+		self.property_gen3 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Gen 3", validatecommand=do_nothing )
 		self.properties_gen_list = [ self.property_gen1, self.property_gen2, self.property_gen3 ]
 		# Image mode properties widgets
-		self.property_img1 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Image 1", callback=do_nothing )
-		self.property_img2 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Image 2", callback=do_nothing )
-		self.property_img3 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Image 3", callback=do_nothing )
+		self.property_img1 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Image 1", validatecommand=do_nothing )
+		self.property_img2 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Image 2", validatecommand=do_nothing )
+		self.property_img3 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Image 3", validatecommand=do_nothing )
 		self.properties_img_list = [ self.property_img1, self.property_img2, self.property_img3 ]
 		# Rotating background mode properties widgets
-		self.property_rotbg1 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="rotbg 1", callback=do_nothing )
-		self.property_rotbg2 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="rotbg 2", callback=do_nothing )
-		self.property_rotbg3 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="rotbg 3", callback=do_nothing )
+		self.property_rotbg1 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="rotbg 1", validatecommand=do_nothing )
+		self.property_rotbg2 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="rotbg 2", validatecommand=do_nothing )
+		self.property_rotbg3 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="rotbg 3", validatecommand=do_nothing )
 		self.properties_rotbg_list = [ self.property_rotbg1, self.property_rotbg2, self.property_rotbg3 ]
 		# Segment mode properties widgets
-		self.property_segm_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero segmento:", callback=do_nothing, state='readonly' )
+		self.property_segm_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero segmento:", validatecommand=do_nothing, state='readonly' )
 		self.property_segm_start_label = tk.Label(master=self.frame_properties,text="Start:")
-		self.property_segm_start_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", callback=do_nothing )
-		self.property_segm_start_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", callback=do_nothing )
+		self.property_segm_start_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=Segment_RealNumber_Validation )
+		self.property_segm_start_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=Segment_RealNumber_Validation )
 		self.property_segm_end_label = tk.Label(master=self.frame_properties,text="End:")
-		self.property_segm_end_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", callback=do_nothing )
-		self.property_segm_end_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", callback=do_nothing )
+		self.property_segm_end_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=Segment_RealNumber_Validation )
+		self.property_segm_end_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=Segment_RealNumber_Validation )
 		self.property_segm_type_label = tk.Label(master=self.frame_properties, text="Tipo segmento:")
 		self.property_segm_type_variable = tk.StringVar()
 		self.property_segm_type_choices = [ rceditor_maps.Segment_Type_Names.get(rceditor_maps.Segment_Type.wall), \
@@ -260,27 +277,27 @@ class RC_editor_GUI():
 		self.property_segm_apply = tk.Button( master = self.frame_properties, text="Forzar aplicar cambios", command = self.Apply_Selected_Segment_Changes)
 		self.properties_segm_list = [ self.property_segm_number, self.property_segm_start_label, self.property_segm_start_x, self.property_segm_start_y, self.property_segm_end_label, self.property_segm_end_x, self.property_segm_end_y, self.property_segm_type_label, self.property_segm_type, self.property_segm_type, self.property_segm_invis, self.property_segm_apply ]
 		# Bumpers mode properties widgets
-		self.property_bumper_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero bumper:", callback=do_nothing, state='readonly' )
+		self.property_bumper_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero bumper:", validatecommand=do_nothing, state='readonly' )
 		self.property_bumper_center_label = tk.Label(master=self.frame_properties,text="Centro:")
-		self.property_bumper_center_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", callback=do_nothing )
-		self.property_bumper_center_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", callback=do_nothing )
+		self.property_bumper_center_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=Bumper_RealNumber_Validation )
+		self.property_bumper_center_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=Bumper_RealNumber_Validation )
 		self.property_bumper_radius_label = tk.Label(master=self.frame_properties,text="Radio:")
-		self.property_bumper_radius = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Radio:", callback=do_nothing )
+		self.property_bumper_radius = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Radio:", validatecommand=Bumper_RealNumber_Validation )
 		self.property_bumper_speed_label = tk.Label(master=self.frame_properties, text="Velocidad de salida:")
-		self.property_bumper_speed = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="V salida:", callback=do_nothing )
+		self.property_bumper_speed = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="V salida:", validatecommand=Bumper_RealNumber_Validation )
 		self.property_bumper_apply = tk.Button( master = self.frame_properties, text="Forzar aplicar cambios", command = self.Apply_Selected_Bumper_Changes)
 		self.properties_bump_list = [ self.property_bumper_number, self.property_bumper_center_label, self.property_bumper_center_x, self.property_bumper_center_y, self.property_bumper_radius_label, self.property_bumper_radius, self.property_bumper_speed_label, self.property_bumper_speed, self.property_bumper_apply ]
 		# RACCZ mode properties widgets
-		self.property_raccz_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero bumper:", callback=do_nothing, state='readonly' )
+		self.property_raccz_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero bumper:", validatecommand=do_nothing, state='readonly' )
 		self.property_raccz_center_label = tk.Label(master=self.frame_properties,text="Centro:")
-		self.property_raccz_center_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", callback=do_nothing )
-		self.property_raccz_center_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", callback=do_nothing )
+		self.property_raccz_center_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=RACCZ_RealNumber_Validation )
+		self.property_raccz_center_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=RACCZ_RealNumber_Validation )
 		self.property_raccz_radius_label = tk.Label(master=self.frame_properties,text="Radio:")
-		self.property_raccz_radius = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Radio:", callback=do_nothing )
+		self.property_raccz_radius = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Radio:", validatecommand=RACCZ_RealNumber_Validation )
 		self.property_raccz_angle_label = tk.Label(master=self.frame_properties,text="Angulo:")
-		self.property_raccz_angle = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Angulo:", callback=do_nothing )
+		self.property_raccz_angle = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Angulo:", validatecommand=RACCZ_RealNumber_Validation )
 		self.property_raccz_accel_label = tk.Label(master=self.frame_properties, text="Aceleracion:")
-		self.property_raccz_accel = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Aceleracion:", callback=do_nothing )
+		self.property_raccz_accel = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Aceleracion:", validatecommand=RACCZ_RealNumber_Validation )
 		self.property_raccz_invis_variable = tk.BooleanVar()
 		self.property_raccz_invis = tk.Checkbutton(master=self.frame_properties, text="Invisible", var=self.property_raccz_invis_variable )
 		self.property_raccz_apply = tk.Button( master = self.frame_properties, text="Forzar aplicar cambios", command = self.Apply_Selected_RACCZ_Changes)
@@ -535,6 +552,10 @@ class RC_editor_GUI():
 		self.img_edit_bumper_icon = ImageTk.PhotoImage(Image.open("icons/edit_bumper-16.png"))
 		self.img_del_bumper_icon = ImageTk.PhotoImage(Image.open("icons/del_bumper-16.png"))
 
+		self.img_table_icon = ImageTk.PhotoImage(Image.open("icons/table-16.png"))
+
+
+
 	def Set_UI_Event_Handlers(self):
 		# self.canvas_mapview.bind('<Motion>', self.mapview_mouse_motion_event_handler )			# For canvas without scrollbars
 		self.canvas_mapview.viewer.bind('<Motion>', self.mapview_mouse_motion_event_handler )			# For canvas with scrollbars
@@ -750,6 +771,16 @@ class RC_editor_GUI():
 				if event.num == 4:
 					#self.canvas_mapview.zoomlevel += 0.1
 					self.ChangeZoomLevel( zoom_increment= +0.1)
+
+
+	def window_close_button_handler( self ):
+		logging.debug( "Se intenta cerrar la ventana principal.")
+		if self.map_loaded == True:
+			if messagebox.askokcancel("Cerrar programa", "¿Realmente desea cerrar el programa?"):
+				self.window_main_editor.destroy()
+		else:		# no map loaded
+			self.window_main_editor.destroy()
+
 
 	##############################################################################
 
@@ -1058,5 +1089,94 @@ class RC_editor_GUI():
 		self.property_raccz_accel.set_value( "" ) 
 		# Erase segment visibility
 		self.property_raccz_invis.deselect()
+
+
+	def Toggle_Show_Hide_Table( self ):
+		# PROVISIONAL, DEBE SER PROBADO (TODO)
+		if self.map_loaded == True:
+			if self.segment_table is None:		# Segment table is not open (the object does not exist)
+				self.segment_table = rceditor_tables.Segment_Table_Window( master = self.window_main_editor, Map = self.mapa_cargado , owner=self )
+			else:					# Segment table is already open
+				del self.segment_table
+
+
+
+	def Segment_Property_RealNumber_Change_FocusOut_Validation_Callback( self, widget_name, text_before_change, text_after_change ):
+		# This is the validation function called every time an entry widget loses focus (if everything is set up correctly, of course)
+		logging.debug( "Llamada a función Segment_Property_RealNumber_Change_FocusOut_Validation_Callback: Modo = " + mode_names.get( self.current_mode ) + \
+				", widget_name = " + str(widget_name) + ", text_before_change = " + text_before_change\
+				+ ", text_after_change = " + text_after_change )
+		if self.map_loaded == True:
+			if self.current_mode == Mode.segment:
+				if isFloat(text_after_change) == True:
+					logging.debug("El nuevo texto es un numero.")
+					self.Apply_Selected_Segment_Changes()
+					return(True)
+				else:
+					logging.debug("El nuevo texto no es un numero.")
+					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+					return(False)
+			else:
+				logging.debug("Modo incorrecto. No se hace nada.")
+				return(False)	
+		else:
+			logging.debug("Mapa no cargado. No se hace nada")
+			return(False)
+		# Note: This validation function must always return true (validation OK) or false (validation NOT OK)
+		# This only restores the original value in the 'key' validation mode. In the 'focusout' mode, the wrong value persists.
+		# Warning: In case nothing is returned, then this function will never be called again (???) and the program will be broken.
+	
+
+	def Bumper_Property_RealNumber_Change_FocusOut_Validation_Callback( self, widget_name, text_before_change, text_after_change ):
+		# This is the validation function called every time an entry widget loses focus (if everything is set up correctly, of course)
+		logging.debug( "Llamada a función Bumper_Property_RealNumber_Change_FocusOut_Validation_Callback: Modo = " + mode_names.get( self.current_mode ) + \
+				", widget_name = " + str(widget_name) + ", text_before_change = " + text_before_change\
+				+ ", text_after_change = " + text_after_change )
+		if self.map_loaded == True:
+			if self.current_mode == Mode.bumper:
+				if isFloat(text_after_change) == True:
+					logging.debug("El nuevo texto es un numero.")
+					self.Apply_Selected_Bumper_Changes()
+					return(True)
+				else:
+					logging.debug("El nuevo texto no es un numero.")
+					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+					return(False)
+			else:
+				logging.debug("Modo incorrecto. No se hace nada.")
+				return(False)	
+		else:
+			logging.debug("Mapa no cargado. No se hace nada")
+			return(False)
+		# Note: This validation function must always return true (validation OK) or false (validation NOT OK)
+		# This only restores the original value in the 'key' validation mode. In the 'focusout' mode, the wrong value persists.
+		# Warning: In case nothing is returned, then this function will never be called again (???) and the program will be broken.
+
+
+	def RACCZ_Property_RealNumber_Change_FocusOut_Validation_Callback( self, widget_name, text_before_change, text_after_change ):
+		# This is the validation function called every time an entry widget loses focus (if everything is set up correctly, of course)
+		logging.debug( "Llamada a función Bumper_Property_RealNumber_Change_FocusOut_Validation_Callback: Modo = " + mode_names.get( self.current_mode ) + \
+				", widget_name = " + str(widget_name) + ", text_before_change = " + text_before_change\
+				+ ", text_after_change = " + text_after_change )
+		if self.map_loaded == True:
+			if self.current_mode == Mode.round_accel_zone:
+				if isFloat(text_after_change) == True:
+					logging.debug("El nuevo texto es un numero.")
+					self.Apply_Selected_RACCZ_Changes()
+					return(True)
+				else:
+					logging.debug("El nuevo texto no es un numero.")
+					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+					return(False)
+			else:
+				logging.debug("Modo incorrecto. No se hace nada.")
+				return(False)	
+		else:
+			logging.debug("Mapa no cargado. No se hace nada")
+			return(False)
+		# Note: This validation function must always return true (validation OK) or false (validation NOT OK)
+		# This only restores the original value in the 'key' validation mode. In the 'focusout' mode, the wrong value persists.
+		# Warning: In case nothing is returned, then this function will never be called again (???) and the program will be broken.
+
 
 

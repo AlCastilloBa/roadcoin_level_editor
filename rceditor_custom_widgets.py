@@ -66,12 +66,12 @@ class StatusBar_MultiFields(tk.Frame):
 
 class TextBoxWithDescription(tk.Frame):
 
-	def __init__(self, master, description="Descripcion", callback=do_nothing, state='normal'):
+	def __init__(self, master, description="Descripcion", validatecommand=do_nothing, state='normal'):
 		tk.Frame.__init__(self, master )
 		self.columnconfigure( 0 , weight=0, minsize=50)
 		self.columnconfigure( 1 , weight=1, minsize=50)
 		self.label_description = tk.Label(master=self,  text=description)
-		self.entry_value = ttk.Entry(master=self, validate="focusout", validatecommand=callback, state=state )
+		self.entry_value = ttk.Entry(master=self, validate="focusout", validatecommand=(validatecommand, '%W', '%s', '%P' ), state=state )
 		self.label_description.grid(row=0, column=0,  padx=2, pady=2, sticky="nsew" )
 		self.entry_value.grid(row=0, column=1,  padx=2, pady=2, sticky="nsew" )
 
@@ -87,5 +87,9 @@ class TextBoxWithDescription(tk.Frame):
 
 	def config_entry(self, state):
 		self.entry_value.config(state=state)
+
+
+##############################################################################
+
 
 		
