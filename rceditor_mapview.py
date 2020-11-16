@@ -209,6 +209,8 @@ class Canvas_WithScrollbars(tk.Frame):
 				tk.messagebox.showerror(title="Error", message="No se ha podido cargar la imagen del fondo giratorio.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
 			else:
 				logging.debug( "Imagen " + preferences.GamePath + "/" + Map.rotating_background_path + " cargada.")
+		else:	# TODO Prueba 1/11/2020
+			self.rotbg_image = None
 
 	def Draw_RotBG( self, Map ):
 		if self.rotbg_image is not None:	# If the image is loaded
@@ -427,8 +429,11 @@ class Canvas_WithScrollbars(tk.Frame):
 				self.DrawSingleRACCZNumber( Map, raccz )
 
 
+	def Set_Cursor_Arrow( self ):
+		self.viewer.config( cursor="arrow" )
 
-
+	def Set_Cursor_Cross( self ):
+		self.viewer.config( cursor="tcross" )
 
 
 
