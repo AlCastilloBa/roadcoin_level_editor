@@ -39,9 +39,27 @@ class Point():
 	x = None
 	y = None
 
-	def __init__(self, x=0, y=0):
-		self.x = x
-		self.y = y
+#	def __init__(self, x=0, y=0):
+	def __init__(self, x=None, y=None, copy_ref=None):
+		if ( x is not None ) and ( y is not None ) and ( copy_ref is None):
+			self.x = x
+			self.y = y
+		elif ( x is None ) and ( y is None ) and ( copy_ref is not None):
+			# Pseudo copy constructor
+			self.x = copy_ref.x
+			self.y = copy_ref.y
+		elif ( x is None ) and ( y is None ) and ( copy_ref is None):
+			self.x = None
+			self.y = None	
+		else:
+			raise ValueError("Argumentos no validos: se debe especificar el conjunto completo de argumentos (x, y) o bien copy_ref, o bien ninguno.")
+
+	def copy( self, copy_ref ):
+		# Replace coordinates with another point's coordinates
+		self.x = copy_ref.x
+		self.y = copy_ref.y		
+
+
 
 class Segment():
 	start = None # Class Point
@@ -533,9 +551,11 @@ class Map():
 		logging.debug( "Se han encontrado " + str(counter) + " bumpers." )
 		self.pinball_bumpers_number = counter
 
+
 	def DeleteRACCZ( self, raccz_number_to_delete ):
 		logging.debug( "Eliminando zona aceleracion circular " + str( raccz_number_to_delete ) )
 		self.dict_round_acel_zones.pop( raccz_number_to_delete )
+
 
 	def RACCZ_Reenumerate( self ):
 		logging.debug( "Compactando diccionario de zonas de aceleracion circulares" )
@@ -551,6 +571,34 @@ class Map():
 			counter = counter + 1
 		logging.debug( "Se han encontrado " + str(counter) + " zonas de aceleracion circulares." )
 		self.round_accel_zones_number = counter
+
+
+	def FindNearestSegmentPoint( self, point, threshold=None ):
+		Nearest_Point_So_Far = Point( copy_ref=point )
+		Min_Square_Distance_So_Far = 9999999999		# Infinity
+		snap = False
+		if threshold is None:
+			threshold = 999999999		# Infinity
+		else:
+			threshold = threshold**2
+		for current_segm_index, current_segment in self.segment_dict.items():
+			dist_square = (  point.x - current_segment.start.x )**2 + (  point.y - current_segment.start.y )**2
+			if ( dist_square < threshold ):
+				if ( dist_square < Min_Square_Distance_So_Far ):
+					Nearest_Point_So_Far.copy(  current_segment.start )
+					Min_Square_Distance_So_Far = dist_square
+					snap = True
+			dist_square = (  point.x - current_segment.end.x )**2 + (  point.y - current_segment.end.y )**2
+			if ( dist_square < threshold ):
+				if ( dist_square < Min_Square_Distance_So_Far ):
+					Nearest_Point_So_Far.copy(  current_segment.end )
+					Min_Square_Distance_So_Far = dist_square
+					snap = True
+				
+		# return Nearest_Point_So_Far
+		return Nearest_Point_So_Far.x, Nearest_Point_So_Far.y, snap
+
+
 
 
 

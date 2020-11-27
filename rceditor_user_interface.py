@@ -116,7 +116,8 @@ class RC_editor_GUI():
 	map_loaded = False
 	loaded_map_filename = None
 	segment_table = None
-	temp_segment_data_to_create = rceditor_maps.Segment( start=rceditor_maps.Point(None,None), end=rceditor_maps.Point(None,None), segm_type=rceditor_maps.Segment_Type.wall, invisible=False)
+	temp_segment_data_to_create = rceditor_maps.Segment( start=rceditor_maps.Point(0,0), end=rceditor_maps.Point(0,0), segm_type=rceditor_maps.Segment_Type.wall, invisible=False)
+	snap_to_segm_point = False
 
 
 	def __init__(self, debugmode=False ):
@@ -241,10 +242,10 @@ class RC_editor_GUI():
 		self.button_edit_segm = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_segm_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_SegmentSubMode, Segment_SubMode.edit ) )
 		self.button_del_segm = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_segm_icon, compound=tk.LEFT, width=None, state="disabled", command = self.Delete_Selected_Segment )
 		self.button_table_segm = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = self.Toggle_Show_Hide_Table )
-		self.button_segm4 = tk.Button( master = self.frame_left_toolbar, text="Segm4", width=6, command = do_nothing)
+		self.button_snap_point_segm = tk.Button( master = self.frame_left_toolbar, text="Alinear", image=self.img_snap_point_icon, compound=tk.LEFT, width=None, command = self.Toggle_SnapToPoint_Segm_Button )
 		self.button_segm5 = tk.Button( master = self.frame_left_toolbar, text="Segm5", width=6, command = do_nothing)
 		self.button_segm6 = tk.Button( master = self.frame_left_toolbar, text="Segm6", width=6, command = do_nothing)
-		self.buttons_segm_list = [ self.button_new_segm, self.button_edit_segm, self.button_del_segm, self.button_table_segm, self.button_segm4, self.button_segm5, self.button_segm6 ]
+		self.buttons_segm_list = [ self.button_new_segm, self.button_edit_segm, self.button_del_segm, self.button_table_segm, self.button_snap_point_segm, self.button_segm5, self.button_segm6 ]
 		# Bumpers mode buttons
 		self.button_new_bumper = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.add))
 		self.button_edit_bumper = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.edit ) )
@@ -591,6 +592,8 @@ class RC_editor_GUI():
 
 		self.img_table_icon = ImageTk.PhotoImage(Image.open("icons/table-16.png"))
 
+		self.img_snap_point_icon = ImageTk.PhotoImage(Image.open("icons/snap_to_point-16.png"))
+
 
 
 	def Set_UI_Event_Handlers(self):
@@ -611,6 +614,25 @@ class RC_editor_GUI():
 			map_y = int(canvas_y / self.canvas_mapview.zoomlevel)
 			# print('{}, {}'.format(x, y))
 			self.window_statusbar.set_field_2( "%s", "( " + str(map_x) + " , " + str(map_y) + " )" )
+			
+			# (TODO) Test 26/11/2020
+			if self.current_mode == Mode.segment and self.current_segment_submode == Segment_SubMode.add:
+				if ( self.snap_to_segm_point == True ):
+					# Snap to point is selected. We search for a point (segm start or end) near to current mouse position. If found, we use this point coordinates
+					map_x, map_y, snap = self.mapa_cargado.FindNearestSegmentPoint( point=rceditor_maps.Point( x=map_x, y=map_y) , threshold= self.preferences.SnapTo_Threshold )
+					if snap == True:
+						self.canvas_mapview.Show_TargetBox( map_x, map_y )
+					else:
+						self.canvas_mapview.Hide_TargetBox( )
+
+				if ( self.current_segment_add_stage == Segment_Add_Stages.St1_Choose_End ):
+					# We are adding a new line segment. Draw line as preview.
+					self.canvas_mapview.Show_SegmentBeingCreated( self.temp_segment_data_to_create.start.x, self.temp_segment_data_to_create.start.y, map_x, map_y )
+
+
+
+
+
 
 	def bind_mapview_to_mouse_buttons_and_wheel( self, event ):
 		logging.debug("Raton entra en zona de visor de mapa")
@@ -780,12 +802,18 @@ class RC_editor_GUI():
 
 				if self.current_mode == Mode.segment and self.current_segment_submode == Segment_SubMode.add:
 					if ( self.current_segment_add_stage == Segment_Add_Stages.St0_Choose_Start):
+						if ( self.snap_to_segm_point == True ):
+							# Snap to point is selected. We search for a point (segm start or end) near to current mouse position. If found, we use this point coordinates
+							map_x, map_y, snap = self.mapa_cargado.FindNearestSegmentPoint( point=rceditor_maps.Point( x=map_x, y=map_y) , threshold= self.preferences.SnapTo_Threshold )
 						logging.debug( "Seleccionado como punto inicial: x = " + str(map_x) + ", y = " + str(map_y) )
 						self.temp_segment_data_to_create.start.x = map_x
 						self.temp_segment_data_to_create.start.y = map_y
 						self.window_statusbar.set_field_1("%s", "Nuevo segmento: seleccione punto final")
 						self.current_segment_add_stage = Segment_Add_Stages.St1_Choose_End
 					elif ( self.current_segment_add_stage == Segment_Add_Stages.St1_Choose_End):
+						if ( self.snap_to_segm_point == True ):
+							# Snap to point is selected. We search for a point (segm start or end) near to current mouse position. If found, we use this point coordinates
+							map_x, map_y, snap = self.mapa_cargado.FindNearestSegmentPoint( point=rceditor_maps.Point( x=map_x, y=map_y) , threshold= self.preferences.SnapTo_Threshold )
 						logging.debug( "Seleccionado como punto final: x = " + str(map_x) + ", y = " + str(map_y) )
 						self.temp_segment_data_to_create.end.x = map_x
 						self.temp_segment_data_to_create.end.y = map_y
@@ -797,7 +825,8 @@ class RC_editor_GUI():
 									self.temp_segment_data_to_create.segm_type = type_num
 									break	# Exit for
 						else:
-							self.temp_segment_data_to_create.segm_type = rceditor_maps.Segment_Type.wall	# In case nothing is selected, set a default type
+							self.temp_segment_data_to_create.segm_type = rceditor_maps.Segment_Type.wall.value	# In case nothing is selected, set a default type
+						logging.debug( "Nuevo segmento: tipo de segmento " + rceditor_maps.Segment_Type_Names.get( rceditor_maps.Segment_Type(self.temp_segment_data_to_create.segm_type) )  )
 						# We set the "visibility" property that is currently displayed in the properties frame
 						self.temp_segment_data_to_create.invisible = self.property_segm_invis_variable.get() 
 						# Create segment
@@ -815,6 +844,8 @@ class RC_editor_GUI():
 						# Change stage
 						self.window_statusbar.set_field_1("%s", "Nuevo segmento: seleccione punto inicial")
 						self.current_segment_add_stage = Segment_Add_Stages.St0_Choose_Start
+						# We delete the segment preview (26/11/2020)
+						self.canvas_mapview.Hide_SegmentBeingCreated( )
 					else:
 						logging.error( "Error de programacion: etapa actual de añadir segmento tiene un valor no valido " + str(self.current_segment_add_stage) )
 
@@ -1404,3 +1435,20 @@ class RC_editor_GUI():
 			self.canvas_mapview.DrawAll( self.mapa_cargado )
 		else:
 			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
+
+
+	def Toggle_SnapToPoint_Segm_Button( self ):
+		# This function is called every time the SnapToPoint button is pressed
+		if self.current_mode == Mode.segment:
+			if self.snap_to_segm_point == False:
+				logging.debug("Activado modo alineamiento a puntos de segmentos")
+				self.snap_to_segm_point = True
+				self.button_snap_point_segm.configure(bg = "green")
+			else:		# True
+				logging.debug("Desactivado modo alineamiento a puntos de segmentos")
+				self.snap_to_segm_point = False
+				self.button_snap_point_segm.configure(bg = self.orig_button_bg_color )
+		# elif otros modos....
+
+
+

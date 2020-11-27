@@ -24,6 +24,9 @@ class Canvas_WithScrollbars(tk.Frame):
 	rotbg_canvas_object_ref = None	# Rotating background canvas reference
 	rotbg_image = None		# Rotating background image (PIL image object)
 	rotbg_image_resized = None	# Rotating background resized image (PIL Photoimage object)
+	
+	target_box = None		# Reference to canvas line used as target box (25/11/2020)
+	segment_being_created = None	# Reference to canvas line that represents a segment being created
 
 
 	def __init__(self, master, owner_object ):
@@ -436,9 +439,43 @@ class Canvas_WithScrollbars(tk.Frame):
 		self.viewer.config( cursor="tcross" )
 
 
+	def Show_TargetBox( self, x, y ):
+		# This function draws a square in the point designated by x and y (in map coordinates)
+		# It the square is already drawn, it is deleted and drawn again
+		square_half_side = 10
+		if self.target_box is not None:
+			self.viewer.delete( self.target_box )
+			self.target_box = None
+		self.target_box = self.viewer.create_line( 	( x + square_half_side ) * self.zoomlevel, ( y + square_half_side ) * self.zoomlevel, \
+								( x - square_half_side ) * self.zoomlevel, ( y + square_half_side ) * self.zoomlevel, \
+								( x - square_half_side ) * self.zoomlevel, ( y - square_half_side ) * self.zoomlevel, \
+								( x + square_half_side ) * self.zoomlevel, ( y - square_half_side ) * self.zoomlevel, \
+								( x + square_half_side ) * self.zoomlevel, ( y + square_half_side ) * self.zoomlevel, \
+								fill = "orange"     )
+
+	def Hide_TargetBox( self ):
+		# If already shown, the target box is hidden. If already hidden, nothing is done.
+		if self.target_box is not None:
+			self.viewer.delete( self.target_box )
+			self.target_box = None
 
 
+	def Show_SegmentBeingCreated( self, x_start, y_start, x_end, y_end ):
+		# This function draws a line from start to end coordinates
+		# If the line already exists, it is deleted and drawn again
+		if self.segment_being_created is not None:
+			self.viewer.delete( self.segment_being_created )
+			self.segment_being_created = None
+		self.segment_being_created = self.viewer.create_line( 	x_start * self.zoomlevel, y_start * self.zoomlevel, \
+									x_end * self.zoomlevel, y_end * self.zoomlevel, \
+									fill = "purple"     )
 
+
+	def Hide_SegmentBeingCreated( self ):
+		# If already shown, the line is hidden. If already hidden, nothing is done.
+		if self.segment_being_created is not None:
+			self.viewer.delete( self.segment_being_created )
+			self.segment_being_created = None
 
 
 
@@ -511,6 +548,9 @@ class ZoomLevelSelectWindow():
 	def CancelButton( self ):
 		self.ZoomWindow.destroy()
 		del self
+
+
+
 
 
 

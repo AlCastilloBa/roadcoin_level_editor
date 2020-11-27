@@ -5,6 +5,7 @@ from tkinter import ttk		# Textbox
 from PIL import ImageTk, Image		# Pillow
 from tkinter import filedialog
 import logging
+import sys
 
 
 def do_nothing():
@@ -12,7 +13,8 @@ def do_nothing():
 
 
 class Preferences():
-	GamePath = None
+	GamePath = None			# String
+	SnapTo_Threshold = None		# Integer
 	
 	def LoadPreferences( self ):
 		logging.debug( "Leyendo fichero settings" )
@@ -36,6 +38,9 @@ class Preferences():
 			elif line.find("GamePath") != -1:
 				self.GamePath = line.split("=",1)[1].strip()
 				logging.debug( "Encontrado GamePath = " + self.GamePath )
+			elif line.find("SnapTo_Threshold") != -1:
+				self.SnapTo_Threshold = int( line.split("=",1)[1].strip() )
+				logging.debug( "Encontrado SnapTo_Threshold = " + str( self.SnapTo_Threshold ) )
 			####################################################
 			# Add new options at this point
 			####################################################
@@ -51,6 +56,7 @@ class Preferences():
 		logging.debug( "Escribiendo fichero settings (version sobreescribe todo)" )
 		file1 = open( "./settings" , 'w' )
 		file1.write( "GamePath=" + self.GamePath )
+		file1.write( "SnapTo_Threshold=" + self.SnapTo_Threshold )
 		####################################################
 		# Add new options at this point
 		####################################################
@@ -59,6 +65,7 @@ class Preferences():
 
 	def SavePreferences_UpdateExisting( self ):
 		GamePath_Written = False
+		SnapTo_Threshold_Written = False
 		####################################################
 		# Add new options at this point
 		####################################################
@@ -93,6 +100,10 @@ class Preferences():
 				if GamePath_Written == False:
 					file1.write( "GamePath=" + self.GamePath + right_side_remark + "\n")
 					GamePath_Written = True
+			elif line.find("SnapTo_Threshold") != -1:
+				if SnapTo_Threshold_Written == False:
+					file1.write( "SnapTo_Threshold=" + str(self.SnapTo_Threshold) + right_side_remark + "\n")
+					SnapTo_Threshold_Written = True
 			####################################################
 			# Add new options at this point
 			####################################################
@@ -104,6 +115,9 @@ class Preferences():
 		if GamePath_Written == False:
 			file1.write( "GamePath=" + self.GamePath )
 			GamePath_Written = True
+		if SnapTo_Threshold_Written == False:
+			file1.write( "SnapTo_Threshold=" + str(self.SnapTo_Threshold) )
+			SnapTo_Threshold_Written = True
 		####################################################
 		# Add new options at this point
 		####################################################
@@ -134,6 +148,10 @@ class PreferencesWindow():
 		self.textbox_game_path.insert(0, preferences.GamePath)
 		self.button_choose_game_path = tk.Button(master=self.frame_preferences, width=6, image = self.img_folder_icon, command = self.ChooseGamePathButton )
 
+		self.label_SnapTo_Threshold = tk.Label(master=self.frame_preferences,text="Umbral para alin. auto.:")
+		self.textbox_SnapTo_Threshold = ttk.Entry(master=self.frame_preferences, width = 15 )
+		self.textbox_SnapTo_Threshold.insert(0, str(preferences.SnapTo_Threshold))
+
 		self.frame_preferences.columnconfigure( 0, weight=0, minsize=200)
 		self.frame_preferences.columnconfigure( 1, weight=1, minsize=200)
 		self.frame_preferences.columnconfigure( 2, weight=1, minsize=100)
@@ -142,6 +160,9 @@ class PreferencesWindow():
 		self.label_game_path.grid( row=0, column=0,  padx=2, pady=2, sticky="nsew" )
 		self.textbox_game_path.grid( row=0, column=1,  padx=2, pady=2, sticky="nsew" )
 		self.button_choose_game_path.grid( row=0, column=2,  padx=2, pady=2, sticky="nsew" )
+
+		self.label_SnapTo_Threshold.grid( row=1, column=0, padx=2, pady=2, sticky="nsew" )
+		self.textbox_SnapTo_Threshold.grid( row=1, column=1,  padx=2, pady=2, sticky="nsew" )
 
 
 		self.frame_accept_cancel = tk.Frame( master=self.PrefWindow )
@@ -170,13 +191,19 @@ class PreferencesWindow():
 	def UpdatePreferences( self ):
 		logging.debug( "Aplicando cambios en las propiedades" )
 		self.preferences_ref.GamePath = self.textbox_game_path.get()
+		self.preferences_ref.SnapTo_Threshold = int( self.textbox_SnapTo_Threshold.get() )
 
 
 	def AcceptButton( self ):
-		self.UpdatePreferences()
-		#self.preferences_ref.SavePreferences_OverwriteAll()
-		self.preferences_ref.SavePreferences_UpdateExisting()
-		self.PrefWindow.destroy()
+		try:
+			self.UpdatePreferences()
+		except Exception as e:
+			logging.exception(e)
+			tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+		else:
+			#self.preferences_ref.SavePreferences_OverwriteAll()
+			self.preferences_ref.SavePreferences_UpdateExisting()
+			self.PrefWindow.destroy()
 
 	def CancelButton( self ):
 		self.PrefWindow.destroy()

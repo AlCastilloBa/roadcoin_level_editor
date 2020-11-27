@@ -1,3 +1,7 @@
+
+
+# Ruta del juego
+
 GamePath=/home/alberto/src/proyecto_moneda
 
-
+SnapTo_Threshold=20
