@@ -1,0 +1,99 @@
+
+
+[BOOM] En mapas, nuevo método para encontrar el punto (inicio o fin de segmento) más cercano a un punto dado como argumentos.
+[BOOM] En visor de mapas, nuevo metodo para dibujar un cursor en un punto dado como argumento.
+[BOOM] En visor de mapas, nuevo método para dibujar un segmento entre dos puntos dados. A tener en cuenta que si ya existe, actualizar su posición.
+[BOOM] En interfaz de usuario, nuevo boton para seleccionar ajuste a puntos de segmentos existentes.
+	[BOOM] Icono y boton
+	[BOOM] Funcion callback
+[BOOM] En rutina de movimiento de raton, añadir casos de modo añadir segmentos.
+	[BOOM] Dibujar segmento que se está creando.
+	[BOOM] Dibujar punto se snap to.
+[BOOM] Añadir opcion umbral para hacer snap to.
+
+
+[BOOM] En visor de mapas, nuevo método para dibujar un bumper (preview) dado centro y radio. A tener en cuenta que si ya existe, actualizar su posición.
+[BOOM] Añadir las dos etapas de creación de bumpers:
+	[BOOM] Seleccionar punto central.
+	[BOOM] Seleccionar radio (marcar un punto de la circunferencia y calcular radio como distancia al centro).
+[BOOM] En rutina de movimiento de raton, añadir codigo para modo añadir bumpers.
+	[BOOM] Dibujar bumper que se está creando.
+	[BOOM] Dibujar punto de snap to.
+[BOOM] En visor de mapas, nuevo método para dibujar un bumper con unos parametros dados. A tener en cuenta que si ya existe, actualizar su posición.
+[BOOM] En interfaz de usuario, nuevo boton para seleccionar ajuste a puntos de segmentos existentes.
+
+
+[BOOM] Funcion para crear un raccz (en la clase maps).
+[BOOM] En visor de mapas, nuevo método para dibujar un raccz (preview) dado centro, radio y angulo. A tener en cuenta que si ya existe, actualizar su posición.
+	Si no se especifica, angulo, no dibujar la flecha
+[BOOM] Añadir las tres etapas de creación de raccz:
+	[BOOM] Seleccionar punto central.
+	[BOOM] Seleccionar el radio (marcar un punto de la circunferencia y calcular radio como distancia al centro).
+        [BOOM] Seleccionarl el angulo (ver angulo de punto seleccionado con respecto al centro).
+[BOOM] En rutina de movimiento de raton, añadir codigo para modo añadir raccz.
+	[BOOM] Dibujar raccz que se está creando.
+	[BOOM] Dibujar punto de snap to.
+[BOOM] En visor de mapas, nuevo método para dibujar un raccz con unos parametros dados. A tener en cuenta que si ya existe, actualizar su posición.
+
+
+
+
+[    ] Hacer rutina para dibujar tres tiradores. Argumentos, punto donde dibujar, numero de tirador, texto a representar.
+[    ] Añadir codigo para detectar si se está o no cerca de un tirador. Devuelve el numero de tirador (o ninguno, si está lejos de todos).
+[    ] Añadir codigo para marcar un tirador como seleccionado (raton encima de el).
+[    ] Rutina para marcar un tirador como no seleccionado.
+[    ] Programar todos los casos en los callback de eventos:
+	[    ] Dibujar tiradores al seleccionar un segmento.
+	[    ] Marcar tirador como seleccionado cuando el raton esté encima.
+	[    ] Cuando se haga drag (pensar, o clic), dibujar segmento provisional (preview)
+	[    ] Cambiar propiedades segmento al soltar.
+
+
+[    ] Modo editar bumpers. Hacer rutina para dibujar tiradores
+
+
+
+[    ] Depurar imagen fondo giratorio. No tiene en cuenta la posicion (arr, aba, izq, der).
+
+[    ] Editar propiedades de imagen.
+
+
+[    ] Editar propiedades de musica.
+
+
+
+[    ] Ver como poner al día la tabla al modificar en la interfaz principal.
+
+[    ] Ver como poner al dia la interfaz principal al modificar la tabla.
+
+
+
+[    ] Codigo para tabla de bumpers
+
+[    ] Codigo para tabla de raccz
+
+
+
+
+
+[    ] Crear nuevo mapa vacio.
+
+
+
+
+
+[    ] Interfaz guardar como.....
+
+
+[    ] Guardar mapa.
+
+
+
+
+
+
+
+[    ] Ventana de Acerca de este programa..... 
+
+
+
