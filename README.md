@@ -10,9 +10,11 @@ Level editor for [roadcoin game](https://github.com/AlCastilloBa/roadcoin). It w
 
 # Technical details
 
-Uses python 3 and tkinter for building the user interface. The aim is to get a simple and minimal, but functional interface.
+Uses python 3 and Tkinter for building the user interface. The graphical viewer window is created using a Tkinter canvas. The aim is to get a simple and minimal, but functional interface.
 
 # Current status
 
 Currently under development. The application can load and show maps, the panning and zooming is operational. Items can be selected and modified. 
-However, practical editing is not possible yet.
+New items can be added, by pointing and clicking directly on the viewer window.
+
+Possibility to save maps is coming soon.
