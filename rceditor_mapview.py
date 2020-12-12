@@ -14,19 +14,22 @@ def do_nothing():
 
 class Canvas_WithScrollbars(tk.Frame):
 	zoomlevel = 1.0
-	segment_lines_dict = dict()	# Dictionary that links canvas lines and segments
-	segment_num_texts_dict = dict()	# Dictionary that links canvas texts and segments
-	bumpers_dict = dict()		# Dictionary that links canvas circles and bumpers
-	bumpers_num_texts_dict = dict()	# Dictionary that links canvas texts and bumpers
-	raccz_dict = dict()		# Dictionary that links canvas lines and round acceleration zones
-	raccz_circles_dict = dict()	# Dictionary that links canvas circles and round acceleration zones
-	raccz_num_texts_dict = dict()	# Dictionary that links canvas texts and round acceleration zones
-	rotbg_canvas_object_ref = None	# Rotating background canvas reference
-	rotbg_image = None		# Rotating background image (PIL image object)
-	rotbg_image_resized = None	# Rotating background resized image (PIL Photoimage object)
+	segment_lines_dict = dict()		# Dictionary that links canvas lines and segments
+	segment_num_texts_dict = dict()		# Dictionary that links canvas texts and segments
+	bumpers_dict = dict()			# Dictionary that links canvas circles and bumpers
+	bumpers_num_texts_dict = dict()		# Dictionary that links canvas texts and bumpers
+	raccz_dict = dict()			# Dictionary that links canvas lines and round acceleration zones
+	raccz_circles_dict = dict()		# Dictionary that links canvas circles and round acceleration zones
+	raccz_num_texts_dict = dict()		# Dictionary that links canvas texts and round acceleration zones
+	rotbg_canvas_object_ref = None		# Rotating background canvas reference
+	rotbg_image = None			# Rotating background image (PIL image object)
+	rotbg_image_resized = None		# Rotating background resized image (PIL Photoimage object)
 	
-	target_box = None		# Reference to canvas line used as target box (25/11/2020)
-	segment_being_created = None	# Reference to canvas line that represents a segment being created
+	target_box = None			# Reference to canvas line used as target box (25/11/2020)
+	segment_being_created = None		# Reference to canvas line that represents a segment being created
+	pinball_bumper_being_created = None	# Reference to circle that represents a pinball bumper being created
+	raccz_circle_being_created = None	# Reference to circle that represents a raccz being created
+	raccz_arrow_being_created = None	# Reference to polygon that represents the angle of the raccz being created
 
 
 	def __init__(self, master, owner_object ):
@@ -478,6 +481,60 @@ class Canvas_WithScrollbars(tk.Frame):
 			self.segment_being_created = None
 
 
+	def Show_PinballBumperBeingCreated( self, x_center, y_center, radius ):
+		# This funciton draws a circle with center and radius
+		# If the circle already exists, it is deleted and drawn again
+		if self.pinball_bumper_being_created is not None:
+			self.viewer.delete( self.pinball_bumper_being_created )
+			self.pinball_bumper_being_created = None
+		self.pinball_bumper_being_created = self.viewer.create_oval(	( x_center-radius ) * self.zoomlevel, \
+										( y_center-radius ) * self.zoomlevel, \
+										( x_center+radius ) * self.zoomlevel, \
+										( y_center+radius ) * self.zoomlevel, \
+										outline="purple") 	
+
+	def Hide_PinballBumperBeingCreated( self ):
+		# If already shown, the cicle is hidden. If already hidden, nothing is done.
+		if self.pinball_bumper_being_created is not None:
+			self.viewer.delete( self.pinball_bumper_being_created )
+			self.pinball_bumper_being_created = None
+
+
+	def Show_RACCZ_BeingCreated( self,  x_center, y_center, radius, angle ):
+		# This funciton draws a circle with center and radius
+		# If the angle is specified (not None), then an arrow is included
+		# If either the circle or the arrow already exist, they are deleted and drawn again
+		if self.raccz_circle_being_created is not None:
+			self.viewer.delete( self.raccz_circle_being_created )
+			self.raccz_circle_being_created = None
+		if self.raccz_arrow_being_created is not None:
+			self.viewer.delete( self.raccz_arrow_being_created )
+			self.raccz_arrow_being_created = None
+		self.raccz_circle_being_created = self.viewer.create_oval(	( x_center-radius ) * self.zoomlevel, \
+										( y_center-radius ) * self.zoomlevel, \
+										( x_center+radius ) * self.zoomlevel, \
+										( y_center+radius ) * self.zoomlevel, \
+										outline="green") 	
+		if angle is not None:
+			self.raccz_arrow_being_created = self.viewer.create_line( 	(x_center + radius*math.cos(math.radians( angle -90 + 0   ) ) ) * self.zoomlevel, \
+											(y_center + radius*math.sin(math.radians( angle -90 + 0   ) ) ) * self.zoomlevel, \
+											(x_center + radius*math.cos(math.radians( angle -90 + 160 ) ) ) * self.zoomlevel, \
+											(y_center + radius*math.sin(math.radians( angle -90 + 160 ) ) ) * self.zoomlevel, \
+											(x_center + radius*math.cos(math.radians( angle -90 - 160 ) ) ) * self.zoomlevel, \
+											(y_center + radius*math.sin(math.radians( angle -90 - 160 ) ) ) * self.zoomlevel, \
+											(x_center + radius*math.cos(math.radians( angle -90 + 0   ) ) ) * self.zoomlevel, \
+											(y_center + radius*math.sin(math.radians( angle -90 + 0   ) ) ) * self.zoomlevel, \
+											fill = "purple"     )
+
+
+	def Hide_RACCZ_BeingCreated( self ):
+		# If already shown, the cicle or the arrow are hidden. If already hidden, nothing is done.
+		if self.raccz_circle_being_created is not None:
+			self.viewer.delete( self.raccz_circle_being_created )
+			self.raccz_circle_being_created = None
+		if self.raccz_arrow_being_created is not None:
+			self.viewer.delete( self.raccz_arrow_being_created )
+			self.raccz_arrow_being_created = None		
 
 
 

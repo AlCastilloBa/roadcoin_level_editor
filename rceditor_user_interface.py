@@ -5,8 +5,10 @@ from enum import Enum
 from PIL import ImageTk, Image		# Pillow
 from tkinter import filedialog
 from tkinter import messagebox
+from tkinter import simpledialog
 from functools import partial
 import sys
+import math
 
 #import rceditor_UI_operation
 import rceditor_maps
@@ -112,11 +114,13 @@ class RC_editor_GUI():
 	current_bumper_submode = Bumper_SubMode.no_mode
 	current_bumper_add_stage = Bumper_Add_Stages.St0_Choose_Center
 	current_raccz_submode = RACCZ_SubMode.no_mode
-	current_raccz_submode = RACCZ_Add_Stages.St0_Choose_Center
+	current_raccz_add_stage = RACCZ_Add_Stages.St0_Choose_Center
 	map_loaded = False
 	loaded_map_filename = None
 	segment_table = None
-	temp_segment_data_to_create = rceditor_maps.Segment( start=rceditor_maps.Point(0,0), end=rceditor_maps.Point(0,0), segm_type=rceditor_maps.Segment_Type.wall, invisible=False)
+	temp_segment_data_to_create = rceditor_maps.Segment( start=rceditor_maps.Point(0,0), end=rceditor_maps.Point(0,0), segm_type=rceditor_maps.Segment_Type.wall, invisible=False )
+	temp_pinball_bumper_data_to_create = rceditor_maps.Pinball_Bumper( center=rceditor_maps.Point(0,0), radius=0, exit_speed = 0 )
+	temp_raccz_data_to_create = rceditor_maps.Round_Acceleration_Zone( center=rceditor_maps.Point(0,0), radius=0, angle=0, acceleration=0, invisible=False )
 	snap_to_segm_point = False
 
 
@@ -243,22 +247,19 @@ class RC_editor_GUI():
 		self.button_del_segm = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_segm_icon, compound=tk.LEFT, width=None, state="disabled", command = self.Delete_Selected_Segment )
 		self.button_table_segm = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = self.Toggle_Show_Hide_Table )
 		self.button_snap_point_segm = tk.Button( master = self.frame_left_toolbar, text="Alinear", image=self.img_snap_point_icon, compound=tk.LEFT, width=None, command = self.Toggle_SnapToPoint_Segm_Button )
-		self.button_segm5 = tk.Button( master = self.frame_left_toolbar, text="Segm5", width=6, command = do_nothing)
-		self.button_segm6 = tk.Button( master = self.frame_left_toolbar, text="Segm6", width=6, command = do_nothing)
-		self.buttons_segm_list = [ self.button_new_segm, self.button_edit_segm, self.button_del_segm, self.button_table_segm, self.button_snap_point_segm, self.button_segm5, self.button_segm6 ]
+		self.buttons_segm_list = [ self.button_new_segm, self.button_edit_segm, self.button_del_segm, self.button_table_segm, self.button_snap_point_segm ]
 		# Bumpers mode buttons
 		self.button_new_bumper = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.add))
 		self.button_edit_bumper = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.edit ) )
 		self.button_del_bumper = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_bumper_icon, compound=tk.LEFT, width=None, state="disabled", command = self.Delete_Selected_Bumper )
 		self.button_table_bumper = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = do_nothing )
-		self.buttons_bump_list = [ self.button_new_bumper, self.button_edit_bumper, self.button_del_bumper, self.button_table_bumper ]
+		self.buttons_bump_list = [ self.button_new_bumper, self.button_edit_bumper, self.button_del_bumper, self.button_table_bumper, self.button_snap_point_segm ]
 		# RACCZ mode buttons
 		self.button_new_raccz = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_raccz_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_RACCZSubMode, RACCZ_SubMode.add))
 		self.button_edit_raccz = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_raccz_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_RACCZSubMode, RACCZ_SubMode.edit ) )
 		self.button_del_raccz = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_raccz_icon, compound=tk.LEFT, width=None, state="disabled", command = self.Delete_Selected_RACCZ )
 		self.button_table_raccz = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = do_nothing )
-		self.button_raccz4 = tk.Button( master = self.frame_left_toolbar, text="Raccz4", width=6, command = do_nothing)
-		self.buttons_raccz_list = [ self.button_new_raccz, self.button_edit_raccz, self.button_del_raccz, self.button_table_raccz, self.button_raccz4 ]
+		self.buttons_raccz_list = [ self.button_new_raccz, self.button_edit_raccz, self.button_del_raccz, self.button_table_raccz, self.button_snap_point_segm ]
 
 
 		logging.debug( "Creando widgets del panel de propiedades para cada modo " )
@@ -488,6 +489,9 @@ class RC_editor_GUI():
 			# Actions to do regardless of the new mode
 			self.button_del_segm.config(state="disabled")		# Disable erase button (15/11/2020)
 			self.current_segment_add_stage = Segment_Add_Stages.St0_Choose_Start	# Restart "add new segment" sequence
+			self.canvas_mapview.Hide_SegmentBeingCreated( )		# Delete previews of items in process of creation (if any)
+			self.canvas_mapview.Hide_PinballBumperBeingCreated( )
+			self.canvas_mapview.Hide_RACCZ_BeingCreated( )
 
 
 	def Reconf_UI_To_BumperSubMode(self, new_bumper_submode):
@@ -512,12 +516,19 @@ class RC_editor_GUI():
 				self.button_new_bumper.configure( bg = "green" )
 				current_bumper_add_stage = Bumper_Add_Stages.St0_Choose_Center
 				self.window_statusbar.set_field_1("%s", "Nuevo bumper: seleccione punto central")
+				self.canvas_mapview.Set_Cursor_Cross()
 			elif new_bumper_submode == Bumper_SubMode.edit:
 				self.button_edit_bumper.configure( bg = "green" )
 				self.window_statusbar.set_field_1("%s", "Seleccione un bumper")
+				self.canvas_mapview.Set_Cursor_Arrow()
 			#elif new_bumper_submode == Bumper_SubMode.delete:
 			#	self.button_del_bumper.configure( bg = "green" )
-
+			self.button_del_bumper.config(state="disabled")	# Disable erase button (7/12/2020)
+			self.current_bumper_add_stage = Bumper_Add_Stages.St0_Choose_Center	# Restart "add new bumper" sequence
+			self.canvas_mapview.Hide_SegmentBeingCreated( )		# Delete previews of items in process of creation (if any)
+			self.canvas_mapview.Hide_PinballBumperBeingCreated( )
+			self.canvas_mapview.Hide_RACCZ_BeingCreated( )
+ 
 
 	def Reconf_UI_To_RACCZSubMode(self, new_raccz_submode):
 		# Restore colors of old mode button
@@ -539,13 +550,20 @@ class RC_editor_GUI():
 			# Draw color of new mode button
 			if new_raccz_submode == RACCZ_SubMode.add:
 				self.button_new_raccz.configure( bg = "green" )
-				current_raccz_submode = RACCZ_Add_Stages.St0_Choose_Center
+				current_raccz_add_stage = RACCZ_Add_Stages.St0_Choose_Center
 				self.window_statusbar.set_field_1("%s", "Nueva zona acel circular: seleccione punto central")
+				self.canvas_mapview.Set_Cursor_Cross()
 			elif new_raccz_submode == RACCZ_SubMode.edit:
 				self.button_edit_raccz.configure( bg = "green" )
+				self.window_statusbar.set_field_1("%s", "Seleccione una zona de aceleracion circular")
+				self.canvas_mapview.Set_Cursor_Arrow()
 			#elif new_raccz_submode == RACCZ_SubMode.delete:
 			#	self.button_del_raccz.configure( bg = "green" )
-
+			self.button_del_raccz.config(state="disabled")	# Disable erase button (7/12/2020)
+			self.current_raccz_add_stage = RACCZ_Add_Stages.St0_Choose_Center		# Restart "add new raccz" sequence
+			self.canvas_mapview.Hide_SegmentBeingCreated( )		# Delete previews of items in process of creation (if any)
+			self.canvas_mapview.Hide_PinballBumperBeingCreated( )
+			self.canvas_mapview.Hide_RACCZ_BeingCreated( )
 
 
 	def EnableMenuItems_MapLoaded( self ):
@@ -615,7 +633,6 @@ class RC_editor_GUI():
 			# print('{}, {}'.format(x, y))
 			self.window_statusbar.set_field_2( "%s", "( " + str(map_x) + " , " + str(map_y) + " )" )
 			
-			# (TODO) Test 26/11/2020
 			if self.current_mode == Mode.segment and self.current_segment_submode == Segment_SubMode.add:
 				if ( self.snap_to_segm_point == True ):
 					# Snap to point is selected. We search for a point (segm start or end) near to current mouse position. If found, we use this point coordinates
@@ -629,8 +646,41 @@ class RC_editor_GUI():
 					# We are adding a new line segment. Draw line as preview.
 					self.canvas_mapview.Show_SegmentBeingCreated( self.temp_segment_data_to_create.start.x, self.temp_segment_data_to_create.start.y, map_x, map_y )
 
+			if self.current_mode == Mode.bumper and self.current_bumper_submode == Bumper_SubMode.add:
+				if ( self.snap_to_segm_point == True ):
+					# Snap to point is selected. We search for a point (segm start or end) near to current mouse position. If found, we use this point coordinates
+					map_x, map_y, snap = self.mapa_cargado.FindNearestSegmentPoint( point=rceditor_maps.Point( x=map_x, y=map_y) , threshold= self.preferences.SnapTo_Threshold )
+					if snap == True:
+						self.canvas_mapview.Show_TargetBox( map_x, map_y )
+					else:
+						self.canvas_mapview.Hide_TargetBox( )
 
+				if ( self.current_bumper_add_stage == Bumper_Add_Stages.St1_Choose_Radius ):
+					# We are adding a new pinball bumper. Draw circle as preview.
+					# Calculate the radius
+					preview_radius = math.sqrt( ( map_x - self.temp_pinball_bumper_data_to_create.center.x )**2 + ( map_y - self.temp_pinball_bumper_data_to_create.center.y )**2 )
+					self.canvas_mapview.Show_PinballBumperBeingCreated( self.temp_pinball_bumper_data_to_create.center.x, self.temp_pinball_bumper_data_to_create.center.y, preview_radius )
+			if self.current_mode == Mode.round_accel_zone and self.current_raccz_submode == RACCZ_SubMode.add:
+				if ( self.snap_to_segm_point == True ):
+					# Snap to point is selected. We search for a point (segm start or end) near to current mouse position. If found, we use this point coordinates
+					map_x, map_y, snap = self.mapa_cargado.FindNearestSegmentPoint( point=rceditor_maps.Point( x=map_x, y=map_y) , threshold= self.preferences.SnapTo_Threshold )
+					if snap == True:
+						self.canvas_mapview.Show_TargetBox( map_x, map_y )
+					else:
+						self.canvas_mapview.Hide_TargetBox( )
 
+				if ( self.current_raccz_add_stage == RACCZ_Add_Stages.St1_Choose_Radius ):
+					# We are adding a new round acceleration zone. Draw circle as preview.
+					# Calculate the radius
+					preview_radius = math.sqrt( ( map_x - self.temp_raccz_data_to_create.center.x )**2 + ( map_y - self.temp_raccz_data_to_create.center.y )**2 )
+					self.canvas_mapview.Show_RACCZ_BeingCreated( self.temp_raccz_data_to_create.center.x, self.temp_raccz_data_to_create.center.y, preview_radius, angle=None )
+				if ( self.current_raccz_add_stage == RACCZ_Add_Stages.St2_Choose_Angle ):
+					# We are adding a new round acceleration zone. Draw circle and an arrow as preview.
+					# # Calculate the radius
+					# preview_radius = math.sqrt( ( map_x - self.temp_raccz_data_to_create.center.x )**2 + ( map_y - self.temp_raccz_data_to_create.center.y )**2 )
+					# Calculate the angle
+					preview_angle = math.degrees( math.atan2( map_y - self.temp_raccz_data_to_create.center.y  ,  map_x - self.temp_raccz_data_to_create.center.x  )  ) +90
+					self.canvas_mapview.Show_RACCZ_BeingCreated( self.temp_raccz_data_to_create.center.x, self.temp_raccz_data_to_create.center.y, radius = self.temp_raccz_data_to_create.radius, angle=preview_angle )
 
 
 
@@ -848,6 +898,109 @@ class RC_editor_GUI():
 						self.canvas_mapview.Hide_SegmentBeingCreated( )
 					else:
 						logging.error( "Error de programacion: etapa actual de añadir segmento tiene un valor no valido " + str(self.current_segment_add_stage) )
+
+				if self.current_mode == Mode.bumper and self.current_bumper_submode == Bumper_SubMode.add:
+					if ( self.current_bumper_add_stage == Bumper_Add_Stages.St0_Choose_Center ):
+						if ( self.snap_to_segm_point == True ):
+							# Snap to point is selected. We search for a point (segm start or end) near to current mouse position. If found, we use this point coordinates
+							map_x, map_y, snap = self.mapa_cargado.FindNearestSegmentPoint( point=rceditor_maps.Point( x=map_x, y=map_y) , threshold= self.preferences.SnapTo_Threshold )
+						logging.debug( "Seleccionado como punto central: x = " + str(map_x) + ", y = " + str(map_y) )
+						self.temp_pinball_bumper_data_to_create.center.x = map_x
+						self.temp_pinball_bumper_data_to_create.center.y = map_y
+						self.window_statusbar.set_field_1("%s", "Nuevo bumper: seleccione radio (clic en un punto de la circunferencia)")
+						self.current_bumper_add_stage = Bumper_Add_Stages.St1_Choose_Radius
+					elif ( self.current_bumper_add_stage == Bumper_Add_Stages.St1_Choose_Radius ):
+						if ( self.snap_to_segm_point == True ):
+							# Snap to point is selected. We search for a point (segm start or end) near to current mouse position. If found, we use this point coordinates
+							map_x, map_y, snap = self.mapa_cargado.FindNearestSegmentPoint( point=rceditor_maps.Point( x=map_x, y=map_y) , threshold= self.preferences.SnapTo_Threshold )							
+						logging.debug( "Seleccionado como punto de la circunferencia: x = " + str(map_x) + ", y = " + str(map_y) )
+						# Calculate the radius
+						self.temp_pinball_bumper_data_to_create.radius = math.sqrt( ( map_x - self.temp_pinball_bumper_data_to_create.center.x )**2 + ( map_y - self.temp_pinball_bumper_data_to_create.center.y )**2 )
+						# Ask for the exit speed
+						exit_speed_answer = simpledialog.askfloat("Velocidad de salida", "Velocidad de salida:", parent=self.window_main_editor, initialvalue=50, minvalue=0.0, maxvalue=100000.0) 
+						if (exit_speed_answer is not None ):
+							self.temp_pinball_bumper_data_to_create.exit_speed = float(exit_speed_answer)
+							# Create bumper
+							self.mapa_cargado.AddPinballBumper( self.temp_pinball_bumper_data_to_create )
+							# Draw it
+							self.canvas_mapview.DrawSingleBumper( Map=self.mapa_cargado, num_bumper=self.mapa_cargado.pinball_bumpers_number-1 )
+							self.canvas_mapview.DrawSingleBumperNumber( Map=self.mapa_cargado, num_bumper=self.mapa_cargado.pinball_bumpers_number-1 )
+						else:
+							tk.messagebox.showwarning(title="Aviso", message="No se ha creado el bumper.")
+						# Clear all data in temporal bumper data
+						self.temp_pinball_bumper_data_to_create.center.x = None
+						self.temp_pinball_bumper_data_to_create.center.y = None
+						self.temp_pinball_bumper_data_to_create.radius = None
+						self.temp_pinball_bumper_data_to_create.exit_speed = None
+						# Change stage
+						self.window_statusbar.set_field_1("%s", "Nuevo bumper: seleccione punto central")
+						self.current_bumper_add_stage = Bumper_Add_Stages.St0_Choose_Center
+						# We delete the bumper preview
+						self.canvas_mapview.Hide_PinballBumperBeingCreated( )
+					else:
+						logging.error( "Error de programacion: etapa actual de añadir bumper tiene un valor no valido " + str(self.current_bumper_add_stage) )
+
+
+
+				if self.current_mode == Mode.round_accel_zone and self.current_raccz_submode == RACCZ_SubMode.add:
+					if ( self.current_raccz_add_stage == RACCZ_Add_Stages.St0_Choose_Center ):
+						if ( self.snap_to_segm_point == True ):
+							# Snap to point is selected. We search for a point (segm start or end) near to current mouse position. If found, we use this point coordinates
+							map_x, map_y, snap = self.mapa_cargado.FindNearestSegmentPoint( point=rceditor_maps.Point( x=map_x, y=map_y) , threshold= self.preferences.SnapTo_Threshold )
+							logging.debug( "Seleccionado como punto inicial: x = " + str(map_x) + ", y = " + str(map_y) )
+						logging.debug( "Seleccionado como punto central: x = " + str(map_x) + ", y = " + str(map_y) )
+						self.temp_raccz_data_to_create.center.x = map_x
+						self.temp_raccz_data_to_create.center.y = map_y
+						self.window_statusbar.set_field_1("%s", "Nueva zona acel circular: seleccione radio (clic en un punto de la circunferencia)")
+						self.current_raccz_add_stage = RACCZ_Add_Stages.St1_Choose_Radius
+
+					elif ( self.current_raccz_add_stage == RACCZ_Add_Stages.St1_Choose_Radius ):
+						if ( self.snap_to_segm_point == True ):
+							# Snap to point is selected. We search for a point (segm start or end) near to current mouse position. If found, we use this point coordinates
+							map_x, map_y, snap = self.mapa_cargado.FindNearestSegmentPoint( point=rceditor_maps.Point( x=map_x, y=map_y) , threshold= self.preferences.SnapTo_Threshold )
+							logging.debug( "Seleccionado como punto inicial: x = " + str(map_x) + ", y = " + str(map_y) )
+						logging.debug( "Seleccionado como punto de la circunferencia: x = " + str(map_x) + ", y = " + str(map_y) )
+						# Calculate the radius
+						self.temp_raccz_data_to_create.radius = math.sqrt( ( map_x - self.temp_raccz_data_to_create.center.x )**2 + ( map_y - self.temp_raccz_data_to_create.center.y )**2 )
+						self.window_statusbar.set_field_1("%s", "Nueva zona acel circular: seleccione direccion (clic en un punto que defina el angulo)")
+						self.current_raccz_add_stage = RACCZ_Add_Stages.St2_Choose_Angle
+
+					elif ( self.current_raccz_add_stage == RACCZ_Add_Stages.St2_Choose_Angle ):
+						if ( self.snap_to_segm_point == True ):
+							# Snap to point is selected. We search for a point (segm start or end) near to current mouse position. If found, we use this point coordinates
+							map_x, map_y, snap = self.mapa_cargado.FindNearestSegmentPoint( point=rceditor_maps.Point( x=map_x, y=map_y) , threshold= self.preferences.SnapTo_Threshold )
+							logging.debug( "Seleccionado como punto inicial: x = " + str(map_x) + ", y = " + str(map_y) )
+						logging.debug( "Seleccionado como punto de la dirección: x = " + str(map_x) + ", y = " + str(map_y) )
+						# Calculate the direction
+						self.temp_raccz_data_to_create.angle = math.degrees(  math.atan2( map_y - self.temp_raccz_data_to_create.center.y ,  map_x - self.temp_raccz_data_to_create.center.x ) ) +90
+						# We set the "visibility" property that is currently displayed in the properties frame
+						self.temp_raccz_data_to_create.invisible = self.property_raccz_invis_variable.get() 
+						# Ask for acceleration
+						acceleration_answer = simpledialog.askfloat("Aceleracion", "Aceleracion:", parent=self.window_main_editor, initialvalue=50, minvalue=0.0, maxvalue=100000.0)
+						# self.temp_raccz_data_to_create.acceleration = float( simpledialog.askfloat("Aceleracion", "Aceleracion:", parent=self.window_main_editor, initialvalue=50, minvalue=0.0, maxvalue=100000.0) )
+						# if (self.temp_raccz_data_to_create.acceleration is not None ):
+						if ( acceleration_answer is not None ):
+							self.temp_raccz_data_to_create.acceleration = float( acceleration_answer )
+							# Create round acceleration zone
+							self.mapa_cargado.AddRACCZ( self.temp_raccz_data_to_create )
+							# Draw it
+							self.canvas_mapview.DrawSingleRACCZ( Map=self.mapa_cargado, num_raccz=self.mapa_cargado.round_accel_zones_number-1 )
+							self.canvas_mapview.DrawSingleRACCZNumber( Map=self.mapa_cargado, num_raccz=self.mapa_cargado.round_accel_zones_number-1 )
+						else:
+							tk.messagebox.showwarning(title="Aviso", message="No se ha creado la zona circular de aceleracion.")
+						# Clear all data in temporal raccz data
+						self.temp_raccz_data_to_create.center.x = None
+						self.temp_raccz_data_to_create.center.y = None
+						self.temp_raccz_data_to_create.radius = None
+						self.temp_raccz_data_to_create.acceleration = None
+						self.temp_raccz_data_to_create.invisible = None
+						# Change stage
+						self.window_statusbar.set_field_1("%s", "Nueva zona acel circular: seleccione punto central")
+						self.current_raccz_add_stage = RACCZ_Add_Stages.St0_Choose_Center
+						# We delete the bumper preview
+						self.canvas_mapview.Hide_RACCZ_BeingCreated(  )
+					else:
+						logging.error( "Error de programacion: etapa actual de añadir raccz tiene un valor no valido " + str(self.current_raccz_add_stage) )	
 
 
 				# elif bla bla bla, other modes
@@ -1439,16 +1592,14 @@ class RC_editor_GUI():
 
 	def Toggle_SnapToPoint_Segm_Button( self ):
 		# This function is called every time the SnapToPoint button is pressed
-		if self.current_mode == Mode.segment:
-			if self.snap_to_segm_point == False:
-				logging.debug("Activado modo alineamiento a puntos de segmentos")
-				self.snap_to_segm_point = True
-				self.button_snap_point_segm.configure(bg = "green")
-			else:		# True
-				logging.debug("Desactivado modo alineamiento a puntos de segmentos")
-				self.snap_to_segm_point = False
-				self.button_snap_point_segm.configure(bg = self.orig_button_bg_color )
-		# elif otros modos....
+		if self.snap_to_segm_point == False:
+			logging.debug("Activado modo alineamiento a puntos de segmentos")
+			self.snap_to_segm_point = True
+			self.button_snap_point_segm.configure(bg = "green")
+		else:		# True
+			logging.debug("Desactivado modo alineamiento a puntos de segmentos")
+			self.snap_to_segm_point = False
+			self.button_snap_point_segm.configure(bg = self.orig_button_bg_color )
 
 
 

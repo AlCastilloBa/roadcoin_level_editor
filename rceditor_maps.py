@@ -52,7 +52,7 @@ class Point():
 			self.x = None
 			self.y = None	
 		else:
-			raise ValueError("Argumentos no validos: se debe especificar el conjunto completo de argumentos (x, y) o bien copy_ref, o bien ninguno.")
+			raise ValueError("Al crear objeto clase Point, argumentos no validos: se debe especificar el conjunto completo de argumentos (x, y) o bien copy_ref, o bien ninguno.")
 
 	def copy( self, copy_ref ):
 		# Replace coordinates with another point's coordinates
@@ -80,17 +80,25 @@ class Segment():
 			self.segm_type = copy_ref.segm_type
 			self.invisible = copy_ref.invisible
 		else:
-			raise ValueError("Argumentos no validos: se debe especificar el conjunto completo de argumentos (start,end,segm_type,invisible) o bien copy_ref.")			
+			raise ValueError("Al crear objeto clase Segment, argumentos no validos: se debe especificar el conjunto completo de argumentos (start,end,segm_type,invisible) o bien copy_ref.")			
 
 class Pinball_Bumper():
 	center = None # Class Point
 	radius = None  # Real
 	exit_speed = None # Real
 	
-	def __init__(self, center, radius, exit_speed):
-		self.center = center
-		self.radius = radius
-		self.exit_speed = exit_speed
+	def __init__(self, center=None, radius=None, exit_speed=None, copy_ref=None):
+		if (center is not None) and (radius is not None) and (exit_speed is not None) and (copy_ref is None):
+			self.center = center
+			self.radius = radius
+			self.exit_speed = exit_speed
+		elif (center is None) and (radius is None) and (exit_speed is None) and (copy_ref is not None):
+			# Pseudo copy constructor
+			self.center = Point( copy_ref.center.x, copy_ref.center.y )
+			self.radius = copy_ref.radius
+			self.exit_speed = copy_ref.exit_speed
+		else:
+			raise ValueError("Al crear objeto clase Pinball_Bumper, argumentos no validos: se debe especificar el conjunto completo de argumentos (center,radius,exit_speed) o bien copy_ref.")
 
 class Round_Acceleration_Zone():
 	center = None # Class Point
@@ -99,12 +107,23 @@ class Round_Acceleration_Zone():
 	acceleration = None #  Real
 	invisible = None # Boolean
 
-	def __init__(self, center, radius, angle, acceleration, invisible ):
-		self.center = center
-		self.radius = radius
-		self.angle = angle
-		self.acceleration = acceleration
-		self.invisible = invisible
+	def __init__(self, center=None, radius=None, angle=None, acceleration=None, invisible=None, copy_ref=None ):
+		if (center is not None) and (radius is not None) and (angle is not None) and (acceleration is not None) and (invisible is not None) and (copy_ref is None):
+			self.center = center
+			self.radius = radius
+			self.angle = angle
+			self.acceleration = acceleration
+			self.invisible = invisible
+		elif (center is None) and (radius is None) and (angle is None) and (acceleration is None) and (invisible is None) and (copy_ref is not None):
+			# Pseudo copy constructor
+			self.center = Point( copy_ref.center.x, copy_ref.center.y )
+			self.radius = copy_ref.radius
+			self.angle = copy_ref.angle
+			self.acceleration = copy_ref.acceleration
+			self.invisible = copy_ref.invisible
+		else:
+			raise ValueError("Al crear objeto clase Round_Acceleration_Zone, argumentos no validos: se debe especificar el conjunto completo de argumentos (center,radius,angle,acceleration,invisible) o bien copy_ref.")
+
 
 class Map():
 	map_name = None		# String
@@ -502,8 +521,11 @@ class Map():
 
 	def AddSegment( self, segm_ref ):
 		logging.debug( "Añadiendo nuevo segmento (en la ultima posicion). ")
+		# If the segment number is still not ititialized, we set it to zero
+		if self.segment_number is None:
+			self.segment_number = 0
 		if segm_ref is not None:
-			# Create new segment copying all properties from the segm_ref (preudo copy constructor)
+			# Create new segment copying all properties from the segm_ref (pseudo copy constructor)
 			segm_aux = Segment( copy_ref = segm_ref )
 			# Add it to the dictionary
 			self.segment_dict.setdefault( self.segment_number , segm_aux )
@@ -532,6 +554,21 @@ class Map():
 		self.segment_number = counter
 		
 
+	def  AddPinballBumper( self, bumper_ref ):
+		logging.debug( "Añadiendo nuevo segmento (en la ultima posicion). ")
+		# If the bumpers number is still not ititialized, we set it to zero
+		if self.pinball_bumpers_number is None:
+			self.pinball_bumpers_number = 0
+		if bumper_ref is not None:
+			# Create new bumper copying all properties from the bumper_ref (pseudo copy constructor)
+			bumper_aux = Pinball_Bumper( copy_ref = bumper_ref )
+			# Add it to the dictionary
+			self.pinball_bumpers_dict.setdefault( self.pinball_bumpers_number , bumper_aux )
+			self.pinball_bumpers_number = self.pinball_bumpers_number + 1
+		else:
+			logging.error( "Error de programacion: La referencia del bumper es None." )
+
+
 	def DeletePinballBumper( self, bumper_number_to_delete ):
 		logging.debug( "Eliminando pinball bumper " + str( bumper_number_to_delete ) )
 		self.pinball_bumpers_dict.pop( bumper_number_to_delete )
@@ -550,6 +587,21 @@ class Map():
 			counter = counter + 1
 		logging.debug( "Se han encontrado " + str(counter) + " bumpers." )
 		self.pinball_bumpers_number = counter
+
+	
+	def AddRACCZ( self, raccz_ref ):
+		logging.debug( "Añadiendo nueva zona de aceleración circular (en la ultima posicion). ")
+		# If the raccz number is still not ititialized, we set it to zero
+		if self.round_accel_zones_number is None:
+			self.round_accel_zones_number = 0
+		if raccz_ref is not None:
+			# Create new raccz copying all properties from the raccz_ref (pseudo copy constructor)
+			raccz_aux = Round_Acceleration_Zone( copy_ref = raccz_ref )
+			# Add it to the dictionary
+			self.dict_round_acel_zones.setdefault( self.round_accel_zones_number , raccz_aux )
+			self.round_accel_zones_number = self.round_accel_zones_number + 1
+		else:
+			logging.error( "Error de programacion: La referencia del raccz es None." )
 
 
 	def DeleteRACCZ( self, raccz_number_to_delete ):
