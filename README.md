@@ -15,6 +15,6 @@ Uses python 3 and Tkinter for building the user interface. The graphical viewer 
 # Current status
 
 Currently under development. The application can load and show maps, the panning and zooming is operational. Items can be selected and modified. 
-New items can be added, by pointing and clicking directly on the viewer window.
+New items can be added, by pointing and clicking directly on the viewer window. Properties can be modified, and levels can be saved.
 
-Possibility to save maps is coming soon.
+The minimum funcitonality for editing is implemented. The application is currently being used to create new levels. Intense debugging is expected at this stage.
