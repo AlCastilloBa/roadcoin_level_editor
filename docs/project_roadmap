@@ -55,10 +55,70 @@
 
 [    ] Depurar imagen fondo giratorio. No tiene en cuenta la posicion (arr, aba, izq, der).
 
-[    ] Editar propiedades de imagen.
+[    ] Editar propiedades generales.
+	[test] Nombre
+	[test] Descripcion
+	[test] Modo Giro Mapa
+	[test] Centro de giro
+	[test] Angulo Max
+	[test] Pos inicial moneda
+	[test] Dibujar posicion inicial moneda en modo general
+		[test] Show_Coin_Start_Position
+		[test] Hide_Coin_Start_Position
+		[test] Insertar llamadas en redibujar todo
+		[test] Insertar llamadas en callbacks de posicion inicial
+	[test] Boton para seleccionar la posicion inicial de la moneda
+	[test] Gravedad
+	[test] Escala
+	[test] Editar propiedades de musica.
+
+	[test] Funcion Apply General Map Changes
+	[test] Funcion Update General Properties
+	[test] Callbacks de validacion
+		[test] General_Property_RealNumber_Change_FocusOut_Validation_Callback
+		[test] General_Property_OptionMenu_Click_Callback
+		[test] General_Property_String_Change_FocusOut_Validation_Callback
+	[test] Asignar Callbacks de validacion
 
 
-[    ] Editar propiedades de musica.
+
+[test] Editar propiedades imagen
+	[BOOM] Nuevo widget con ruta y boton para seleccionar ruta.
+		[BOOM] Hacer que las rutas seleccionadas sean realativas a gamepath (quitarle initialdir al resultado)
+	[test] Imagen moneda
+	[test] Boton para seleccionar ruta.
+	[test] Imagen fondo
+	[test] No rot moneda (checkbox)
+	[test] Imagen segmento pared
+	[test] Imagen seGmento meta
+
+	[test] Funcion Apply Image Map Changes
+	[test] Funcion Update Image Properties
+	[test] Callbacks de validacion
+
+	[test] Asignar Callbacks de validacion
+
+[test] Editar propiedades de fondo giratorio
+        [test] Fondo giratorio (checkbox)
+	[test] Ruta fondo giratorio
+	[test] Coordenadas fondo giratorio
+	[test] Actualizar posicion del fondo giratorio al editar las coordenadas
+	[test] Centro de giro del fondo giratorio
+	[test] Boton para seleccionar y calcular posicion del centro de giro del fondo giratorio
+		[test] Nuevo modo
+		[test] Programacion asociada
+		[test] Hacer el calculo de las coordenadas del centro de giro del fondo giratorio
+	[test] Boton para hacer que el centro de giro del fondo giratorio coincida con el centro de giro del mapa
+
+	[test] Funcion Apply RotBg Map Changes
+	[test] Funcion Update RotBg Properties
+	[test] Callbacks de validacion
+
+	[test] Asignar Callbacks de validacion
+
+
+
+
 
 
 
