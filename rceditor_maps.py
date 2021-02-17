@@ -194,7 +194,7 @@ class Map():
 				logging.debug( "Encontrado nombre mapa = " + self.map_name )
 			elif line.find("descripcion") != -1:
 				self.map_description = line.split("=",1)[1].strip()
-				logging.debug( "Encontrado nombre mapa = " + self.map_description )
+				logging.debug( "Encontrada descripcion mapa = " + self.map_description )
 			elif line.find("num_segmentos") != -1:
 				if self.segment_number is not None:
 					# Possible two declarations of segment number
@@ -295,11 +295,11 @@ class Map():
 						)
 			elif line.find("angulo_flippers") != -1:
 				self.flippers_angle = float( line.split("=",1)[1].strip() )
-				logging.debug( "Encontrado nombre mapa = " + str(self.flippers_angle) )
+				logging.debug( "Encontrado angulo_flippers = " + str(self.flippers_angle) )
 			elif line.find("tiempo_cuenta_atras") != -1: 
 				self.countdown_time = int( line.split("=",1)[1].strip() )
 				self.countdown = True
-				logging.debug( "Encontrado nombre mapa = " + str(self.countdown_time) )
+				logging.debug( "Encontrado tiempo_cuenta_atras = " + str(self.countdown_time) )
 			elif line.find("num_zonas_acel_circ") != -1:
 				if self.round_accel_zones_number is not None:
 					# Possible two declarations of round accel zones number
@@ -345,8 +345,117 @@ class Map():
 
 		file1.close()
 
-	def SaveFile(self, filename):
+#	def SaveFile(self, filename):
+#		pass
+
+	
+	def SaveFile_OverwriteAll( self, filename ):	# 30/12/2020	
+		logging.debug( "Escribiendo fichero de mapa: " + filename )
+		file1 = open( filename , 'w' )
+		# map_name
+		file1.write( "nombre=" + self.map_name + "\n" )
+		# map_description
+		if ( self.map_description is not None ):
+			file1.write( "descripcion=" + self.map_description + "\n" )
+		# segment_number
+		file1.write( "num_segmentos=" + str(self.segment_number) + "\n" )
+		# rotation_type
+		file1.write( "modo_giro_mapa=" + str(self.rotation_type) + "\n" )
+		# rotation_center
+		if (self.rotation_center.x is not None) and (self.rotation_center.y is not None):
+			file1.write( "punto_giro=(" + str(self.rotation_center.x) + "," + str(self.rotation_center.y) + ")" + "\n" )
+		# max_angle
+		file1.write( "angulo_max=" + str(self.max_angle) + "\n" )
+		# coin_starting_point
+		file1.write( "pos_inicial_moneda=(" + str(self.coin_starting_point.x) + "," + str(self.coin_starting_point.y) + ")" + "\n" )
+		# gravedad
+		file1.write( "gravedad=" + str(self.gravity) + "\n" )
+		# coin_image_path
+		file1.write( "imagen_moneda=" + self.coin_image_path + "\n" )
+		# fixed_background_path
+		file1.write( "imagen_fondo=" + self.fixed_background_path + "\n" )
+		# segment_dict
+		for current_segm_index, current_segment in self.segment_dict.items():
+			# Note: syntax segmento[%d]=((%lf,%lf),(%lf,%lf),%d, %d)
+			if current_segment.invisible == True:
+				invisibility = 1
+			else:
+				invisibility = 0
+			file1.write( "segmento[" + str(current_segm_index) + "]=((" + str(current_segment.start.x) + "," + str(current_segment.start.y) + \
+				"),(" + str(current_segment.end.x) + "," + str(current_segment.end.y) + \
+				")," + str(current_segment.segm_type) + "," + str( invisibility ) + ")" + "\n" )
+		# rotating_background
+		if self.rotating_background == True:
+			file1.write( "fondo_giratorio=1" + "\n" )
+		else:
+			file1.write( "fondo_giratorio=0" + "\n" )
+		# file1.write( "fondo_giratorio=" + self.rotating_background ) 	
+
+		# rotating_background_path
+		if self.rotating_background_path is not None:
+			file1.write( "imagen_fnd_giratorio=" + self.rotating_background_path + "\n" )
+		# rotating_background_left_x_pos, rotating_background_up_y_pos, rotating_background_right_x_pos, rotating_background_down_y_pos
+		if (self.rotating_background_left_x_pos is not None) and ( self.rotating_background_up_y_pos is not None) and ( self.rotating_background_right_x_pos is not None ) and ( rotating_background_down_y_pos is not None ):
+			file1.write( "pos_fnd_giratorio=((" + str(self.rotating_background_left_x_pos) + "," + str(self.rotating_background_up_y_pos) + "),(" + str(self.rotating_background_right_x_pos) + "," + str(self.rotating_background_down_y_pos) + "))" + "\n" )
+
+		# rotating_background_center
+		if ( self.rotating_background_center is not None ):
+			if ( self.rotating_background_center.x is not None ) and ( self.rotating_background_center.y is not None ):
+				file1.write( "centro_giro_fnd_gir=(" + str(self.rotating_background_center.x) + "," + str(self.rotating_background_center.y) + ")" + "\n" )
+		# scale
+		if self.scale is not None:
+			file1.write( "escala=" + str(self.scale) + "\n" )
+		# music_path
+		if self.music_path is not None:
+			file1.write( "ruta_musica=" + self.music_path + "\n" )
+		# pinball_bumpers_number
+		file1.write( "num_bumpers=" + str(self.pinball_bumpers_number) + "\n" )
+		# pinball_bumpers_dict
+		if ( self.pinball_bumpers_number != 0 ):
+			for current_bumper_index, current_bumper in self.pinball_bumpers_dict.items():
+				# Note: syntax bumper[%d]=((%lf,%lf),%f,%f)
+				file1.write( "bumper[" + str( current_bumper_index ) + "]=((" + str( current_bumper.center.x ) + "," + str( current_bumper.center.x ) + \
+					"),"  + str( current_bumper.radius ) + "," + str( current_bumper.exit_speed ) + ")" + "\n" )
+
+		# flippers_angle
+		if ( self.flippers_angle is not None ):
+			file1.write( "angulo_flippers=" + str(self.flippers_angle) + "\n" )
+		# countdown_time
+		if self.countdown_time is not None:
+			file1.write( "tiempo_cuenta_atras=" + str(self.countdown_time) + "\n" )
+		# round_accel_zones_number
+		file1.write( "num_zonas_acel_circ= " + str(self.round_accel_zones_number) + "\n" )
+		# dict_round_acel_zones
+		if ( self.round_accel_zones_number != 0 ):
+			for current_raccz_index, current_raccz in self.dict_round_acel_zones.items():
+				# Note: syntax zona_acel_circ[%d]=((%lf,%lf),%f,%f,%f,%d)
+				if current_raccz.invisible == True:
+					invisibility = 1
+				else:
+					invisibility = 0
+				file1.write( "zona_acel_circ[" + current_raccz_index + "]=((" + str( current_raccz.center.x ) + "," + str( current_raccz.center.y ) + \
+					")," + str( current_raccz.radius ) + "," + str( current_raccz.angle ) + "," + str( current_raccz.acceleration ) + "," + str( invisibility  ) + ")" + "\n" )
+
+		if self.coin_does_not_rotate is not None:
+			file1.write( "no_rot_moneda" + "\n" )
+		if self.wall_segment_image_path is not None:
+			file1.write( "imagen_segm_pared=" + self.wall_segment_image_path + "\n" )
+		if self.goal_segment_image_path is not None:
+			file1.write( "imagen_segm_meta=" + self.goal_segment_image_path + "\n" )
+		if self.death_segment_image_path is not None:
+			file1.write( "imagen_segm_muerte=" + self.death_segment_image_path + "\n" )
+
+		####################################################
+		# Add new options at this point
+		####################################################
+		file1.close()
 		pass
+
+
+	def SaveFile_UpdateExisting( self, filename ):	 # 30/12/2020
+		pass
+
+
 
 
 	def CheckMapErrorList( self ):

@@ -42,7 +42,7 @@ class Mode(Enum):
 	round_accel_zone = 6
 
 mode_names = { 
-	Mode.no_mode          : "Ningun modo seleccionado" , 
+	Mode.no_mode          : "Ningun modo seleccionado" ,
 	Mode.general          : "Modo general" , 
 	Mode.images           : "Modo imagenes" , 
 	Mode.rot_bg           : "Modo fondo giratorio" , 
@@ -104,6 +104,27 @@ class RACCZ_Add_Stages(Enum):
 	St2_Choose_Angle = 2		# Stage 2: Choose Angle
 	
 
+class General_SubMode(Enum):		# 13/2/2021
+	no_mode = 0
+	choose_coin_start_pos = 1
+	choose_rotarion_center = 2
+
+general_submode_names = {			# 13/2/2021
+	General_SubMode.no_mode			: "Ningun submodo seleccionado",
+	General_SubMode.choose_coin_start_pos	: "Submodo seleccionar posicion inicial moneda",
+	General_SubMode.choose_rotarion_center	: "Submodo seleccionar centro giro mapa",
+}
+
+class RotBg_SubMode(Enum):		# 16/2/2021
+	no_mode = 0
+	choose_rotbg_center = 1
+
+rotbg_submode_names = {			# 16/2/2021
+	RotBg_SubMode.no_mode			: "Ningun submodo seleccionado",
+	RotBg_SubMode.choose_rotbg_center	: "Submodo seleccionar posicion centro giro fondo giratorio",
+}
+
+
 ##########################################################################
 
 class RC_editor_GUI():
@@ -115,6 +136,9 @@ class RC_editor_GUI():
 	current_bumper_add_stage = Bumper_Add_Stages.St0_Choose_Center
 	current_raccz_submode = RACCZ_SubMode.no_mode
 	current_raccz_add_stage = RACCZ_Add_Stages.St0_Choose_Center
+	current_general_submode = General_SubMode.no_mode		# 14/2/2021
+	current_rotbg_submode = RotBg_SubMode.no_mode			# 16/2/2021
+
 	map_loaded = False
 	loaded_map_filename = None
 	segment_table = None
@@ -143,7 +167,8 @@ class RC_editor_GUI():
 		self.filemenu = tk.Menu( self.menubar_mainmenu, tearoff=0)
 		self.filemenu.add_command(label="Nuevo", image = self.img_new_icon, compound = tk.LEFT, command = do_nothing )
 		self.filemenu.add_command(label="Abrir", image = self.img_open_icon, compound = tk.LEFT, command = self.LoadMapButton )
-		self.filemenu.add_command(label="Guardar", image = self.img_save_icon, compound = tk.LEFT, command = do_nothing )
+		self.filemenu.add_command(label="Guardar", image = self.img_save_icon, compound = tk.LEFT, command = self.SaveMapButton )			# 3/1/2021
+		self.filemenu.add_command(label="Guardar como...", image = self.img_save_icon, compound = tk.LEFT, command = self.SaveMapAsButton )	# 3/1/2021
 		self.filemenu.add_command(label="Cerrar", image = self.img_close_icon, compound = tk.LEFT, command=self.CloseMapButton )
 		self.filemenu.add_separator()
 		self.filemenu.add_command(label="Salir", image = self.img_quit_icon, compound = tk.LEFT, command = self.window_main_editor.quit)
@@ -169,6 +194,7 @@ class RC_editor_GUI():
 			self.debugmenu = tk.Menu(self.menubar_mainmenu, tearoff=0)
 			self.debugmenu.add_command(label="Verificar datos mapa", command = self.Check_Map_Data)
 			self.debugmenu.add_command(label="Reenumerar segmentos", command = self.ReenumerateSegments)
+			self.debugmenu.add_command(label="Actualizar propiedades", command = self.Update_All_Properties)
 			self.menubar_mainmenu.add_cascade(label="Debug", menu=self.debugmenu)		
 
 
@@ -264,24 +290,63 @@ class RC_editor_GUI():
 
 		logging.debug( "Creando widgets del panel de propiedades para cada modo " )
 		# Register validation methods
+		General_RealNumber_Validation = self.window_main_editor.register(self.General_Property_RealNumber_Change_FocusOut_Validation_Callback)
+		General_OPTIONAL_RealNumber_Validation =self.window_main_editor.register(self.General_Property_OPTIONAL_RealNumber_Change_FocusOut_Validation_Callback)
+		General_String_Validation = self.window_main_editor.register(self.General_Property_String_Change_FocusOut_Validation_Callback)
+		Image_String_Validation = self.window_main_editor.register(self.Image_Property_String_Change_FocusOut_Validation_Callback)
+		RotBg_String_Validation = self.window_main_editor.register(self.RotBg_Property_String_Change_FocusOut_Validation_Callback)
+		RotBg_RealNumber_Validation = self.window_main_editor.register(self.RotBg_Property_RealNumber_Change_FocusOut_Validation_Callback)
+		RotBg_OPTIONAL_RealNumber_Validation = self.window_main_editor.register(self.RotBg_Property_OPTIONAL_RealNumber_Change_FocusOut_Validation_Callback)
 		Segment_RealNumber_Validation = self.window_main_editor.register(self.Segment_Property_RealNumber_Change_FocusOut_Validation_Callback)
 		Bumper_RealNumber_Validation = self.window_main_editor.register(self.Bumper_Property_RealNumber_Change_FocusOut_Validation_Callback)
 		RACCZ_RealNumber_Validation = self.window_main_editor.register(self.RACCZ_Property_RealNumber_Change_FocusOut_Validation_Callback)
-		# General mode properties widgets
-		self.property_gen1 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Gen 1", validatecommand=do_nothing )
-		self.property_gen2 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Gen 2", validatecommand=do_nothing )
-		self.property_gen3 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Gen 3", validatecommand=do_nothing )
-		self.properties_gen_list = [ self.property_gen1, self.property_gen2, self.property_gen3 ]
+		# General mode properties widgets (21/1/2020)
+		self.property_gen_map_name = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Nombre", validatecommand=General_String_Validation )
+		self.property_gen_description = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Descripcion", validatecommand=General_String_Validation )
+		self.property_gen_rot_type_label = tk.Label(master=self.frame_properties, text="Tipo rotacion mapa:")
+		self.property_gen_rot_type_variable = tk.StringVar()
+		self.property_gen_rot_type_choices = [ rceditor_maps.Rotation_Type_Names.get(rceditor_maps.Rotation_Type.camera), \
+							rceditor_maps.Rotation_Type_Names.get(rceditor_maps.Rotation_Type.fixed_point), \
+							rceditor_maps.Rotation_Type_Names.get(rceditor_maps.Rotation_Type.coin), \
+							rceditor_maps.Rotation_Type_Names.get(rceditor_maps.Rotation_Type.origin), \
+							rceditor_maps.Rotation_Type_Names.get(rceditor_maps.Rotation_Type.no_rot)  ]
+		self.property_gen_rot_type = tk.OptionMenu( self.frame_properties, self.property_gen_rot_type_variable, *self.property_gen_rot_type_choices, command=self.General_Property_OptionMenu_Click_Callback )
+		self.property_gen_rot_center_label = tk.Label(master=self.frame_properties, text="Centro de giro mapa:")
+		self.property_gen_rot_center_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=General_OPTIONAL_RealNumber_Validation )
+		self.property_gen_rot_center_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=General_OPTIONAL_RealNumber_Validation )
+		self.property_gen_rot_center_select = tk.Button( master = self.frame_properties, text="Seleccionar centro giro", command=self.Choose_Rotation_Center_Button_Callback )
+		self.property_gen_max_angle = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Angulo maximo:", validatecommand=General_RealNumber_Validation )
+		self.property_gen_coin_start_pos_label = tk.Label(master=self.frame_properties,text="Posicion inicial moneda:")
+		self.property_gen_coin_start_pos_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=General_RealNumber_Validation )
+		self.property_gen_coin_start_pos_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=General_RealNumber_Validation )
+		self.property_gen_coin_start_pos_select = tk.Button( master = self.frame_properties, text="Seleccionar pos incial", command=self.Choose_Coin_Starting_Point_Button_Callback )
+		self.property_gen_gravity = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Gravedad:", validatecommand=General_RealNumber_Validation )
+		self.property_gen_scale = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Escala:", validatecommand=General_OPTIONAL_RealNumber_Validation )
+		self.property_gen_music_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Musica", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
+		self.properties_gen_list = [ self.property_gen_map_name, self.property_gen_description, self.property_gen_rot_type_label, self.property_gen_rot_type, self.property_gen_rot_center_label, self.property_gen_rot_center_x, self.property_gen_rot_center_y, self.property_gen_rot_center_select, self.property_gen_max_angle, self.property_gen_coin_start_pos_label, self.property_gen_coin_start_pos_x, self.property_gen_coin_start_pos_y, self.property_gen_coin_start_pos_select, self.property_gen_gravity, self.property_gen_scale, self.property_gen_music_path ]
 		# Image mode properties widgets
-		self.property_img1 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Image 1", validatecommand=do_nothing )
-		self.property_img2 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Image 2", validatecommand=do_nothing )
-		self.property_img3 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Image 3", validatecommand=do_nothing )
-		self.properties_img_list = [ self.property_img1, self.property_img2, self.property_img3 ]
+		self.property_img_coin_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen moneda", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
+		self.property_img_background_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen fondo fijo", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
+		self.property_img_norot_coin_variable = tk.BooleanVar()
+		self.property_img_norot_coin = tk.Checkbutton(master=self.frame_properties, text="Moneda no rota", var=self.property_img_norot_coin_variable, command=self.Image_Property_Checkbox_Click_Callback )
+		self.property_img_wall_segm_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen segmento pared", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
+		self.property_img_goal_segm_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen segmento meta", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
+		self.property_img_death_segm_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen segmento muerte", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
+		self.properties_img_list = [ self.property_img_coin_path, self.property_img_background_path, self.property_img_norot_coin, self.property_img_wall_segm_path, self.property_img_goal_segm_path, self.property_img_death_segm_path ]
 		# Rotating background mode properties widgets
-		self.property_rotbg1 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="rotbg 1", validatecommand=do_nothing )
-		self.property_rotbg2 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="rotbg 2", validatecommand=do_nothing )
-		self.property_rotbg3 = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="rotbg 3", validatecommand=do_nothing )
-		self.properties_rotbg_list = [ self.property_rotbg1, self.property_rotbg2, self.property_rotbg3 ]
+		self.property_rotbg_exists_variable = tk.BooleanVar()
+		self.property_rotbg_exists = tk.Checkbutton(master=self.frame_properties, text="Fondo giratorio", var=self.property_rotbg_exists_variable, command=self.RotBg_Property_Checkbox_Click_Callback )
+		self.property_rotbg_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen fondo giratorio", validatecommand=RotBg_String_Validation, initialdir=self.preferences.GamePath )
+		self.property_rotbg_pos_label = tk.Label(master=self.frame_properties,text="Posicion fondo giratorio:")
+		self.property_rotbg_left_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Izq X:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
+		self.property_rotbg_up_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Arriba Y:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
+		self.property_rotbg_right_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Der X:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
+		self.property_rotbg_down_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Abajo Y:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
+		self.property_rotbg_pos_label = tk.Label(master=self.frame_properties,text="Centro giro fondo giratorio:")
+		self.property_rotbg_center_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
+		self.property_rotbg_center_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
+		self.property_rotbg_center_select = tk.Button( master = self.frame_properties, text="Seleccionar centro giro", command=self.Choose_Rotating_Background_Rotation_Center_Button_Callback )
+		self.properties_rotbg_list = [ self.property_rotbg_exists, self.property_rotbg_path, self.property_rotbg_pos_label, self.property_rotbg_left_x, self.property_rotbg_up_y, self.property_rotbg_right_x, self.property_rotbg_down_y, self.property_rotbg_pos_label, self.property_rotbg_center_x, self.property_rotbg_center_y, self.property_rotbg_center_select ]
 		# Segment mode properties widgets
 		self.property_segm_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero segmento:", validatecommand=do_nothing, state='readonly' )
 		self.property_segm_start_label = tk.Label(master=self.frame_properties,text="Start:")
@@ -1002,6 +1067,50 @@ class RC_editor_GUI():
 					else:
 						logging.error( "Error de programacion: etapa actual de añadir raccz tiene un valor no valido " + str(self.current_raccz_add_stage) )	
 
+				if self.current_mode == Mode.general and self.current_general_submode == General_SubMode.choose_coin_start_pos:	# 14/2/2021
+					logging.debug( "Seleccionado como punto inicio moneda: x = " + str(map_x) + ", y = " + str(map_y) )
+					# Save new position on map data
+					self.mapa_cargado.coin_starting_point.x = map_x
+					self.mapa_cargado.coin_starting_point.y = map_y
+					# Update general properties on the frame properties
+					self.Update_General_Properties()
+					# Redraw new coin position
+					self.canvas_mapview.Show_Coin_Start_Position( self.mapa_cargado )
+					# Change submode to no mode
+					self.current_general_submode = General_SubMode.no_mode
+					self.window_statusbar.set_field_1("%s", "Posicion inicial de la moneda actualizada")
+					self.canvas_mapview.Set_Cursor_Arrow()
+				if self.current_mode == Mode.general and self.current_general_submode == General_SubMode.choose_rotarion_center:	# 15/2/2021
+					logging.debug( "Seleccionado como punto giro mapa: x = " + str(map_x) + ", y = " + str(map_y) )
+					# Save new position on map data
+					self.mapa_cargado.rotation_center.x = map_x
+					self.mapa_cargado.rotation_center.y = map_y
+					# Update general properties on the frame properties
+					self.Update_General_Properties()
+					# Redraw new rotation center
+					self.canvas_mapview.Show_Rotation_Center( self.mapa_cargado )
+					# Change submode to no mode
+					self.current_general_submode = General_SubMode.no_mode
+					self.window_statusbar.set_field_1("%s", "Centro de giro actualizado")
+					self.canvas_mapview.Set_Cursor_Arrow()
+
+				if self.current_mode == Mode.rot_bg and self.current_rotbg_submode == RotBg_SubMode.choose_rotbg_center:	# 16/2/2021
+					logging.debug( "Seleccionado como punto centro giro fondo giratorio: x = " + str(map_x) + ", y = " + str(map_y) )
+					# Calculate rotating background rotation center and save new position on map data
+					# NOTE: These are not absolute coordinates, they are coordinates relative to the texture left corner
+					# Note: This is how roadcoin is currently programmed
+					self.mapa_cargado.rotating_background_center.x = map_x - self.mapa_cargado.rotating_background_left_x_pos
+					self.mapa_cargado.rotating_background_center.y = map_y - self.mapa_cargado.rotating_background_up_y_pos
+					# Update general properties on the frame properties
+					self.Update_RotBg_Properties()
+					# Redraw new rotating background rotation center
+					self.canvas_mapview.Show_RotBg_Rotation_Center( self.mapa_cargado )
+					# Change submode to no mode
+					self.current_rotbg_submode = RotBg_SubMode.no_mode
+					self.window_statusbar.set_field_1("%s", "Posicion centro de giro de fondo giratorio actualizado")
+					self.canvas_mapview.Set_Cursor_Arrow()
+
+
 
 				# elif bla bla bla, other modes
 				# elif bla bla bla, other modes
@@ -1084,6 +1193,10 @@ class RC_editor_GUI():
 			self.EnableMenuItems_MapLoaded()
 
 			self.window_statusbar.set_field_1("%s %s %s", "Mapa ", open_map_filename ," cargado" )
+
+			# Update properties frames
+			self.Update_All_Properties()
+
 		#elif isinstance( chosen_new_game_path, unicode ):
 			# Note: when<type 'unicode'> # Nothing selected, Cancel clicked
 		#elif isinstance( chosen_new_game_path, tuple ):
@@ -1091,7 +1204,42 @@ class RC_editor_GUI():
 			# Note: when <type 'tuple'> # Multiple files selected, OK clicked
 
 
+	def SaveMapButton(self):	# 3/1/2021
+		# (TODO) PENDIENTE
+		pass
 			
+
+	def SaveMapAsButton(self):	# 3/1/2021
+		if self.map_loaded == False:
+			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
+			logging.debug( "Se ha intentado guardar un mapa sin tener un mapa abierto. No hay nada que guardar." )
+			return	# Do nothing
+
+		# Check for map errors
+		map_data_ok, error_list = self.mapa_cargado.CheckMapErrorList()
+		if map_data_ok == True:
+			# tk.messagebox.showinfo(title="Comprobación mapa", message="No se han encontrado errores.")
+			logging.debug( "Comprobación mapa: No se han encontrado errores." )
+		else:
+			tk.messagebox.showerror(title="Comprobación mapa", message="Se han encontrado los siguientes errores. \n" + error_list )
+			return	# Do nothing
+
+
+		save_map_filename = filedialog.asksaveasfilename(initialdir = self.preferences.GamePath, title = "Select file",filetypes = (("all files","*"),("all files with ext","*.*")))
+		# Manage the user file selection
+		if isinstance( save_map_filename, str ) and (save_map_filename != "") :
+			# Note: when <type 'str'> # File selected, OK clicked
+			
+			# Let's save the map
+			self.mapa_cargado.SaveFile_OverwriteAll( save_map_filename )
+			logging.debug( "Guardando mapa " + save_map_filename )
+
+
+		#elif isinstance( chosen_new_game_path, unicode ):
+			# Note: when<type 'unicode'> # Nothing selected, Cancel clicked
+		#elif isinstance( chosen_new_game_path, tuple ):
+			# Note: when <type 'tuple'> # File selected, Cancel clicked
+			# Note: when <type 'tuple'> # Multiple files selected, OK clicked
 
 
 	def CloseMapButton(self):
@@ -1154,6 +1302,212 @@ class RC_editor_GUI():
 		self.UnSelect_RACCZ()
 		self.canvas_mapview.UnHighlight_All()
 
+
+
+	def Update_General_Properties( self ):
+		if self.map_loaded == True:
+			# This function updates the properties frame on the right, for the general mode
+			logging.debug( "Se ha llamado a la funcion Update_General_Properties, se actualiza el frame de propiedades")
+			# Write name and description
+			self.property_gen_map_name.set_value( self.mapa_cargado.map_name )
+			self.property_gen_description.set_value( self.mapa_cargado.map_description )
+			# Write rotation type
+			self.property_gen_rot_type_variable.set( self.property_gen_rot_type_choices  [ self.mapa_cargado.rotation_type ] )
+			# Write rotation center
+			self.property_gen_rot_center_x.set_value( self.mapa_cargado.rotation_center.x )
+			self.property_gen_rot_center_y.set_value( self.mapa_cargado.rotation_center.y )
+			# Write maximum angle
+			self.property_gen_max_angle.set_value( self.mapa_cargado.max_angle )
+			# Write coin start position		
+			self.property_gen_coin_start_pos_x.set_value( self.mapa_cargado.coin_starting_point.x )
+			self.property_gen_coin_start_pos_y.set_value( self.mapa_cargado.coin_starting_point.y )
+			# Write gravity
+			self.property_gen_gravity.set_value( self.mapa_cargado.gravity )
+			# Write scale (this parameter is optional)
+			if self.mapa_cargado.scale is not None:
+				self.property_gen_scale.set_value( self.mapa_cargado.scale )
+			else:
+				self.property_gen_scale.set_value( "" )
+			# Write music path
+			self.property_gen_music_path.set_value( self.mapa_cargado.music_path )
+		else:
+			logging.debug( "Se ha llamado a la funcion Update_General_Properties, el mapa no estaba cargado, no se ha hecho nada")
+
+
+	def Apply_General_Map_Changes( self ):
+		# When some values are changed in the properties frame, this function applies the changes to the map general data
+		# Only to be taken into account in the general mode
+		if self.current_mode == Mode.general:
+			logging.debug( "Funcion Apply_General_Map_Changes llamada, se intentan aplicar los cambios al mapa." )
+			try:
+				# Get name and description
+				self.mapa_cargado.map_name = self.property_gen_map_name.get_value_string() 
+				self.mapa_cargado.map_description = self.property_gen_description.get_value_string()
+				# Get rotation type
+				read_rot_type = self.property_gen_rot_type_variable.get()
+				for type_num, rot_type_to_compare in enumerate(self.property_gen_rot_type_choices, start=0) :
+					if read_rot_type == rot_type_to_compare:
+						self.mapa_cargado.rotation_type = type_num
+						break	# Exit for
+				# Write rotation center
+				self.mapa_cargado.rotation_center.x = float(  self.property_gen_rot_center_x.get_value_string()  )
+				self.mapa_cargado.rotation_center.y = float(  self.property_gen_rot_center_y.get_value_string()  )
+				# Get coin start position
+				self.mapa_cargado.coin_starting_point.x = float(  self.property_gen_coin_start_pos_x.get_value_string()  )
+				self.mapa_cargado.coin_starting_point.y = float(  self.property_gen_coin_start_pos_y.get_value_string()  )
+				# Draw (or redraw) coin start position
+				self.canvas_mapview.Show_Coin_Start_Position( self.mapa_cargado )
+				# Get gravity
+				self.mapa_cargado.gravity = float(  self.property_gen_gravity.get_value_string()  )
+				# Get scale (this parameter is optional)
+				if self.property_gen_scale.get_value_string().strip() != "" :
+					self.mapa_cargado.scale = float(  self.property_gen_scale.get_value_string()  )
+				else:
+					self.mapa_cargado.scale = None
+				# Get music path
+				self.mapa_cargado.music_path = self.property_gen_music_path.get_value_string()
+
+			except Exception as e:
+				logging.exception(e)
+				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+		else:
+			logging.debug( "Funcion Apply_General_Map_Changes llamada, pero en el modo incorrecto. No se hace nada." )
+
+
+
+	def Update_Image_Properties( self ):
+		if self.map_loaded == True:
+			# This function updates the properties frame on the right, for the image mode
+			logging.debug( "Se ha llamado a la funcion Update_Image_Properties, se actualiza el frame de propiedades")
+			# Write coin image path
+			self.property_img_coin_path.set_value( self.mapa_cargado.coin_image_path )
+			# Write background image path
+			self.property_img_background_path.set_value( self.mapa_cargado.fixed_background_path )
+			# Write no-rotation coin status 
+			if self.mapa_cargado.coin_does_not_rotate is not None:
+				if self.mapa_cargado.coin_does_not_rotate == True:
+					self.property_img_norot_coin.select()
+				else:
+					self.property_img_norot_coin.deselect()
+			else:	# it is None
+				self.property_img_norot_coin.deselect()	
+
+			# Write wall segment image path
+			self.property_img_wall_segm_path.set_value( self.mapa_cargado.wall_segment_image_path )
+			# Write goal segment image path
+			self.property_img_goal_segm_path.set_value( self.mapa_cargado.goal_segment_image_path )
+			# Write death segment image path
+			self.property_img_death_segm_path.set_value( self.mapa_cargado.death_segment_image_path )
+		else:
+			logging.debug( "Se ha llamado a la funcion Update_Image_Properties, el mapa no estaba cargado, no se ha hecho nada")
+
+
+	def Apply_Image_Map_Changes( self ):
+		# When some values are changed in the properties frame, this function applies the changes to the map images data
+		# Only to be taken into account in the image mode
+		if self.current_mode == Mode.images:
+			logging.debug( "Funcion Apply_Image_Map_Changes llamada, se intentan aplicar los cambios al mapa." )
+			try:
+				# Get coin image path
+				self.mapa_cargado.coin_image_path = self.property_img_coin_path.get_value_string()
+				# Get background image path
+				self.fixed_background_path = self.property_img_background_path.get_value_string()
+				# Get no-rotation coin status
+				self.mapa_cargado.coin_does_not_rotate = self.property_img_norot_coin_variable.get()  
+				# Get wall segment image path
+				self.mapa_cargado.wall_segment_image_path = self.property_img_wall_segm_path.get_value_string()
+				# Get goal segment image path
+				self.mapa_cargado.goal_segment_image_path = self.property_img_goal_segm_path.get_value_string()
+				# Get death segment image path
+				self.mapa_cargado.death_segment_image_path = self.property_img_death_segm_path.get_value_string()
+
+			except Exception as e:
+				logging.exception(e)
+				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+		else:
+			logging.debug( "Funcion Apply_Image_Map_Changes llamada, pero en el modo incorrecto. No se hace nada." )
+
+
+	def Update_RotBg_Properties( self ):
+		if self.map_loaded == True:
+			# This function updates the properties frame on the right, for the rotation background mode
+			logging.debug( "Se ha llamado a la funcion Update_RotBg_Properties, se actualiza el frame de propiedades")
+			# Write whether the rotating background exists or not 
+			if self.mapa_cargado.rotating_background is not None:
+				if self.mapa_cargado.rotating_background == True:
+					self.property_rotbg_exists.select()
+				else:
+					self.property_rotbg_exists.deselect()
+			else:	# it is None
+				self.property_img_norot_coin.deselect()	
+
+			# The following only are taken into account when there is a rotating background
+			if self.mapa_cargado.rotating_background is not None:
+				if self.mapa_cargado.rotating_background == True:
+					# Write rotating background image path
+					self.property_rotbg_path.set_value( self.mapa_cargado.rotating_background_path )
+					# Write rotating background position coordinates
+					self.property_rotbg_left_x.set_value(  self.mapa_cargado.rotating_background_left_x_pos  )
+					self.property_rotbg_up_y.set_value(  self.mapa_cargado.rotating_background_up_y_pos  )
+					self.property_rotbg_right_x.set_value(  self.mapa_cargado.rotating_background_right_x_pos  )
+					self.property_rotbg_down_y.set_value(  self.mapa_cargado.rotating_background_down_y_pos  )
+					# Write rotating background rotation center
+					self.property_rotbg_center_x.set_value(  self.mapa_cargado.rotating_background_center.x  )
+					self.property_rotbg_center_y.set_value(  self.mapa_cargado.rotating_background_center.y  )
+
+		else:
+			logging.debug( "Se ha llamado a la funcion Update_Image_Properties, el mapa no estaba cargado, no se ha hecho nada")
+
+
+	def Apply_RotBg_Map_Changes( self ):
+		# When some values are changed in the properties frame, this function applies the changes to the rotating background data
+		# Only to be taken into account in the rotating background mode
+		if self.current_mode == Mode.images:
+			logging.debug( "Funcion Apply_Image_Map_Changes llamada, se intentan aplicar los cambios al mapa." )
+			try:
+				# Get whether the rotating background exists or not 
+				self.mapa_cargado.rotating_background = self.property_rotbg_exists_variable.get()
+				# Get rotating background image path
+				if self.property_rotbg_path.get_value_string().strip() != "" :
+					self.mapa_cargado.rotating_background_path = self.property_rotbg_path.get_value_string()
+				else:
+					self.mapa_cargado.rotating_background_path = None
+				# Get rotating background position coordinates
+				if self.property_rotbg_left_x.get_value_string().strip() != "" :
+					self.mapa_cargado.rotating_background_left_x_pos = float(  self.property_rotbg_left_x.get_value_string()  )
+				else:
+					self.mapa_cargado.rotating_background_left_x_pos = None
+
+				if self.property_rotbg_up_y.get_value_string().strip() != "" :
+					self.mapa_cargado.rotating_background_up_y_pos = float(  self.property_rotbg_up_y.get_value_string()  )
+				else:
+					self.mapa_cargado.rotating_background_up_y_pos = None
+
+				if self.property_rotbg_right_x.get_value_string().strip() != "" :
+					self.mapa_cargado.rotating_background_right_x_pos = float(  self.property_rotbg_right_x.get_value_string()  )
+				else:
+					self.mapa_cargado.rotating_background_right_x_pos = None
+
+				if self.property_rotbg_down_y.get_value_string().strip() != "" :
+					self.mapa_cargado.rotating_background_down_y_pos = float(  self.property_rotbg_down_y.get_value_string()  )
+				else:
+					self.mapa_cargado.rotating_background_down_y_pos = None
+				# Get rotating background rotation center
+				if self.property_rotbg_center_x.get_value_string().strip() != "" :
+					self.mapa_cargado.rotating_background_center.x = float(  self.property_rotbg_center_x.get_value_string()  )
+				else:
+					self.mapa_cargado.rotating_background_center.x = None
+
+				if self.property_rotbg_center_y.get_value_string().strip() != "" :
+					self.mapa_cargado.rotating_background_center.y = float(  self.property_rotbg_center_y.get_value_string()  )
+				else:
+					self.mapa_cargado.rotating_background_center.y = None
+
+			except Exception as e:
+				logging.exception(e)
+				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+		else:
+			logging.debug( "Funcion Apply_Image_Map_Changes llamada, pero en el modo incorrecto. No se hace nada." )
 
 
 	def Update_Selected_Segment_Properties( self, segm_number ):
@@ -1451,6 +1805,224 @@ class RC_editor_GUI():
 				del self.segment_table
 
 
+	def General_Property_RealNumber_Change_FocusOut_Validation_Callback( self, widget_name, text_before_change, text_after_change ):
+		# This is the validation function called everytime an entry widget loses focus (if everything is set up correctly, of course)
+		logging.debug( "Llamada a función General_Property_RealNumber_Change_FocusOut_Validation_Callback: Modo = " + mode_names.get( self.current_mode ) + \
+				", widget_name = " + str(widget_name) + ", text_before_change = " + text_before_change\
+				+ ", text_after_change = " + text_after_change )
+		if self.map_loaded == True:
+			if self.current_mode == Mode.general:
+				if isFloat(text_after_change) == True:
+					logging.debug("El nuevo texto es un numero.")
+					self.Apply_General_Map_Changes()
+					return(True)
+				else:
+					logging.debug("El nuevo texto no es un numero.")
+					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+					return(False)
+			else:
+				logging.debug("Modo incorrecto. No se hace nada.")
+				return(False)	
+		else:
+			logging.debug("Mapa no cargado. No se hace nada")
+			return(False)
+		# Note: This validation function must always return true (validation OK) or false (validation NOT OK)
+		# This only restores the original value in the 'key' validation mode. In the 'focusout' mode, the wrong value persists.
+		# Warning: In case nothing is returned, then this function will never be called again (???) and the program will be broken.
+
+
+	def General_Property_OPTIONAL_RealNumber_Change_FocusOut_Validation_Callback( self, widget_name, text_before_change, text_after_change ):
+		# This is the validation function called everytime an entry widget loses focus (if everything is set up correctly, of course)
+		# Used when the parameter is OPTIONAL
+		logging.debug( "Llamada a función General_Property_RealNumber_Change_FocusOut_Validation_Callback: Modo = " + mode_names.get( self.current_mode ) + \
+				", widget_name = " + str(widget_name) + ", text_before_change = " + text_before_change\
+				+ ", text_after_change = " + text_after_change )
+		if self.map_loaded == True:
+			if self.current_mode == Mode.general:
+				if isFloat(text_after_change) == True:
+					logging.debug("El nuevo texto es un numero.")
+					self.Apply_General_Map_Changes()
+					return(True)
+				elif text_after_change.strip() == "":	# String is empty
+					logging.debug("El nuevo texto es una cadena vacia.")
+					self.Apply_General_Map_Changes()
+					return(True)
+				else:
+					logging.debug("El nuevo texto no es un numero.")
+					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+					return(False)
+			else:
+				logging.debug("Modo incorrecto. No se hace nada.")
+				return(False)	
+		else:
+			logging.debug("Mapa no cargado. No se hace nada")
+			return(False)
+		# Note: This validation function must always return true (validation OK) or false (validation NOT OK)
+		# This only restores the original value in the 'key' validation mode. In the 'focusout' mode, the wrong value persists.
+		# Warning: In case nothing is returned, then this function will never be called again (???) and the program will be broken.
+
+
+	def General_Property_OptionMenu_Click_Callback( self, ChosenOption ):
+		# This function will be called when a OptionMenu on the properties frame is clicked (if everything is set up correctly, of course)
+		logging.debug( "Llamada a función General_Property_OptionMenu_Click_Callback: Modo = " + mode_names.get( self.current_mode ) + \
+				", opcion elegida: " + ChosenOption )
+		if self.map_loaded == True:
+			if self.current_mode == Mode.general:
+				self.Apply_General_Map_Changes()
+			else:
+				logging.debug("Modo incorrecto. No se hace nada.")
+				return(False)	
+		else:
+			logging.debug("Mapa no cargado. No se hace nada")
+
+
+	def General_Property_String_Change_FocusOut_Validation_Callback( self, widget_name, text_before_change, text_after_change ):
+		# This is the validation function called everytime an entry widget loses focus (if everything is set up correctly, of course)
+		logging.debug( "Llamada a función General_Property_String_Change_FocusOut_Validation_Callback: Modo = " + mode_names.get( self.current_mode ) + \
+				", widget_name = " + str(widget_name) + ", text_before_change = " + text_before_change\
+				+ ", text_after_change = " + text_after_change )
+		if self.map_loaded == True:
+			if self.current_mode == Mode.general:
+				if text_after_change == text_before_change:
+					logging.debug("El texto ha cambiado.")
+					self.Apply_General_Map_Changes()
+					return(True)
+				else:
+					logging.debug("El texto no ha cambiado, no se hace nada.")
+					return(False)
+			else:
+				logging.debug("Modo incorrecto. No se hace nada.")
+				return(False)	
+		# Note: This validation function must always return true (validation OK) or false (validation NOT OK)
+		# This only restores the original value in the 'key' validation mode. In the 'focusout' mode, the wrong value persists.
+		# Warning: In case nothing is returned, then this function will never be called again (???) and the program will be broken.
+
+
+	def Image_Property_String_Change_FocusOut_Validation_Callback( self, widget_name, text_before_change, text_after_change ):
+		# This is the validation function called everytime an entry widget loses focus (if everything is set up correctly, of course)
+		logging.debug( "Llamada a función Image_Property_String_Change_FocusOut_Validation_Callback: Modo = " + mode_names.get( self.current_mode ) + \
+				", widget_name = " + str(widget_name) + ", text_before_change = " + text_before_change\
+				+ ", text_after_change = " + text_after_change )
+		if self.map_loaded == True:
+			if self.current_mode == Mode.images:
+				if text_after_change == text_before_change:
+					logging.debug("El texto ha cambiado.")
+					self.Apply_Image_Map_Changes()
+					return(True)
+				else:
+					logging.debug("El texto no ha cambiado, no se hace nada.")
+					return(False)
+			else:
+				logging.debug("Modo incorrecto. No se hace nada.")
+				return(False)	
+		# Note: This validation function must always return true (validation OK) or false (validation NOT OK)
+		# This only restores the original value in the 'key' validation mode. In the 'focusout' mode, the wrong value persists.
+		# Warning: In case nothing is returned, then this function will never be called again (???) and the program will be broken.
+
+	def Image_Property_Checkbox_Click_Callback( self ):
+		# This function will be called when a checkbox on the properties frame is clicked (if everything is set up correctly, of course)
+		logging.debug( "Llamada a función Image_Property_Checkbox_Click_Callback: Modo = " + mode_names.get( self.current_mode ) )
+		if self.map_loaded == True:
+			if self.current_mode == Mode.images:
+				self.Apply_Image_Map_Changes()
+			else:
+				logging.debug("Modo incorrecto. No se hace nada.")
+				return(False)	
+		else:
+			logging.debug("Mapa no cargado. No se hace nada")
+
+
+	def RotBg_Property_String_Change_FocusOut_Validation_Callback( self, widget_name, text_before_change, text_after_change ):
+		# This is the validation function called everytime an entry widget loses focus (if everything is set up correctly, of course)
+		logging.debug( "Llamada a función RotBg_Property_String_Change_FocusOut_Validation_Callback: Modo = " + mode_names.get( self.current_mode ) + \
+				", widget_name = " + str(widget_name) + ", text_before_change = " + text_before_change\
+				+ ", text_after_change = " + text_after_change )
+		if self.map_loaded == True:
+			if self.current_mode == Mode.rot_bg:
+				if text_after_change == text_before_change:
+					logging.debug("El texto ha cambiado.")
+					self.Apply_RotBg_Map_Changes()
+					return(True)
+				else:
+					logging.debug("El texto no ha cambiado, no se hace nada.")
+					return(False)
+			else:
+				logging.debug("Modo incorrecto. No se hace nada.")
+				return(False)	
+		# Note: This validation function must always return true (validation OK) or false (validation NOT OK)
+		# This only restores the original value in the 'key' validation mode. In the 'focusout' mode, the wrong value persists.
+		# Warning: In case nothing is returned, then this function will never be called again (???) and the program will be broken.
+
+
+
+	def RotBg_Property_RealNumber_Change_FocusOut_Validation_Callback( self, widget_name, text_before_change, text_after_change ):
+		# This is the validation function called everytime an entry widget loses focus (if everything is set up correctly, of course)
+		logging.debug( "Llamada a función RotBg_Property_RealNumber_Change_FocusOut_Validation_Callback: Modo = " + mode_names.get( self.current_mode ) + \
+				", widget_name = " + str(widget_name) + ", text_before_change = " + text_before_change\
+				+ ", text_after_change = " + text_after_change )
+		if self.map_loaded == True:
+			if self.current_mode == Mode.rot_bg:
+				if isFloat(text_after_change) == True:
+					logging.debug("El nuevo texto es un numero.")
+					self.Apply_RotBg_Map_Changes()
+					return(True)
+				else:
+					logging.debug("El nuevo texto no es un numero.")
+					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+					return(False)
+			else:
+				logging.debug("Modo incorrecto. No se hace nada.")
+				return(False)	
+		else:
+			logging.debug("Mapa no cargado. No se hace nada")
+			return(False)
+		# Note: This validation function must always return true (validation OK) or false (validation NOT OK)
+		# This only restores the original value in the 'key' validation mode. In the 'focusout' mode, the wrong value persists.
+		# Warning: In case nothing is returned, then this function will never be called again (???) and the program will be broken.
+
+	def RotBg_Property_OPTIONAL_RealNumber_Change_FocusOut_Validation_Callback( self, widget_name, text_before_change, text_after_change ):
+		# This is the validation function called everytime an entry widget loses focus (if everything is set up correctly, of course)
+		# Used when the parameter is OPTIONAL
+		logging.debug( "Llamada a función RotBg_Property_OPTIONAL_RealNumber_Change_FocusOut_Validation_Callback: Modo = " + mode_names.get( self.current_mode ) + \
+				", widget_name = " + str(widget_name) + ", text_before_change = " + text_before_change\
+				+ ", text_after_change = " + text_after_change )
+		if self.map_loaded == True:
+			if self.current_mode == Mode.rot_bg:
+				if isFloat(text_after_change) == True:
+					logging.debug("El nuevo texto es un numero.")
+					self.Apply_RotBg_Map_Changes()
+					return(True)
+				elif text_after_change.strip() == "":	# String is empty
+					logging.debug("El nuevo texto es una cadena vacia.")
+					self.Apply_RotBg_Map_Changes()
+					return(True)
+				else:
+					logging.debug("El nuevo texto no es un numero.")
+					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+					return(False)
+			else:
+				logging.debug("Modo incorrecto. No se hace nada.")
+				return(False)	
+		else:
+			logging.debug("Mapa no cargado. No se hace nada")
+			return(False)
+		# Note: This validation function must always return true (validation OK) or false (validation NOT OK)
+		# This only restores the original value in the 'key' validation mode. In the 'focusout' mode, the wrong value persists.
+		# Warning: In case nothing is returned, then this function will never be called again (???) and the program will be broken.
+
+
+	def RotBg_Property_Checkbox_Click_Callback( self ):
+		# This function will be called when a checkbox on the properties frame is clicked (if everything is set up correctly, of course)
+		logging.debug( "Llamada a función RotBg_Property_Checkbox_Click_Callback: Modo = " + mode_names.get( self.current_mode ) )
+		if self.map_loaded == True:
+			if self.current_mode == Mode.rot_bg:
+				self.Apply_RotBg_Map_Changes()
+			else:
+				logging.debug("Modo incorrecto. No se hace nada.")
+				return(False)	
+		else:
+			logging.debug("Mapa no cargado. No se hace nada")
+
 
 	def Segment_Property_RealNumber_Change_FocusOut_Validation_Callback( self, widget_name, text_before_change, text_after_change ):
 		# This is the validation function called everytime an entry widget loses focus (if everything is set up correctly, of course)
@@ -1602,4 +2174,31 @@ class RC_editor_GUI():
 			self.button_snap_point_segm.configure(bg = self.orig_button_bg_color )
 
 
+	def Update_All_Properties( self ):
+		# This function updates all properties on the properties frame
+		self.Update_General_Properties()
+		self.Update_Image_Properties()
+		self.Update_RotBg_Properties()
+		pass	# Update_....			(TODO)
+
+
+	def Choose_Coin_Starting_Point_Button_Callback( self ):
+		if self.map_loaded == True:
+			self.window_statusbar.set_field_1("%s", "Seleccione punto inicial de la moneda" )
+			self.current_general_submode = General_SubMode.choose_coin_start_pos
+			self.canvas_mapview.Set_Cursor_Cross()
+
+
+	def Choose_Rotation_Center_Button_Callback( self ):
+		if self.map_loaded == True:
+			self.window_statusbar.set_field_1("%s", "Seleccione centro de giro" )
+			self.current_general_submode = General_SubMode.choose_rotarion_center
+			self.canvas_mapview.Set_Cursor_Cross()			
+
+
+	def Choose_Rotating_Background_Rotation_Center_Button_Callback( self ):
+		if self.map_loaded == True:
+			self.window_statusbar.set_field_1("%s", "Seleccione centro de giro del fondo giratorio" )
+			self.current_rotbg_submode = RotBg_SubMode.choose_rotbg_center
+			self.canvas_mapview.Set_Cursor_Cross()
 

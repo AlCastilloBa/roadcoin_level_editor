@@ -31,6 +31,13 @@ class Canvas_WithScrollbars(tk.Frame):
 	raccz_circle_being_created = None	# Reference to circle that represents a raccz being created
 	raccz_arrow_being_created = None	# Reference to polygon that represents the angle of the raccz being created
 
+	coin_start_pos_circle = None		# Reference to circle that represents the coin start position (4/2/2021)
+
+	rotation_center_circle = None		# Reference to circle that represents the rotation center (15/2/2021)
+	rotation_center_cross = None		# Reference to polygon that represents the rotation center (15/2/2021)
+
+	rotbg_rotation_center_circle = None	# Reference to circle that represents the rotating background rotation center (16/2/2021)
+	rotbg_rotation_center_cross = None	# Reference to polygon that represents the rotating background rotation center (16/2/2021)
 
 	def __init__(self, master, owner_object ):
 		tk.Frame.__init__(self, master)
@@ -144,6 +151,9 @@ class Canvas_WithScrollbars(tk.Frame):
 		self.DrawAllBumpersNumbers( Map )
 		self.DrawAllRACCZ( Map)
 		self.DrawAllRACCZNumbers( Map )
+		self.Show_Coin_Start_Position( Map )		# 4/2/2021
+		self.Show_Rotation_Center( Map )		# 15/2/2021
+		self.Show_RotBg_Rotation_Center( Map )		# 16/2/2021
 
 
 	def UnHighlight_All( self ):
@@ -536,6 +546,125 @@ class Canvas_WithScrollbars(tk.Frame):
 			self.viewer.delete( self.raccz_arrow_being_created )
 			self.raccz_arrow_being_created = None		
 
+
+
+	def Show_Coin_Start_Position( self, Map ):		# 4/2/2021
+		# This funciton draws a circle with center according to coin start position
+		# The radius is a fixed amount
+		# If the circle already exist, it is deleted and drawn again
+		radius = 10
+		x_center = Map.coin_starting_point.x
+		y_center = Map.coin_starting_point.y
+		# If coin start position is not defined already, then do not draw it
+		if (x_center is not None) and (y_center is not None) :
+			if self.coin_start_pos_circle is not None:
+				self.viewer.delete( self.coin_start_pos_circle )
+				self.coin_start_pos_circle = None
+			self.coin_start_pos_circle = self.viewer.create_oval(		( x_center-radius ) * self.zoomlevel, \
+											( y_center-radius ) * self.zoomlevel, \
+											( x_center+radius ) * self.zoomlevel, \
+											( y_center+radius ) * self.zoomlevel, \
+											outline="green") 
+
+	def Hide_Coin_Start_Position( self ):			# 4/2/2021
+		# If already shown, the cicle is hidden. If already hidden, nothing is done.
+		if self.coin_start_pos_circle is not None:
+			self.viewer.delete( self.coin_start_pos_circle )
+			self.coin_start_pos_circle = None
+
+
+
+	def Show_Rotation_Center( self, Map ):		# 15/2/2021
+		# This function draws a circle and a cross according to the rotation center
+		# The radius is a fixed amount
+		# If is already drawn, it is deleted and drawn again
+		radius = 10
+		x_center = Map.rotation_center.x
+		y_center = Map.rotation_center.y	
+		# If rotation center is not defined already, then do not draw it
+		if (x_center is not None) and (y_center is not None) :
+			if self.rotation_center_circle is not None:
+				self.viewer.delete( self.rotation_center_circle )
+				self.rotation_center_circle = None
+			if self.rotation_center_cross is not None:
+				self.viewer.delete( self.rotation_center_cross )
+				self.rotation_center_cross = None				
+			self.rotation_center_circle = self.viewer.create_oval(		( x_center-radius ) * self.zoomlevel, \
+											( y_center-radius ) * self.zoomlevel, \
+											( x_center+radius ) * self.zoomlevel, \
+											( y_center+radius ) * self.zoomlevel, \
+											outline="orange") 
+			self.rotation_center_cross = self.viewer.create_line( 		( x_center-radius ) * self.zoomlevel, \
+											( y_center        ) * self.zoomlevel, \
+											( x_center+radius ) * self.zoomlevel, \
+											( y_center        ) * self.zoomlevel, \
+											( x_center        ) * self.zoomlevel, \
+											( y_center        ) * self.zoomlevel, \
+											( x_center        ) * self.zoomlevel, \
+											( y_center-radius ) * self.zoomlevel, \
+											( x_center        ) * self.zoomlevel, \
+											( y_center+radius ) * self.zoomlevel, \
+											fill = "orange"     )
+
+
+	def Hide_Rotation_Center( self ):		# 15/2/2021
+		# If already shown, the cicle is hidden. If already hidden, nothing is done.
+		if self.rotation_center_circle is not None:
+			self.viewer.delete( self.rotation_center_circle )
+			self.rotation_center_circle = None
+		if self.rotation_center_cross is not None:
+			self.viewer.delete( self.rotation_center_cross )
+			self.rotation_center_cross = None
+
+
+	def Show_RotBg_Rotation_Center( self, Map ):		# 16/2/2021
+		# This function draws a circle and a cross according to the rotating background rotation center
+		# The radius is a fixed amount
+		# If is already drawn, it is deleted and drawn again
+
+		# If rotation center is not defined yet, then do not draw it
+		if Map.rotating_background_center is None:
+			return
+
+		radius = 5
+		# NOTE: These are not absolute coordinates, they are coordinates relative to the texture left corner
+		# Note: This is how roadcoin is currently programmed
+		x_center = Map.rotating_background_center.x + Map.rotating_background_left_x_pos
+		y_center = Map.rotating_background_center.y + Map.rotating_background_up_y_pos
+		# If rotation center is not defined already, then do not draw it
+		if (x_center is not None) and (y_center is not None) :
+			if self.rotbg_rotation_center_circle is not None:
+				self.viewer.delete( self.rotbg_rotation_center_circle )
+				self.rotbg_rotation_center_circle = None
+			if self.rotbg_rotation_center_cross is not None:
+				self.viewer.delete( self.rotbg_rotation_center_cross )
+				self.rotbg_rotation_center_cross = None				
+			self.rotbg_rotation_center_circle = self.viewer.create_oval(		( x_center-radius ) * self.zoomlevel, \
+												( y_center-radius ) * self.zoomlevel, \
+												( x_center+radius ) * self.zoomlevel, \
+												( y_center+radius ) * self.zoomlevel, \
+												outline="pink") 
+			self.rotbg_rotation_center_cross = self.viewer.create_line( 		( x_center-radius ) * self.zoomlevel, \
+												( y_center        ) * self.zoomlevel, \
+												( x_center+radius ) * self.zoomlevel, \
+												( y_center        ) * self.zoomlevel, \
+												( x_center        ) * self.zoomlevel, \
+												( y_center        ) * self.zoomlevel, \
+												( x_center        ) * self.zoomlevel, \
+												( y_center-radius ) * self.zoomlevel, \
+												( x_center        ) * self.zoomlevel, \
+												( y_center+radius ) * self.zoomlevel, \
+												fill = "pink"     )
+
+
+	def Hide_RotBg_Rotation_Center( self ):		# 16/2/2021
+		# If already shown, the cicle is hidden. If already hidden, nothing is done.
+		if self.rotbg_rotation_center_circle is not None:
+			self.viewer.delete( self.rotbg_rotation_center_circle )
+			self.rotbg_rotation_center_circle = None
+		if self.rotation_center_cross is not None:
+			self.viewer.delete( self.rotbg_rotation_center_cross )
+			self.rotbg_rotation_center_cross = None
 
 
 #########################################################################3
