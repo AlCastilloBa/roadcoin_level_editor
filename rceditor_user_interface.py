@@ -165,7 +165,7 @@ class RC_editor_GUI():
 		logging.debug( "Inicializando menu principal del editor" )
 		self.menubar_mainmenu = tk.Menu( self.window_main_editor )
 		self.filemenu = tk.Menu( self.menubar_mainmenu, tearoff=0)
-		self.filemenu.add_command(label="Nuevo", image = self.img_new_icon, compound = tk.LEFT, command = do_nothing )
+		self.filemenu.add_command(label="Nuevo", image = self.img_new_icon, compound = tk.LEFT, command = self.NewMapButton )
 		self.filemenu.add_command(label="Abrir", image = self.img_open_icon, compound = tk.LEFT, command = self.LoadMapButton )
 		self.filemenu.add_command(label="Guardar", image = self.img_save_icon, compound = tk.LEFT, command = self.SaveMapButton )			# 3/1/2021
 		self.filemenu.add_command(label="Guardar como...", image = self.img_save_icon, compound = tk.LEFT, command = self.SaveMapAsButton )	# 3/1/2021
@@ -323,7 +323,8 @@ class RC_editor_GUI():
 		self.property_gen_gravity = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Gravedad:", validatecommand=General_RealNumber_Validation )
 		self.property_gen_scale = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Escala:", validatecommand=General_OPTIONAL_RealNumber_Validation )
 		self.property_gen_music_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Musica", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
-		self.properties_gen_list = [ self.property_gen_map_name, self.property_gen_description, self.property_gen_rot_type_label, self.property_gen_rot_type, self.property_gen_rot_center_label, self.property_gen_rot_center_x, self.property_gen_rot_center_y, self.property_gen_rot_center_select, self.property_gen_max_angle, self.property_gen_coin_start_pos_label, self.property_gen_coin_start_pos_x, self.property_gen_coin_start_pos_y, self.property_gen_coin_start_pos_select, self.property_gen_gravity, self.property_gen_scale, self.property_gen_music_path ]
+		self.property_gen_timeout = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Tiempo cuenta atras:", validatecommand=General_OPTIONAL_RealNumber_Validation )
+		self.properties_gen_list = [ self.property_gen_map_name, self.property_gen_description, self.property_gen_rot_type_label, self.property_gen_rot_type, self.property_gen_rot_center_label, self.property_gen_rot_center_x, self.property_gen_rot_center_y, self.property_gen_rot_center_select, self.property_gen_max_angle, self.property_gen_coin_start_pos_label, self.property_gen_coin_start_pos_x, self.property_gen_coin_start_pos_y, self.property_gen_coin_start_pos_select, self.property_gen_gravity, self.property_gen_scale, self.property_gen_music_path, self.property_gen_timeout ]
 		# Image mode properties widgets
 		self.property_img_coin_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen moneda", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
 		self.property_img_background_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen fondo fijo", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
@@ -332,7 +333,8 @@ class RC_editor_GUI():
 		self.property_img_wall_segm_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen segmento pared", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
 		self.property_img_goal_segm_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen segmento meta", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
 		self.property_img_death_segm_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen segmento muerte", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
-		self.properties_img_list = [ self.property_img_coin_path, self.property_img_background_path, self.property_img_norot_coin, self.property_img_wall_segm_path, self.property_img_goal_segm_path, self.property_img_death_segm_path ]
+		self.property_img_description_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen descripcion menu", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
+		self.properties_img_list = [ self.property_img_coin_path, self.property_img_background_path, self.property_img_norot_coin, self.property_img_wall_segm_path, self.property_img_goal_segm_path, self.property_img_death_segm_path, self.property_img_description_path ]
 		# Rotating background mode properties widgets
 		self.property_rotbg_exists_variable = tk.BooleanVar()
 		self.property_rotbg_exists = tk.Checkbutton(master=self.frame_properties, text="Fondo giratorio", var=self.property_rotbg_exists_variable, command=self.RotBg_Property_Checkbox_Click_Callback )
@@ -1162,6 +1164,33 @@ class RC_editor_GUI():
 
 	##############################################################################
 
+	def NewMapButton(self):			# 17/2/2021
+		if self.map_loaded == True:
+			answer = tk.messagebox.askyesnocancel("Abrir otro mapa", "¿Desea abrir otro mapa?\nSe perderán las modificaciones realizadas en el mapa actual")
+			logging.debug( "Pregunta abrir otro mapa, el usuario ha respondido answer = " + str(answer) )
+			if (answer is None) or (answer == False) :
+				return	# Do nothing
+
+		if self.map_loaded == True:
+			# If there is a map loaded, unload it before loading the new one
+			self.UnloadMap()
+
+		# Create a new empty map
+		self.mapa_cargado = rceditor_maps.Map()
+		self.mapa_cargado.Initialize_New_Map_Values()
+		self.loaded_map_filename = "Sin nombre"
+		# Set user interface
+		self.window_main_editor.title( "RoadCoin Level Editor - " + self.loaded_map_filename )
+		self.map_loaded = True
+		self.EnableMenuItems_MapLoaded()
+		self.window_statusbar.set_field_1("%s", "Nuevo mapa creado" )
+		logging.debug( "Representando mapa en editor... " )
+		self.canvas_mapview.DrawAll( self.mapa_cargado )
+		# Update properties frames
+		self.Update_All_Properties()
+
+
+
 	def LoadMapButton(self):
 		if self.map_loaded == True:
 			answer = tk.messagebox.askyesnocancel("Abrir otro mapa", "¿Desea abrir otro mapa?\nSe perderán las modificaciones realizadas en el mapa actual")
@@ -1314,8 +1343,9 @@ class RC_editor_GUI():
 			# Write rotation type
 			self.property_gen_rot_type_variable.set( self.property_gen_rot_type_choices  [ self.mapa_cargado.rotation_type ] )
 			# Write rotation center
-			self.property_gen_rot_center_x.set_value( self.mapa_cargado.rotation_center.x )
-			self.property_gen_rot_center_y.set_value( self.mapa_cargado.rotation_center.y )
+			if self.mapa_cargado.rotation_center is not None:
+				self.property_gen_rot_center_x.set_value( self.mapa_cargado.rotation_center.x )
+				self.property_gen_rot_center_y.set_value( self.mapa_cargado.rotation_center.y )
 			# Write maximum angle
 			self.property_gen_max_angle.set_value( self.mapa_cargado.max_angle )
 			# Write coin start position		
@@ -1330,6 +1360,12 @@ class RC_editor_GUI():
 				self.property_gen_scale.set_value( "" )
 			# Write music path
 			self.property_gen_music_path.set_value( self.mapa_cargado.music_path )
+			# Write timeout (this parameter is optional)
+			if self.mapa_cargado.countdown_time is not None:
+				self.property_gen_timeout.set_value( self.mapa_cargado.countdown_time )
+			else:
+				self.property_gen_timeout.set_value( "" )
+
 		else:
 			logging.debug( "Se ha llamado a la funcion Update_General_Properties, el mapa no estaba cargado, no se ha hecho nada")
 
@@ -1349,9 +1385,11 @@ class RC_editor_GUI():
 					if read_rot_type == rot_type_to_compare:
 						self.mapa_cargado.rotation_type = type_num
 						break	# Exit for
-				# Write rotation center
+				# Get rotation center
 				self.mapa_cargado.rotation_center.x = float(  self.property_gen_rot_center_x.get_value_string()  )
 				self.mapa_cargado.rotation_center.y = float(  self.property_gen_rot_center_y.get_value_string()  )
+				# Get maximum angle
+				self.mapa_cargado.max_angle = float(  self.property_gen_max_angle.get_value_string()  )
 				# Get coin start position
 				self.mapa_cargado.coin_starting_point.x = float(  self.property_gen_coin_start_pos_x.get_value_string()  )
 				self.mapa_cargado.coin_starting_point.y = float(  self.property_gen_coin_start_pos_y.get_value_string()  )
@@ -1366,6 +1404,11 @@ class RC_editor_GUI():
 					self.mapa_cargado.scale = None
 				# Get music path
 				self.mapa_cargado.music_path = self.property_gen_music_path.get_value_string()
+				# Write timeout
+				if self.property_gen_timeout.get_value_string().strip() != "" :
+					self.mapa_cargado.countdown_time = int(  self.property_gen_timeout.get_value_string()  )
+				else:
+					self.mapa_cargado.countdown_time = None
 
 			except Exception as e:
 				logging.exception(e)
@@ -1398,6 +1441,8 @@ class RC_editor_GUI():
 			self.property_img_goal_segm_path.set_value( self.mapa_cargado.goal_segment_image_path )
 			# Write death segment image path
 			self.property_img_death_segm_path.set_value( self.mapa_cargado.death_segment_image_path )
+			# Write map description image for the menu
+			self.property_img_description_path.set_value( self.mapa_cargado.description_image_path )
 		else:
 			logging.debug( "Se ha llamado a la funcion Update_Image_Properties, el mapa no estaba cargado, no se ha hecho nada")
 
@@ -1411,7 +1456,7 @@ class RC_editor_GUI():
 				# Get coin image path
 				self.mapa_cargado.coin_image_path = self.property_img_coin_path.get_value_string()
 				# Get background image path
-				self.fixed_background_path = self.property_img_background_path.get_value_string()
+				self.mapa_cargado.fixed_background_path = self.property_img_background_path.get_value_string()
 				# Get no-rotation coin status
 				self.mapa_cargado.coin_does_not_rotate = self.property_img_norot_coin_variable.get()  
 				# Get wall segment image path
@@ -1420,6 +1465,8 @@ class RC_editor_GUI():
 				self.mapa_cargado.goal_segment_image_path = self.property_img_goal_segm_path.get_value_string()
 				# Get death segment image path
 				self.mapa_cargado.death_segment_image_path = self.property_img_death_segm_path.get_value_string()
+				# Get map description image for the menu
+				self.mapa_cargado.description_image_path = self.property_img_description_path.get_value_string()
 
 			except Exception as e:
 				logging.exception(e)
@@ -1462,8 +1509,8 @@ class RC_editor_GUI():
 	def Apply_RotBg_Map_Changes( self ):
 		# When some values are changed in the properties frame, this function applies the changes to the rotating background data
 		# Only to be taken into account in the rotating background mode
-		if self.current_mode == Mode.images:
-			logging.debug( "Funcion Apply_Image_Map_Changes llamada, se intentan aplicar los cambios al mapa." )
+		if self.current_mode == Mode.rot_bg:
+			logging.debug( "Funcion Apply_RotBg_Map_Changes llamada, se intentan aplicar los cambios al mapa." )
 			try:
 				# Get whether the rotating background exists or not 
 				self.mapa_cargado.rotating_background = self.property_rotbg_exists_variable.get()
@@ -1474,22 +1521,22 @@ class RC_editor_GUI():
 					self.mapa_cargado.rotating_background_path = None
 				# Get rotating background position coordinates
 				if self.property_rotbg_left_x.get_value_string().strip() != "" :
-					self.mapa_cargado.rotating_background_left_x_pos = float(  self.property_rotbg_left_x.get_value_string()  )
+					self.mapa_cargado.rotating_background_left_x_pos = int(  self.property_rotbg_left_x.get_value_string()  )
 				else:
 					self.mapa_cargado.rotating_background_left_x_pos = None
 
 				if self.property_rotbg_up_y.get_value_string().strip() != "" :
-					self.mapa_cargado.rotating_background_up_y_pos = float(  self.property_rotbg_up_y.get_value_string()  )
+					self.mapa_cargado.rotating_background_up_y_pos = int(  self.property_rotbg_up_y.get_value_string()  )
 				else:
 					self.mapa_cargado.rotating_background_up_y_pos = None
 
 				if self.property_rotbg_right_x.get_value_string().strip() != "" :
-					self.mapa_cargado.rotating_background_right_x_pos = float(  self.property_rotbg_right_x.get_value_string()  )
+					self.mapa_cargado.rotating_background_right_x_pos = int(  self.property_rotbg_right_x.get_value_string()  )
 				else:
 					self.mapa_cargado.rotating_background_right_x_pos = None
 
 				if self.property_rotbg_down_y.get_value_string().strip() != "" :
-					self.mapa_cargado.rotating_background_down_y_pos = float(  self.property_rotbg_down_y.get_value_string()  )
+					self.mapa_cargado.rotating_background_down_y_pos = int(  self.property_rotbg_down_y.get_value_string()  )
 				else:
 					self.mapa_cargado.rotating_background_down_y_pos = None
 				# Get rotating background rotation center
@@ -1502,12 +1549,14 @@ class RC_editor_GUI():
 					self.mapa_cargado.rotating_background_center.y = float(  self.property_rotbg_center_y.get_value_string()  )
 				else:
 					self.mapa_cargado.rotating_background_center.y = None
-
+				# Update canvas display - Redraw rotating background (17/2/2021)
+				self.canvas_mapview.Load_Images( self.mapa_cargado, self.preferences )
+				self.canvas_mapview.DrawAll( self.mapa_cargado )
 			except Exception as e:
 				logging.exception(e)
 				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
 		else:
-			logging.debug( "Funcion Apply_Image_Map_Changes llamada, pero en el modo incorrecto. No se hace nada." )
+			logging.debug( "Funcion Apply_RotBg_Map_Changes llamada, pero en el modo incorrecto. No se hace nada." )
 
 
 	def Update_Selected_Segment_Properties( self, segm_number ):

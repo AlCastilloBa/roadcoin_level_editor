@@ -130,16 +130,16 @@ class Map():
 	map_description = None	# String
 	segment_number = None	# Int
 	rotation_type = None	# Class Rotation_Type
-	rotation_center = None  # Class Point
+	rotation_center = Point()  # Class Point
 	max_angle = None        # Real
-	coin_starting_point = None # Class Point
+	coin_starting_point = Point() # Class Point
 	gravity = None		# Real
 	# segment_list = None	# List of Class Segment
 	segment_dict = dict()	# Dictionary of Class Segment
 	coin_image_path = None	# String
 	fixed_background_path = None	# String
 	coin_does_not_rotate = None 	# Boolean
-	countdown = None	# Boolean
+	#countdown = None	# Boolean
 	countdown_time = None	# Int
 	rotating_background = None	# Boolean
 	rotating_background_path = None		# String
@@ -147,7 +147,7 @@ class Map():
 	rotating_background_up_y_pos = None	# Int
 	rotating_background_right_x_pos = None	# Int
 	rotating_background_down_y_pos = None	# Int
-	rotating_background_center = None	# Class Point
+	rotating_background_center = Point()	# Class Point
 	wall_segment_image_path = None		# String
 	goal_segment_image_path = None		# String
 	death_segment_image_path = None		# String
@@ -159,7 +159,7 @@ class Map():
 	round_accel_zones_number = None		# Int
 	# list_round_acel_zones = None		# List of Class Round_Acceleration_Zones
 	dict_round_acel_zones = dict()		# Dictionary of Class Round_Acceleration_Zones
-	Description_Image_path = None		# String
+	description_image_path = None		# String
 	scale = None		# Int
 
 	def __init__(self):
@@ -298,7 +298,7 @@ class Map():
 				logging.debug( "Encontrado angulo_flippers = " + str(self.flippers_angle) )
 			elif line.find("tiempo_cuenta_atras") != -1: 
 				self.countdown_time = int( line.split("=",1)[1].strip() )
-				self.countdown = True
+				#self.countdown = True
 				logging.debug( "Encontrado tiempo_cuenta_atras = " + str(self.countdown_time) )
 			elif line.find("num_zonas_acel_circ") != -1:
 				if self.round_accel_zones_number is not None:
@@ -337,6 +337,10 @@ class Map():
 			elif line.find("imagen_segm_muerte") != -1:
 				self.death_segment_image_path = line.split("=",1)[1].strip()
 				logging.debug( "Encontrado imagen_segm_muerte = " + self.death_segment_image_path )
+			elif line.find("imagen_desc_menu") != -1:
+				self.description_image_path = line.split("=",1)[1].strip()
+				logging.debug( "Encontrado imagen_desc_menu = " + self.description_image_path )
+
 			####################################################
 			# Add new options at this point
 			####################################################
@@ -395,8 +399,8 @@ class Map():
 		if self.rotating_background_path is not None:
 			file1.write( "imagen_fnd_giratorio=" + self.rotating_background_path + "\n" )
 		# rotating_background_left_x_pos, rotating_background_up_y_pos, rotating_background_right_x_pos, rotating_background_down_y_pos
-		if (self.rotating_background_left_x_pos is not None) and ( self.rotating_background_up_y_pos is not None) and ( self.rotating_background_right_x_pos is not None ) and ( rotating_background_down_y_pos is not None ):
-			file1.write( "pos_fnd_giratorio=((" + str(self.rotating_background_left_x_pos) + "," + str(self.rotating_background_up_y_pos) + "),(" + str(self.rotating_background_right_x_pos) + "," + str(self.rotating_background_down_y_pos) + "))" + "\n" )
+		if (self.rotating_background_left_x_pos is not None) and ( self.rotating_background_up_y_pos is not None) and ( self.rotating_background_right_x_pos is not None ) and ( self.rotating_background_down_y_pos is not None ):
+			file1.write( "pos_fnd_giratorio=((" + str(int(self.rotating_background_left_x_pos)) + "," + str(int(self.rotating_background_up_y_pos)) + "),(" + str(int(self.rotating_background_right_x_pos)) + "," + str(int(self.rotating_background_down_y_pos)) + "))" + "\n" )
 
 		# rotating_background_center
 		if ( self.rotating_background_center is not None ):
@@ -409,13 +413,17 @@ class Map():
 		if self.music_path is not None:
 			file1.write( "ruta_musica=" + self.music_path + "\n" )
 		# pinball_bumpers_number
-		file1.write( "num_bumpers=" + str(self.pinball_bumpers_number) + "\n" )
+		if self.pinball_bumpers_number is None:
+			file1.write( "num_bumpers=0" + "\n" )
+		else:
+			file1.write( "num_bumpers=" + str(self.pinball_bumpers_number) + "\n" )
 		# pinball_bumpers_dict
-		if ( self.pinball_bumpers_number != 0 ):
-			for current_bumper_index, current_bumper in self.pinball_bumpers_dict.items():
-				# Note: syntax bumper[%d]=((%lf,%lf),%f,%f)
-				file1.write( "bumper[" + str( current_bumper_index ) + "]=((" + str( current_bumper.center.x ) + "," + str( current_bumper.center.x ) + \
-					"),"  + str( current_bumper.radius ) + "," + str( current_bumper.exit_speed ) + ")" + "\n" )
+		if self.pinball_bumpers_number is not None:
+			if ( self.pinball_bumpers_number != 0 ):
+				for current_bumper_index, current_bumper in self.pinball_bumpers_dict.items():
+					# Note: syntax bumper[%d]=((%lf,%lf),%f,%f)
+					file1.write( "bumper[" + str( current_bumper_index ) + "]=((" + str( current_bumper.center.x ) + "," + str( current_bumper.center.x ) + \
+						"),"  + str( current_bumper.radius ) + "," + str( current_bumper.exit_speed ) + ")" + "\n" )
 
 		# flippers_angle
 		if ( self.flippers_angle is not None ):
@@ -424,26 +432,36 @@ class Map():
 		if self.countdown_time is not None:
 			file1.write( "tiempo_cuenta_atras=" + str(self.countdown_time) + "\n" )
 		# round_accel_zones_number
-		file1.write( "num_zonas_acel_circ= " + str(self.round_accel_zones_number) + "\n" )
+		if self.round_accel_zones_number is None:
+			file1.write( "num_zonas_acel_circ=0" + "\n" )
+		else:
+			file1.write( "num_zonas_acel_circ= " + str(self.round_accel_zones_number) + "\n" )
 		# dict_round_acel_zones
-		if ( self.round_accel_zones_number != 0 ):
-			for current_raccz_index, current_raccz in self.dict_round_acel_zones.items():
-				# Note: syntax zona_acel_circ[%d]=((%lf,%lf),%f,%f,%f,%d)
-				if current_raccz.invisible == True:
-					invisibility = 1
-				else:
-					invisibility = 0
-				file1.write( "zona_acel_circ[" + current_raccz_index + "]=((" + str( current_raccz.center.x ) + "," + str( current_raccz.center.y ) + \
-					")," + str( current_raccz.radius ) + "," + str( current_raccz.angle ) + "," + str( current_raccz.acceleration ) + "," + str( invisibility  ) + ")" + "\n" )
+		if self.round_accel_zones_number is not None:
+			if ( self.round_accel_zones_number != 0 ):
+				for current_raccz_index, current_raccz in self.dict_round_acel_zones.items():
+					# Note: syntax zona_acel_circ[%d]=((%lf,%lf),%f,%f,%f,%d)
+					if current_raccz.invisible == True:
+						invisibility = 1
+					else:
+						invisibility = 0
+					file1.write( "zona_acel_circ[" + current_raccz_index + "]=((" + str( current_raccz.center.x ) + "," + str( current_raccz.center.y ) + \
+						")," + str( current_raccz.radius ) + "," + str( current_raccz.angle ) + "," + str( current_raccz.acceleration ) + "," + str( invisibility  ) + ")" + "\n" )
 
 		if self.coin_does_not_rotate is not None:
 			file1.write( "no_rot_moneda" + "\n" )
 		if self.wall_segment_image_path is not None:
-			file1.write( "imagen_segm_pared=" + self.wall_segment_image_path + "\n" )
+			if self.wall_segment_image_path.strip() != "None":
+				file1.write( "imagen_segm_pared=" + self.wall_segment_image_path + "\n" )
 		if self.goal_segment_image_path is not None:
-			file1.write( "imagen_segm_meta=" + self.goal_segment_image_path + "\n" )
+			if self.goal_segment_image_path.strip() != "None":
+				file1.write( "imagen_segm_meta=" + self.goal_segment_image_path + "\n" )
 		if self.death_segment_image_path is not None:
-			file1.write( "imagen_segm_muerte=" + self.death_segment_image_path + "\n" )
+			if self.death_segment_image_path.strip() != "None":
+				file1.write( "imagen_segm_muerte=" + self.death_segment_image_path + "\n" )
+		if self.description_image_path is not None:
+			if self.description_image_path.strip() != "None":
+				file1.write( "imagen_desc_menu=" + self.description_image_path + "\n" )
 
 		####################################################
 		# Add new options at this point
@@ -506,10 +524,12 @@ class Map():
 			map_data_ok = False
 			error_list = error_list + "La imagen del fondo fijo no está definida.\n"
 		#Note: coin_does_not_rotate = None is possible 	# Boolean
-		if ( self.countdown is not None ): # Boolean
-			if ( self.countdown == True ) and ( (self.countdown_time is None) or (self.countdown_time==0) ):	  	# Int
-				map_data_ok = False
-				error_list = error_list + "Se espera tiempo cuenta atras, pero no está definido.\n"
+
+		#Note: countdown_time = None is possible		# Int
+		#if ( self.countdown is not None ): # Boolean
+		#	if ( self.countdown == True ) and ( (self.countdown_time is None) or (self.countdown_time==0) ):	  	# Int
+		#		map_data_ok = False
+		#		error_list = error_list + "Se espera tiempo cuenta atras, pero no está definido.\n"
 
 		if ( self.rotating_background is not None ): 	# Boolean
 			if (self.rotating_background==True) and (( self.rotating_background_path is None ) or ( self.rotating_background_path=="" ) ):  # String
@@ -532,12 +552,12 @@ class Map():
 		# Note: death_segment_image_path = None is possible		# String
 		# Note: music_path = None is possible		# String
 
-		if (self.pinball_bumpers_number is None) or (self.pinball_bumpers_number==0):		# Int
-			map_data_ok = False
-			error_list = error_list + "Numero de bumpers no definido.\n"
-		if (self.round_accel_zones_number is None) or (self.round_accel_zones_number==0):		# Int
-			map_data_ok = False
-			error_list = error_list + "Numero de zonas de aceleración circular no definido.\n"
+		#if (self.pinball_bumpers_number is None) or (self.pinball_bumpers_number==0):		# Int
+		#	map_data_ok = False
+		#	error_list = error_list + "Numero de bumpers no definido.\n"
+		#if (self.round_accel_zones_number is None) or (self.round_accel_zones_number==0):		# Int
+		#	map_data_ok = False
+		#	error_list = error_list + "Numero de zonas de aceleración circular no definido.\n"
 
 		#Note: flippers_angle = None	is possible	# Real
 		#Note: Description_Image_path = None	is posible	# String
@@ -760,6 +780,16 @@ class Map():
 		return Nearest_Point_So_Far.x, Nearest_Point_So_Far.y, snap
 
 
-
-
+	def Initialize_New_Map_Values( self ):
+		# This function initializes values that cannot be left as "none"
+		logging.debug( "Inicializando valores del nuevo mapa creado" )
+		self.rotation_type = Rotation_Type.camera.value
+		self.rotation_center = Point(0,0)
+		self.coin_starting_point = Point(0,0)
+		self.rotating_background_center = Point(0,0)
+		self.max_angle = 0
+		self.gravity = 1000
+		self.segment_number = 0
+		self.pinball_bumpers_number = 0
+		self.round_accel_zones_number = 0
 

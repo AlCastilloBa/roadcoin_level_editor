@@ -231,9 +231,15 @@ class Canvas_WithScrollbars(tk.Frame):
 	def Draw_RotBG( self, Map ):
 		if self.rotbg_image is not None:	# If the image is loaded
 			logging.debug( "Creando imagen de fondo giratorio, en x=" + str( Map.rotating_background_left_x_pos ) + ", y=" + str( Map.rotating_background_up_y_pos ) )
+			# Read original image size
+			orig_image_size_width = self.rotbg_image.width
+			orig_image_size_height = self.rotbg_image.height
 			# Resize image and 
 			# Note: Keep the reference (if not, the image will be garbage-collected)
-			self.rotbg_image_resized = self.rotbg_image.resize( (int(self.rotbg_image.size[0]*self.zoomlevel), int(self.rotbg_image.size[1]*self.zoomlevel)) , Image.LANCZOS )
+##			self.rotbg_image_resized = self.rotbg_image.resize( (int(self.rotbg_image.size[0]*self.zoomlevel), int(self.rotbg_image.size[1]*self.zoomlevel)) , Image.LANCZOS )
+			self.rotbg_image_resized = self.rotbg_image.resize( (  int(self.rotbg_image.size[0]*self.zoomlevel * (Map.rotating_background_right_x_pos - Map.rotating_background_left_x_pos ) / orig_image_size_width ), \
+										int(self.rotbg_image.size[1]*self.zoomlevel * (Map.rotating_background_down_y_pos - Map.rotating_background_up_y_pos) / orig_image_size_height )  ), \
+										Image.LANCZOS )
 			# Enhance image: colour, contrast and brightness
 			enhancer = ImageEnhance.Color(self.rotbg_image_resized)
 			self.rotbg_image_resized = enhancer.enhance( 1.0 )
@@ -578,6 +584,11 @@ class Canvas_WithScrollbars(tk.Frame):
 		# This function draws a circle and a cross according to the rotation center
 		# The radius is a fixed amount
 		# If is already drawn, it is deleted and drawn again
+
+		# If rotation center is not defined yet, then do not draw it
+		if Map.rotation_center is None:
+			return
+
 		radius = 10
 		x_center = Map.rotation_center.x
 		y_center = Map.rotation_center.y	
@@ -624,6 +635,8 @@ class Canvas_WithScrollbars(tk.Frame):
 
 		# If rotation center is not defined yet, then do not draw it
 		if Map.rotating_background_center is None:
+			return
+		if Map.rotating_background_center.x is None or Map.rotating_background_center.y is None or Map.rotating_background_left_x_pos is None or Map.rotating_background_up_y_pos is None:
 			return
 
 		radius = 5
