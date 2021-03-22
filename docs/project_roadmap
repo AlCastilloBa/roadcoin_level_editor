@@ -37,6 +37,130 @@
 
 
 
+[BOOM] Depurar imagen fondo giratorio. No tiene en cuenta la posicion (arr, aba, izq, der).
+
+[BOOM] Editar propiedades generales.
+	[BOOM] Nombre
+	[BOOM] Descripcion
+	[BOOM] Modo Giro Mapa
+	[BOOM] Centro de giro
+	[BOOM] Angulo Max
+	[BOOM] Pos inicial moneda
+	[BOOM] Dibujar posicion inicial moneda en modo general
+		[BOOM] Show_Coin_Start_Position
+		[BOOM] Hide_Coin_Start_Position
+		[BOOM] Insertar llamadas en redibujar todo
+		[BOOM] Insertar llamadas en callbacks de posicion inicial
+	[BOOM] Boton para seleccionar la posicion inicial de la moneda
+	[BOOM] Gravedad
+	[BOOM] Escala
+	[BOOM] Editar propiedades de musica.
+
+	[BOOM] Funcion Apply General Map Changes
+	[BOOM] Funcion Update General Properties
+	[BOOM] Callbacks de validacion
+		[test] General_Property_RealNumber_Change_FocusOut_Validation_Callback
+		[test] General_Property_OptionMenu_Click_Callback
+		[test] General_Property_String_Change_FocusOut_Validation_Callback
+	[BOOM] Asignar Callbacks de validacion
+
+
+
+[BOOM] Editar propiedades imagen
+	[BOOM] Nuevo widget con ruta y boton para seleccionar ruta.
+		[BOOM] Hacer que las rutas seleccionadas sean realativas a gamepath (quitarle initialdir al resultado)
+	[BOOM] Imagen moneda
+	[BOOM] Boton para seleccionar ruta.
+	[BOOM] Imagen fondo
+	[BOOM] No rot moneda (checkbox)
+	[BOOM] Imagen segmento pared
+	[BOOM] Imagen seGmento meta
+
+	[BOOM] Funcion Apply Image Map Changes
+	[BOOM] Funcion Update Image Properties
+	[BOOM] Callbacks de validacion
+
+	[BOOM] Asignar Callbacks de validacion
+
+[BOOM] Editar propiedades de fondo giratorio
+        [BOOM] Fondo giratorio (checkbox)
+	[BOOM] Ruta fondo giratorio
+	[BOOM] Coordenadas fondo giratorio
+	[BOOM] Actualizar posicion del fondo giratorio al editar las coordenadas
+	[BOOM] Centro de giro del fondo giratorio
+	[BOOM] Boton para seleccionar y calcular posicion del centro de giro del fondo giratorio
+		[BOOM] Nuevo modo
+		[BOOM] Programacion asociada
+		[BOOM] Hacer el calculo de las coordenadas del centro de giro del fondo giratorio
+	[BOOM] Boton para hacer que el centro de giro del fondo giratorio coincida con el centro de giro del mapa
+
+	[BOOM] Funcion Apply RotBg Map Changes
+	[BOOM] Funcion Update RotBg Properties
+	[BOOM] Callbacks de validacion
+
+	[BOOM] Asignar Callbacks de validacion
+
+[BOOM] Crear nuevo mapa vacio.
+	[BOOM] Nueva funcion, en clase map. Inicializar mapa a valores no demasiado aberrantes.
+
+[BOOM] Interfaz guardar como.....
+
+
+[BOOM] Ventana de Acerca de este programa..... 
+
+[    ] no_rot_moneda se activa solo a veces. Inconveniente menor, pero se debe ver por qué.
+
+
+[BOOM] Tabla de segmentos
+	[BOOM] Añadir callbacks para ejecutar codigo cuando un control tenga el foco.
+		[BOOM] Bind click event to controls
+			https://stackoverflow.com/questions/44160181/tkinter-call-function-when-entry-box-is-clicked
+		[BOOM] Verificar que control tiene el foco (focus_get)
+			https://stackoverflow.com/questions/1385921/how-do-you-check-if-a-widget-has-focus-in-tkinter
+			get
+			https://stackoverflow.com/questions/27867754/python-get-focused-entry-name
+		[BOOM] Funcion determinar fila a traves del widget que tiene el foco
+	[BOOM] Marcar en color amarillo (realmente rojo) la fila seleccionada
+	[BOOM] Funcion para verificar los datos (antes de aplicar)
+	[BOOM] Callbacks de validacion (para cada control)
+		[BOOM] PROBLEMA: Focus-in se llama antes del validatecommand.
+			[BOOM] Probar a cambiarlo por un evento
+	[BOOM] Ver como poner al dia la interfaz principal al modificar la tabla.
+		Usar owner para actualizar el mapa y darle a map viewer redraw all.
+		[BOOM] Verificar que se está en el modo segmentos, por seguridad.
+			Si se está en otro modo, mostrar un aviso y no hacer nada.
+	[BOOM] Eliminar una fila (con cuadro de pregunta, similar a cuando se elimina un segm).
+	[BOOM] Ver como poner al día la tabla al modificar en la interfaz principal.
+		[BOOM] Crear nuevo segmento --> Redibuijar tabla entera.
+		[BOOM] Eliminar segmento --> Redibujar tabla entera.
+		[BOOM] Modificar un segmento --> Actualizar valores de fila (funcion ya hecha)
+	[BOOM] Añadir una fila (al final de todo). Poner unos valores predefinidos fijos (0,0,100,100 por ejemplo).
+	[BOOM] Evitar que se abra dos veces la tabla
+	[BOOM] Evitar que sea necesario volver a pulsar dos veces el boton para abrir la tabla.
+		[BOOM] La referencia a la tabla se queda con un valor que no es None.
+
+
+[test] Codigo para tabla de bumpers
+	( EN CURSO....)
+
+[    ] BUG: al mover un bumper, no se borra la posicion vieja, sino que se dibujan varios en el mapa.
+[    ] BUG: Idem, con RACCZ.
+
+[BOOM] BUG: Si no hay seleccionado ningun segmento, bumper, etc, y se hace focus-out en un campo de propiedades, entonces aparece un texto de que no es un numero.
+
+[test] Codigo para tabla de raccz
+
+
+
+
+
+[    ] Guardar mapa (respetando el orden y los comentarios).
+	[     ] Interfaz boton guardar
+	[     ] Funcion guardar respetando orden y comentarios
+
+
+[    ] Añadir a las propiedades, los tres parametros para mostrar el fondo giratorio (gama, saturacion, tono).
+
 
 [    ] Hacer rutina para dibujar tres tiradores. Argumentos, punto donde dibujar, numero de tirador, texto a representar.
 [    ] Añadir codigo para detectar si se está o no cerca de un tirador. Devuelve el numero de tirador (o ninguno, si está lejos de todos).
@@ -50,110 +174,4 @@
 
 
 [    ] Modo editar bumpers. Hacer rutina para dibujar tiradores
-
-
-
-[    ] Depurar imagen fondo giratorio. No tiene en cuenta la posicion (arr, aba, izq, der).
-
-[    ] Editar propiedades generales.
-	[test] Nombre
-	[test] Descripcion
-	[test] Modo Giro Mapa
-	[test] Centro de giro
-	[test] Angulo Max
-	[test] Pos inicial moneda
-	[test] Dibujar posicion inicial moneda en modo general
-		[test] Show_Coin_Start_Position
-		[test] Hide_Coin_Start_Position
-		[test] Insertar llamadas en redibujar todo
-		[test] Insertar llamadas en callbacks de posicion inicial
-	[test] Boton para seleccionar la posicion inicial de la moneda
-	[test] Gravedad
-	[test] Escala
-	[test] Editar propiedades de musica.
-
-	[test] Funcion Apply General Map Changes
-	[test] Funcion Update General Properties
-	[test] Callbacks de validacion
-		[test] General_Property_RealNumber_Change_FocusOut_Validation_Callback
-		[test] General_Property_OptionMenu_Click_Callback
-		[test] General_Property_String_Change_FocusOut_Validation_Callback
-	[test] Asignar Callbacks de validacion
-
-
-
-[test] Editar propiedades imagen
-	[BOOM] Nuevo widget con ruta y boton para seleccionar ruta.
-		[BOOM] Hacer que las rutas seleccionadas sean realativas a gamepath (quitarle initialdir al resultado)
-	[test] Imagen moneda
-	[test] Boton para seleccionar ruta.
-	[test] Imagen fondo
-	[test] No rot moneda (checkbox)
-	[test] Imagen segmento pared
-	[test] Imagen seGmento meta
-
-	[test] Funcion Apply Image Map Changes
-	[test] Funcion Update Image Properties
-	[test] Callbacks de validacion
-
-	[test] Asignar Callbacks de validacion
-
-[test] Editar propiedades de fondo giratorio
-        [test] Fondo giratorio (checkbox)
-	[test] Ruta fondo giratorio
-	[test] Coordenadas fondo giratorio
-	[test] Actualizar posicion del fondo giratorio al editar las coordenadas
-	[test] Centro de giro del fondo giratorio
-	[test] Boton para seleccionar y calcular posicion del centro de giro del fondo giratorio
-		[test] Nuevo modo
-		[test] Programacion asociada
-		[test] Hacer el calculo de las coordenadas del centro de giro del fondo giratorio
-	[test] Boton para hacer que el centro de giro del fondo giratorio coincida con el centro de giro del mapa
-
-	[test] Funcion Apply RotBg Map Changes
-	[test] Funcion Update RotBg Properties
-	[test] Callbacks de validacion
-
-	[test] Asignar Callbacks de validacion
-
-
-
-
-
-
-
-[    ] Ver como poner al día la tabla al modificar en la interfaz principal.
-
-[    ] Ver como poner al dia la interfaz principal al modificar la tabla.
-
-
-
-[    ] Codigo para tabla de bumpers
-
-[    ] Codigo para tabla de raccz
-
-
-
-
-
-[    ] Crear nuevo mapa vacio.
-
-
-
-
-
-[    ] Interfaz guardar como.....
-
-
-[    ] Guardar mapa.
-
-
-
-
-
-
-
-[    ] Ventana de Acerca de este programa..... 
-
-
 
