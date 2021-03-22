@@ -15,7 +15,10 @@ import rceditor_maps
 import rceditor_mapview
 import rceditor_preferences
 import rceditor_custom_widgets
-import rceditor_tables
+import rceditor_table_segm
+import rceditor_table_bumper
+import rceditor_table_raccz
+import rceditor_help
 
 
 def do_nothing():
@@ -142,6 +145,8 @@ class RC_editor_GUI():
 	map_loaded = False
 	loaded_map_filename = None
 	segment_table = None
+	bumper_table = None
+	RACCZ_table = None
 	temp_segment_data_to_create = rceditor_maps.Segment( start=rceditor_maps.Point(0,0), end=rceditor_maps.Point(0,0), segm_type=rceditor_maps.Segment_Type.wall, invisible=False )
 	temp_pinball_bumper_data_to_create = rceditor_maps.Pinball_Bumper( center=rceditor_maps.Point(0,0), radius=0, exit_speed = 0 )
 	temp_raccz_data_to_create = rceditor_maps.Round_Acceleration_Zone( center=rceditor_maps.Point(0,0), radius=0, angle=0, acceleration=0, invisible=False )
@@ -186,7 +191,7 @@ class RC_editor_GUI():
 		self.menubar_mainmenu.add_cascade(label="Vista", menu=self.viewmenu)
 		self.helpmenu = tk.Menu(self.menubar_mainmenu, tearoff=0)
 		self.helpmenu.add_command(label="Help Index", command = do_nothing)
-		self.helpmenu.add_command(label="About...", command = do_nothing)
+		self.helpmenu.add_command(label="About...", command = self.AboutWindowButton)
 		self.menubar_mainmenu.add_cascade(label="Ayuda", menu=self.helpmenu)
 		self.window_main_editor.config( menu = self.menubar_mainmenu )
 		# Nota: añadir imagenes a los menus con image=self._img4, compound='left',...etc
@@ -271,20 +276,20 @@ class RC_editor_GUI():
 		self.button_new_segm = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_segm_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_SegmentSubMode, Segment_SubMode.add) )
 		self.button_edit_segm = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_segm_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_SegmentSubMode, Segment_SubMode.edit ) )
 		self.button_del_segm = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_segm_icon, compound=tk.LEFT, width=None, state="disabled", command = self.Delete_Selected_Segment )
-		self.button_table_segm = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = self.Toggle_Show_Hide_Table )
+		self.button_table_segm = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = self.Toggle_Show_Hide_Segment_Table )
 		self.button_snap_point_segm = tk.Button( master = self.frame_left_toolbar, text="Alinear", image=self.img_snap_point_icon, compound=tk.LEFT, width=None, command = self.Toggle_SnapToPoint_Segm_Button )
 		self.buttons_segm_list = [ self.button_new_segm, self.button_edit_segm, self.button_del_segm, self.button_table_segm, self.button_snap_point_segm ]
 		# Bumpers mode buttons
 		self.button_new_bumper = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.add))
 		self.button_edit_bumper = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.edit ) )
 		self.button_del_bumper = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_bumper_icon, compound=tk.LEFT, width=None, state="disabled", command = self.Delete_Selected_Bumper )
-		self.button_table_bumper = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = do_nothing )
+		self.button_table_bumper = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = self.Toggle_Show_Hide_Bumper_Table )
 		self.buttons_bump_list = [ self.button_new_bumper, self.button_edit_bumper, self.button_del_bumper, self.button_table_bumper, self.button_snap_point_segm ]
 		# RACCZ mode buttons
 		self.button_new_raccz = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_raccz_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_RACCZSubMode, RACCZ_SubMode.add))
 		self.button_edit_raccz = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_raccz_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_RACCZSubMode, RACCZ_SubMode.edit ) )
 		self.button_del_raccz = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_raccz_icon, compound=tk.LEFT, width=None, state="disabled", command = self.Delete_Selected_RACCZ )
-		self.button_table_raccz = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = do_nothing )
+		self.button_table_raccz = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = self.Toggle_Show_Hide_RACCZ_Table )
 		self.buttons_raccz_list = [ self.button_new_raccz, self.button_edit_raccz, self.button_del_raccz, self.button_table_raccz, self.button_snap_point_segm ]
 
 
@@ -963,6 +968,12 @@ class RC_editor_GUI():
 						self.current_segment_add_stage = Segment_Add_Stages.St0_Choose_Start
 						# We delete the segment preview (26/11/2020)
 						self.canvas_mapview.Hide_SegmentBeingCreated( )
+
+						### Redraw segment table (if the table is displayed)  # 16/3/2021
+						if self.segment_table is not None:
+							logging.debug( "La interfaz principal indica a la tabla de segmentos que debe actualizarse." )
+							self.segment_table.update_table_from_map_editor()
+
 					else:
 						logging.error( "Error de programacion: etapa actual de añadir segmento tiene un valor no valido " + str(self.current_segment_add_stage) )
 
@@ -1004,6 +1015,12 @@ class RC_editor_GUI():
 						self.current_bumper_add_stage = Bumper_Add_Stages.St0_Choose_Center
 						# We delete the bumper preview
 						self.canvas_mapview.Hide_PinballBumperBeingCreated( )
+
+						### Redraw bumper table (if the table is displayed)  # 18/3/2021
+						if self.bumper_table is not None:
+							logging.debug( "La interfaz principal indica a la tabla de bumpers que debe actualizarse." )
+							self.bumper_table.update_table_from_map_editor()
+
 					else:
 						logging.error( "Error de programacion: etapa actual de añadir bumper tiene un valor no valido " + str(self.current_bumper_add_stage) )
 
@@ -1064,8 +1081,14 @@ class RC_editor_GUI():
 						# Change stage
 						self.window_statusbar.set_field_1("%s", "Nueva zona acel circular: seleccione punto central")
 						self.current_raccz_add_stage = RACCZ_Add_Stages.St0_Choose_Center
-						# We delete the bumper preview
+						# We delete the raccz preview
 						self.canvas_mapview.Hide_RACCZ_BeingCreated(  )
+
+						### Redraw raccz table (if the table is displayed)  # 21/3/2021
+						if self.RACCZ_table is not None:
+							logging.debug( "La interfaz principal indica a la tabla de zonas de aceleracion circular que debe actualizarse." )
+							self.RACCZ_table.update_table_from_map_editor()
+
 					else:
 						logging.error( "Error de programacion: etapa actual de añadir raccz tiene un valor no valido " + str(self.current_raccz_add_stage) )	
 
@@ -1291,6 +1314,11 @@ class RC_editor_GUI():
 	def ShowPreferencesWindowButton(self):
 		logging.debug( "Abriendo ventana preferencias" )
 		self.pref_window = rceditor_preferences.PreferencesWindow( master = self.window_main_editor,  preferences=self.preferences )
+
+
+	def AboutWindowButton(self):
+		logging.debug( "Abriendo ventana acerca de" )
+		self.about_window = rceditor_help.AboutWindow( master = self.window_main_editor )
 
 
 	def RedrawAllButton(self):
@@ -1612,6 +1640,13 @@ class RC_editor_GUI():
 						", y= " + str( self.mapa_cargado.segment_dict.get(segm_number).end.y) + \
 						". Tipo = " + str( type_num ) + "(" + read_segm_type + ")" + \
 						". Invisible = " + str( self.mapa_cargado.segment_dict.get(segm_number).invisible ) )
+
+
+				### Redraw segment table (if the table is displayed)  # 16/3/2021
+				if self.segment_table is not None:
+					logging.debug( "La interfaz principal indica a la tabla de segmentos que debe actualizar el segmento numero " + str(segm_number) )
+					self.segment_table.update_table_row_values_from_map( segm_number )
+
 			except Exception as e:
 				logging.exception(e)
 				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
@@ -1652,9 +1687,15 @@ class RC_editor_GUI():
 				self.canvas_mapview.DrawAll( self.mapa_cargado )
 				self.Unselect_All()
 				self.window_statusbar.set_field_1("%s %s %s", "Segmento ", selected_segment , " borrado" )
+				
+				### Redraw segment table (if the table is displayed)  # 16/3/2021
+				if self.segment_table is not None:
+					logging.debug( "La interfaz principal indica a la tabla de segmentos que debe actualizarse." )
+					self.segment_table.update_table_from_map_editor()
+
 			else:
 				tk.messagebox.showerror(title="Error", message="El numero de segmento seleccionado (" + selected_segment + ") no es valido.")
-				logging.dialog( "Error de programación: El numero de segmento seleccionado (" + selected_segment + ") no es valido." )
+				logging.debug( "Error de programación: El numero de segmento seleccionado (" + selected_segment + ") no es valido." )
 		else:
 			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
 
@@ -1699,6 +1740,13 @@ class RC_editor_GUI():
 						", y= " + str( self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).center.y ) + \
 						", radio= " + str(self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).radius) + \
 						", vel_salida= " + str( self.mapa_cargado.pinball_bumpers_dict.get(bumper_number).exit_speed) )
+
+				### Redraw bumper table (if the table is displayed)  # 18/3/2021
+				if self.bumper_table is not None:
+					logging.debug( "La interfaz principal indica a la tabla de bumpers que debe actualizar el bumper numero " + str(bumper_number) )
+					self.bumper_table.update_table_row_values_from_map( bumper_number )
+
+
 			except Exception as e:
 				logging.exception(e)
 				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
@@ -1735,6 +1783,11 @@ class RC_editor_GUI():
 				self.canvas_mapview.DrawAll( self.mapa_cargado )
 				self.Unselect_All()
 				self.window_statusbar.set_field_1("%s %s %s", "Bumper ", selected_bumper , " borrado" )
+
+				### Redraw bumper table (if the table is displayed)  # 18/3/2021
+				if self.bumper_table is not None:
+					logging.debug( "La interfaz principal indica a la tabla de bumpers que debe actualizarse." )
+					self.bumper_table.update_table_from_map_editor()
 			else:
 				tk.messagebox.showerror(title="Error", message="El numero de bumper seleccionado (" + selected_bumper + ") no es valido.")
 				logging.dialog( "Error de programación: El numero de bumper seleccionado (" + selected_bumper + ") no es valido." )
@@ -1795,6 +1848,12 @@ class RC_editor_GUI():
 						", angulo= " + str(self.mapa_cargado.dict_round_acel_zones.get(raccz_number).angle) + \
 						", aceleracion= " + str( self.mapa_cargado.dict_round_acel_zones.get(raccz_number).acceleration) + \
 						". Invisible = " + str( self.mapa_cargado.dict_round_acel_zones.get(raccz_number).invisible ) )
+
+				### Redraw raccz table (if the table is displayed)  # 16/3/2021
+				if self.RACCZ_table is not None:
+					logging.debug( "La interfaz principal indica a la tabla de zonas de aceleracion circular que debe actualizar el segmento numero " + str(raccz_number) )
+					self.RACCZ_table.update_table_row_values_from_map( segm_number )
+
 			except Exception as e:
 				logging.exception(e)
 				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
@@ -1838,6 +1897,12 @@ class RC_editor_GUI():
 				self.canvas_mapview.DrawAll( self.mapa_cargado )
 				self.Unselect_All()
 				self.window_statusbar.set_field_1("%s %s %s", "Zona acel circ ", selected_raccz , " borrada" )
+
+				### Redraw raccz table (if the table is displayed)  # 21/3/2021
+				if self.RACCZ_table is not None:
+					logging.debug( "La interfaz principal indica a la tabla de zonas de aceleracion circular que debe actualizarse." )
+					self.RACCZ_table.update_table_from_map_editor()
+
 			else:
 				tk.messagebox.showerror(title="Error", message="El numero de zona aceleracion circular seleccionado (" + selected_raccz + ") no es valido.")
 				logging.dialog( "Error de programación: El numero de zona de aceleracion circular seleccionado (" + selected_raccz + ") no es valido." )
@@ -1845,13 +1910,36 @@ class RC_editor_GUI():
 			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
 
 
-	def Toggle_Show_Hide_Table( self ):
-		# PROVISIONAL, DEBE SER PROBADO (TODO)
+	def Toggle_Show_Hide_Segment_Table( self ):
 		if self.map_loaded == True:
 			if self.segment_table is None:		# Segment table is not open (the object does not exist)
-				self.segment_table = rceditor_tables.Segment_Table_Window( master = self.window_main_editor, Map = self.mapa_cargado , owner=self )
+				self.segment_table = rceditor_table_segm.Segment_Table_Window( master = self.window_main_editor, Map = self.mapa_cargado , owner=self )
 			else:					# Segment table is already open
+				self.segment_table.SegmentTableWindow.destroy()
 				del self.segment_table
+				self.segment_table = None
+
+
+	def Toggle_Show_Hide_Bumper_Table( self ):
+		# PROVISIONAL, DEBE SER PROBADO (TODO)
+		if self.map_loaded == True:
+			if self.bumper_table is None:		# Bumper table is not open (the object does not exist)
+				self.bumper_table = rceditor_table_bumper.Bumper_Table_Window( master = self.window_main_editor, Map = self.mapa_cargado , owner=self )
+			else:					# Bumper table is already open
+				self.bumper_table.BumperTableWindow.destroy()
+				del self.bumper_table
+				self.bumper_table = None
+
+
+	def Toggle_Show_Hide_RACCZ_Table( self ):
+		# PROVISIONAL, DEBE SER PROBADO (TODO)
+		if self.map_loaded == True:
+			if self.RACCZ_table is None:		# Segment table is not open (the object does not exist)
+				self.RACCZ_table = rceditor_table_raccz.RACCZ_Table_Window( master = self.window_main_editor, Map = self.mapa_cargado , owner=self )
+			else:					# Segment table is already open
+				self.RACCZ_table.RACCZTableWindow.destroy()
+				del self.RACCZ_table
+				self.RACCZ_table = None
 
 
 	def General_Property_RealNumber_Change_FocusOut_Validation_Callback( self, widget_name, text_before_change, text_after_change ):
@@ -2080,14 +2168,19 @@ class RC_editor_GUI():
 				+ ", text_after_change = " + text_after_change )
 		if self.map_loaded == True:
 			if self.current_mode == Mode.segment:
-				if isFloat(text_after_change) == True:
-					logging.debug("El nuevo texto es un numero.")
-					self.Apply_Selected_Segment_Changes()
-					return(True)
+				selected_segment =  self.property_segm_number.get_value_string()
+				if ( selected_segment != "" ) and ( selected_segment.isnumeric() == True ):		# Check if a segment is selected
+					if isFloat(text_after_change) == True:
+						logging.debug("El nuevo texto es un numero.")
+						self.Apply_Selected_Segment_Changes()
+						return(True)
+					else:
+						logging.debug("El nuevo texto no es un numero.")
+						tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+						return(False)
 				else:
-					logging.debug("El nuevo texto no es un numero.")
-					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
-					return(False)
+					logging.debug("Ningun segmento seleccionado. No se hace nada.")
+					return(False)				
 			else:
 				logging.debug("Modo incorrecto. No se hace nada.")
 				return(False)	
@@ -2106,14 +2199,19 @@ class RC_editor_GUI():
 				+ ", text_after_change = " + text_after_change )
 		if self.map_loaded == True:
 			if self.current_mode == Mode.bumper:
-				if isFloat(text_after_change) == True:
-					logging.debug("El nuevo texto es un numero.")
-					self.Apply_Selected_Bumper_Changes()
-					return(True)
+				selected_bumper =  self.property_bumper_number.get_value_string()
+				if ( selected_bumper != "" ) and ( selected_bumper.isnumeric() == True ):		# Check if a bumper is selected
+					if isFloat(text_after_change) == True:
+						logging.debug("El nuevo texto es un numero.")
+						self.Apply_Selected_Bumper_Changes()
+						return(True)
+					else:
+						logging.debug("El nuevo texto no es un numero.")
+						tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+						return(False)
 				else:
-					logging.debug("El nuevo texto no es un numero.")
-					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
-					return(False)
+					logging.debug("Ningun bumper seleccionado. No se hace nada.")
+					return(False)						
 			else:
 				logging.debug("Modo incorrecto. No se hace nada.")
 				return(False)	
@@ -2132,14 +2230,19 @@ class RC_editor_GUI():
 				+ ", text_after_change = " + text_after_change )
 		if self.map_loaded == True:
 			if self.current_mode == Mode.round_accel_zone:
-				if isFloat(text_after_change) == True:
-					logging.debug("El nuevo texto es un numero.")
-					self.Apply_Selected_RACCZ_Changes()
-					return(True)
+				selected_raccz =  self.property_raccz_number.get_value_string()
+				if ( selected_raccz != "" ) and ( selected_raccz.isnumeric() == True ):		# Check if a RACCZ is selected
+					if isFloat(text_after_change) == True:
+						logging.debug("El nuevo texto es un numero.")
+						self.Apply_Selected_RACCZ_Changes()
+						return(True)
+					else:
+						logging.debug("El nuevo texto no es un numero.")
+						tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+						return(False)
 				else:
-					logging.debug("El nuevo texto no es un numero.")
-					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
-					return(False)
+					logging.debug("Ninguna zona de aceleracion circular seleccionada. No se hace nada.")
+					return(False)					
 			else:
 				logging.debug("Modo incorrecto. No se hace nada.")
 				return(False)	

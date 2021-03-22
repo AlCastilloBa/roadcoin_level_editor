@@ -138,6 +138,7 @@ class PreferencesWindow():
 		self.PrefWindow.grab_set()			# Make this window Modal
 		self.PrefWindow.protocol('WM_DELETE_WINDOW',do_nothing)		# Close window button behaviour
 		# self.PrefWindow.attributes('-topmost', 'true')		# Stay on top of all others
+		self.PrefWindow.resizable( False, False )	# Not resizable
 		self.PrefWindow.title("Preferencias...")
 
 		self.Load_UI_Icons()
