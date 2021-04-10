@@ -104,11 +104,9 @@
 	[BOOM] Nueva funcion, en clase map. Inicializar mapa a valores no demasiado aberrantes.
 
 [BOOM] Interfaz guardar como.....
-
-
 [BOOM] Ventana de Acerca de este programa..... 
 
-[    ] no_rot_moneda se activa solo a veces. Inconveniente menor, pero se debe ver por qué.
+
 
 
 [BOOM] Tabla de segmentos
@@ -150,8 +148,10 @@
 
 [test] Codigo para tabla de raccz
 
+[BOOM] BUG: Corregir frame propiedades de rotbg, textos identificativos no estan bien.
 
-
+[test] BUG: Tras seleccionar unas imágenes con boton examinar, no se aplican los cambios. (Corregido, añadido "Apply" al guardar).
+[test] BUG: no_rot_moneda se activa solo a veces. Inconveniente menor, pero se debe ver por qué.
 
 
 [    ] Guardar mapa (respetando el orden y los comentarios).
@@ -159,7 +159,7 @@
 	[     ] Funcion guardar respetando orden y comentarios
 
 
-[    ] Añadir a las propiedades, los tres parametros para mostrar el fondo giratorio (gama, saturacion, tono).
+[BOOM] Añadir a las propiedades, los tres parametros para mostrar el fondo giratorio (gama, saturacion, tono).
 
 
 [    ] Hacer rutina para dibujar tres tiradores. Argumentos, punto donde dibujar, numero de tirador, texto a representar.
