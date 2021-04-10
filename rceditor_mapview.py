@@ -242,11 +242,11 @@ class Canvas_WithScrollbars(tk.Frame):
 										Image.LANCZOS )
 			# Enhance image: colour, contrast and brightness
 			enhancer = ImageEnhance.Color(self.rotbg_image_resized)
-			self.rotbg_image_resized = enhancer.enhance( 1.0 )
+			self.rotbg_image_resized = enhancer.enhance( self.owner_object.preferences.RotBG_Color )
 			enhancer = ImageEnhance.Contrast(self.rotbg_image_resized)
-			self.rotbg_image_resized = enhancer.enhance( 0.2 )
+			self.rotbg_image_resized = enhancer.enhance( self.owner_object.preferences.RotBG_Contrast )
 			enhancer = ImageEnhance.Brightness(self.rotbg_image_resized)
-			self.rotbg_image_resized = enhancer.enhance( 1.5 )
+			self.rotbg_image_resized = enhancer.enhance( self.owner_object.preferences.RotBG_Brightness )
 			# Convert to Photoimage (in order to show on Tkinter)
 			self.rotbg_image_resized = ImageTk.PhotoImage( self.rotbg_image_resized )
 			# Draw image on canvas

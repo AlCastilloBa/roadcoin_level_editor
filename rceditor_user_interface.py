@@ -349,11 +349,11 @@ class RC_editor_GUI():
 		self.property_rotbg_up_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Arriba Y:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
 		self.property_rotbg_right_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Der X:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
 		self.property_rotbg_down_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Abajo Y:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
-		self.property_rotbg_pos_label = tk.Label(master=self.frame_properties,text="Centro giro fondo giratorio:")
+		self.property_rotbg_rot_center_pos_label = tk.Label(master=self.frame_properties,text="Centro giro fondo giratorio:")
 		self.property_rotbg_center_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
 		self.property_rotbg_center_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
 		self.property_rotbg_center_select = tk.Button( master = self.frame_properties, text="Seleccionar centro giro", command=self.Choose_Rotating_Background_Rotation_Center_Button_Callback )
-		self.properties_rotbg_list = [ self.property_rotbg_exists, self.property_rotbg_path, self.property_rotbg_pos_label, self.property_rotbg_left_x, self.property_rotbg_up_y, self.property_rotbg_right_x, self.property_rotbg_down_y, self.property_rotbg_pos_label, self.property_rotbg_center_x, self.property_rotbg_center_y, self.property_rotbg_center_select ]
+		self.properties_rotbg_list = [ self.property_rotbg_exists, self.property_rotbg_path, self.property_rotbg_pos_label, self.property_rotbg_left_x, self.property_rotbg_up_y, self.property_rotbg_right_x, self.property_rotbg_down_y, self.property_rotbg_rot_center_pos_label, self.property_rotbg_center_x, self.property_rotbg_center_y, self.property_rotbg_center_select ]
 		# Segment mode properties widgets
 		self.property_segm_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero segmento:", validatecommand=do_nothing, state='readonly' )
 		self.property_segm_start_label = tk.Label(master=self.frame_properties,text="Start:")
@@ -1233,7 +1233,7 @@ class RC_editor_GUI():
 			logging.debug( "Cargando mapa " + open_map_filename )
 			self.mapa_cargado.LoadFile( open_map_filename )
 			self.loaded_map_filename = open_map_filename
-			# aqui faltan muchas cosas mas ....
+			# aqui faltan muchas cosas mas ..../
 
 			# Load map images
 			self.canvas_mapview.Load_Images( self.mapa_cargado, self.preferences )
@@ -1258,6 +1258,7 @@ class RC_editor_GUI():
 
 	def SaveMapButton(self):	# 3/1/2021
 		# (TODO) PENDIENTE
+		tk.messagebox.showerror(title="AVISO", message="Funcionalidad todavia no implementada")
 		pass
 			
 
@@ -1266,6 +1267,11 @@ class RC_editor_GUI():
 			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
 			logging.debug( "Se ha intentado guardar un mapa sin tener un mapa abierto. No hay nada que guardar." )
 			return	# Do nothing
+
+		# Apply properties frames changes (to avoid losing "last minute" changes that may not been applied) (29/3/2021)
+		self.Apply_General_Map_Changes()
+		self.Apply_Image_Map_Changes()
+		self.Apply_RotBg_Map_Changes()
 
 		# Check for map errors
 		map_data_ok, error_list = self.mapa_cargado.CheckMapErrorList()
@@ -1314,7 +1320,11 @@ class RC_editor_GUI():
 	def ShowPreferencesWindowButton(self):
 		logging.debug( "Abriendo ventana preferencias" )
 		self.pref_window = rceditor_preferences.PreferencesWindow( master = self.window_main_editor,  preferences=self.preferences )
-
+		# Wait until the preferences window has been closed
+		self.window_main_editor.wait_window(self.pref_window.PrefWindow)
+		# Redraw everything
+		if self.map_loaded == True:
+			self.canvas_mapview.DrawAll( self.mapa_cargado )
 
 	def AboutWindowButton(self):
 		logging.debug( "Abriendo ventana acerca de" )

@@ -15,6 +15,9 @@ def do_nothing():
 class Preferences():
 	GamePath = None			# String
 	SnapTo_Threshold = None		# Integer
+	RotBG_Color = None		# Real
+	RotBG_Contrast = None		# Real
+	RotBG_Brightness = None		# Real
 	
 	def LoadPreferences( self ):
 		logging.debug( "Leyendo fichero settings" )
@@ -41,6 +44,15 @@ class Preferences():
 			elif line.find("SnapTo_Threshold") != -1:
 				self.SnapTo_Threshold = int( line.split("=",1)[1].strip() )
 				logging.debug( "Encontrado SnapTo_Threshold = " + str( self.SnapTo_Threshold ) )
+			elif line.find("RotBG_Color") != -1:
+				self.RotBG_Color = float( line.split("=",1)[1].strip() )
+				logging.debug( "Encontrado RotBG_Color = " + str( self.RotBG_Color ) )
+			elif line.find("RotBG_Contrast") != -1:
+				self.RotBG_Contrast = float( line.split("=",1)[1].strip() )
+				logging.debug( "Encontrado RotBG_Contrast = " + str( self.RotBG_Contrast ) )
+			elif line.find("RotBG_Brightness") != -1:
+				self.RotBG_Brightness = float( line.split("=",1)[1].strip() )
+				logging.debug( "Encontrado RotBG_Brightness = " + str( self.RotBG_Brightness ) )
 			####################################################
 			# Add new options at this point
 			####################################################
@@ -57,6 +69,9 @@ class Preferences():
 		file1 = open( "./settings" , 'w' )
 		file1.write( "GamePath=" + self.GamePath )
 		file1.write( "SnapTo_Threshold=" + self.SnapTo_Threshold )
+		file1.write( "RotBG_Color=" + self.RotBG_Color )
+		file1.write( "RotBG_Contrast=" + self.RotBG_Contrast )
+		file1.write( "RotBG_Brightness=" + self.RotBG_Brightness )
 		####################################################
 		# Add new options at this point
 		####################################################
@@ -66,6 +81,9 @@ class Preferences():
 	def SavePreferences_UpdateExisting( self ):
 		GamePath_Written = False
 		SnapTo_Threshold_Written = False
+		RotBG_Color_Written = False
+		RotBG_Contrast_Written = False
+		RotBG_Brightness_Written = False
 		####################################################
 		# Add new options at this point
 		####################################################
@@ -104,6 +122,18 @@ class Preferences():
 				if SnapTo_Threshold_Written == False:
 					file1.write( "SnapTo_Threshold=" + str(self.SnapTo_Threshold) + right_side_remark + "\n")
 					SnapTo_Threshold_Written = True
+			elif line.find("RotBG_Color") != -1:
+				if RotBG_Color_Written == False:
+					file1.write( "RotBG_Color=" + str(self.RotBG_Color) + right_side_remark + "\n")
+					RotBG_Color_Written = True
+			elif line.find("RotBG_Contrast") != -1:
+				if RotBG_Contrast_Written == False:
+					file1.write( "RotBG_Contrast=" + str(self.RotBG_Contrast) + right_side_remark + "\n")
+					RotBG_Contrast_Written = True
+			elif line.find("RotBG_Brightness") != -1:
+				if RotBG_Brightness_Written == False:
+					file1.write( "RotBG_Brightness=" + str(self.RotBG_Brightness) + right_side_remark + "\n")
+					RotBG_Brightness_Written = True
 			####################################################
 			# Add new options at this point
 			####################################################
@@ -118,6 +148,15 @@ class Preferences():
 		if SnapTo_Threshold_Written == False:
 			file1.write( "SnapTo_Threshold=" + str(self.SnapTo_Threshold) )
 			SnapTo_Threshold_Written = True
+		if RotBG_Color_Written == False:
+			file1.write( "RotBG_Color=" + str(self.RotBG_Color) )
+			RotBG_Color_Written == True
+		if RotBG_Contrast_Written == False:
+			file1.write( "RotBG_Contrast=" + str(self.RotBG_Contrast) )
+			RotBG_Contrast_Written = True
+		if RotBG_Brightness_Written == False:
+			file1.write( "RotBG_Brightness=" + str(self.RotBG_Brightness)  )
+			RotBG_Brightness_Written = True
 		####################################################
 		# Add new options at this point
 		####################################################
@@ -153,6 +192,17 @@ class PreferencesWindow():
 		self.textbox_SnapTo_Threshold = ttk.Entry(master=self.frame_preferences, width = 15 )
 		self.textbox_SnapTo_Threshold.insert(0, str(preferences.SnapTo_Threshold))
 
+		self.label_RotBG_Color = tk.Label(master=self.frame_preferences,text="RotBG Color:")
+		self.textbox_RotBG_Color = ttk.Entry(master=self.frame_preferences, width = 15 )
+		self.textbox_RotBG_Color.insert(0, str(preferences.RotBG_Color))
+		self.label_RotBG_Contrast = tk.Label(master=self.frame_preferences,text="RotBG Contrast:")
+		self.textbox_RotBG_Contrast = ttk.Entry(master=self.frame_preferences, width = 15 )
+		self.textbox_RotBG_Contrast.insert(0, str(preferences.RotBG_Contrast))
+		self.label_RotBG_Brightness = tk.Label(master=self.frame_preferences,text="RotBG Brightness:")
+		self.textbox_RotBG_Brightness = ttk.Entry(master=self.frame_preferences, width = 15 )
+		self.textbox_RotBG_Brightness.insert(0, str(preferences.RotBG_Brightness))
+
+
 		self.frame_preferences.columnconfigure( 0, weight=0, minsize=200)
 		self.frame_preferences.columnconfigure( 1, weight=1, minsize=200)
 		self.frame_preferences.columnconfigure( 2, weight=1, minsize=100)
@@ -164,6 +214,17 @@ class PreferencesWindow():
 
 		self.label_SnapTo_Threshold.grid( row=1, column=0, padx=2, pady=2, sticky="nsew" )
 		self.textbox_SnapTo_Threshold.grid( row=1, column=1,  padx=2, pady=2, sticky="nsew" )
+
+		self.label_RotBG_Color.grid( row=2, column=0, padx=2, pady=2, sticky="nsew" )
+		self.textbox_RotBG_Color.grid( row=2, column=1,  padx=2, pady=2, sticky="nsew" )
+		
+		self.label_RotBG_Contrast.grid( row=3, column=0, padx=2, pady=2, sticky="nsew" )
+		self.textbox_RotBG_Contrast.grid( row=3, column=1,  padx=2, pady=2, sticky="nsew" )
+
+		self.label_RotBG_Brightness.grid( row=4, column=0, padx=2, pady=2, sticky="nsew" )
+		self.textbox_RotBG_Brightness.grid( row=4, column=1,  padx=2, pady=2, sticky="nsew" )
+
+
 
 
 		self.frame_accept_cancel = tk.Frame( master=self.PrefWindow )
@@ -193,6 +254,9 @@ class PreferencesWindow():
 		logging.debug( "Aplicando cambios en las propiedades" )
 		self.preferences_ref.GamePath = self.textbox_game_path.get()
 		self.preferences_ref.SnapTo_Threshold = int( self.textbox_SnapTo_Threshold.get() )
+		self.preferences_ref.RotBG_Color = float( self.textbox_RotBG_Color.get() ) 
+		self.preferences_ref.RotBG_Contrast = float(  self.textbox_RotBG_Contrast.get() )
+		self.preferences_ref.RotBG_Brightness = float(  self.textbox_RotBG_Brightness.get() )
 
 
 	def AcceptButton( self ):

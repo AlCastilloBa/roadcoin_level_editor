@@ -449,7 +449,8 @@ class Map():
 						")," + str( current_raccz.radius ) + "," + str( current_raccz.angle ) + "," + str( current_raccz.acceleration ) + "," + str( invisibility  ) + ")" + "\n" )
 
 		if self.coin_does_not_rotate is not None:
-			file1.write( "no_rot_moneda" + "\n" )
+			if self.coin_does_not_rotate == True:	# 2/4/2021
+				file1.write( "no_rot_moneda" + "\n" )
 		if self.wall_segment_image_path is not None:
 			if self.wall_segment_image_path.strip() != "None":
 				file1.write( "imagen_segm_pared=" + self.wall_segment_image_path + "\n" )
