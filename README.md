@@ -43,4 +43,30 @@ There is a map viewer on the center of the main window. It can be controlled wit
 
 The program is based on modes. The program can only be in one mode at a time. The current mode can be selected with the upper bar buttons. The explanation of the modes are as follows:
 
+## General mode
+This mode allows to set the general level properties (map name, description, coin start position, rotation type, etc). There is a button to choose the coin start position directly from the map viewer.
 
+## Image mode
+This mode allows to choose the images from the level (coin image, background, etc).
+
+## Rotating Background mode
+This mode allows to choose the rotating background properties (presence or not, image, and position). The rotation center can be chosen directly on the level viewer by using a button.
+
+## Segment mode / Bumper mode / RACCZ mode
+This mode allows to create, edit and delete line segments/pinball bumpers/"round acceleration zones" on the map. These are the primitive objects of the game:
+* A line segment is a line that can be a wall, the level goal, or a hazard line.
+* A pinball bumper represents a cylinder that kicks the ball from it.
+* A round acceleration zone is a circle that creates a force that accelerates the coin in a direction.
+
+The usage of each mode (segments/pinball bumpers/"round acceleration zones") are similar to each other. The selected mode implies which type ob object can be created, selected or edited.
+
+To create a new segment/bumper/RACCZ, press the "New" button on the left toolbar. The status bar (lower part of the window) will tell you the steps to be taken in order to create each object (usually by clicking on the level editor). The "Align" button allows to toggle a point search mode, that allows the mouse to travel to near points. If a near point is detected, it will be marked with a square indicator. This align mode is useful to create strings of connected segments (the start of one segment is the end of the previous one).
+
+To edit the properties of an existing object, press the "Edit" button on the left toolbar and select an object on the level viewer. The selected object will be highlighted and its properties will be shown on the right frame of the window. At this point, this properties can be edited.
+
+When an object is selected, it can be deleted by pressing the "Delete" button on the left toolbar.
+
+On these modes, the object list can be shown and edited on a table format. In order to do this, press the "Table" button. This button will show or hide a new window with a table. The table window and the main editor window are completely synchronized (changes made on one window will reflect on the other). The table window has buttons to create and delete objects. Selecting an object on the editor selects the corresponding line on the table. Adding or removing objects on the main windows will update the table accordingly.
+
+
+Once all the level has been edited, the map can be saved using the "Save As" in the "File" menu. This will create a file with all the settings and created objects. This level file can be added to the roadcoin game, or be opened again with the editor for further editing.
