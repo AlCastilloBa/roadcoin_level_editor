@@ -17,6 +17,12 @@ Uses python 3 and Tkinter for building the user interface. The graphical viewer 
 
 Tested on Python 3.7.7, under GNU/Linux. Other versions or operating systems not tested yet.
 
+In order to run this program, the following packages are required:
+* Python 3 (with Tkinter support)
+* Logging package
+* Pillow package
+* Gettext package
+
 # Current status
 
 Currently on the final stages of development. The application can load and show maps, the panning and zooming is operational. Items can be selected and modified directly on the editor window. New items can be added, by pointing and clicking directly on the viewer window. Additionally, tables can be used for editing. Properties can be modified, and levels can be saved.
