@@ -58,15 +58,15 @@ This mode allows to create, edit and delete line segments/pinball bumpers/"round
 * A pinball bumper represents a cylinder that kicks the ball from it.
 * A round acceleration zone is a circle that creates a force that accelerates the coin in a direction.
 
-The usage of each mode (segments/pinball bumpers/"round acceleration zones") are similar to each other. The selected mode implies which type ob object can be created, selected or edited.
+The usage of each mode (segments/pinball bumpers/"round acceleration zones") are similar to each other. The selected mode implies which type of object can be created, selected or edited.
 
-To create a new segment/bumper/RACCZ, press the "New" button on the left toolbar. The status bar (lower part of the window) will tell you the steps to be taken in order to create each object (usually by clicking on the level editor). The "Align" button allows to toggle a point search mode, that allows the mouse to travel to near points. If a near point is detected, it will be marked with a square indicator. This align mode is useful to create strings of connected segments (the start of one segment is the end of the previous one).
+To create a new segment/bumper/RACCZ, press the *New* button on the left toolbar. The status bar (lower part of the window) will tell you the steps to be taken in order to create each object (usually by clicking on the level editor). The *Align* button allows to toggle a point search mode, that allows the mouse to travel to near points. If a near point is detected, it will be marked with a square indicator. This align mode is useful to create strings of connected segments (the start of one segment is the end of the previous one).
 
-To edit the properties of an existing object, press the "Edit" button on the left toolbar and select an object on the level viewer. The selected object will be highlighted and its properties will be shown on the right frame of the window. At this point, this properties can be edited.
+To edit the properties of an existing object, press the *Edit* button on the left toolbar and select an object on the level viewer. The selected object will be highlighted and its properties will be shown on the right frame of the window. At this point, this properties can be edited.
 
-When an object is selected, it can be deleted by pressing the "Delete" button on the left toolbar.
+When an object is selected, it can be deleted by pressing the *Delete* button on the left toolbar.
 
-On these modes, the object list can be shown and edited on a table format. In order to do this, press the "Table" button. This button will show or hide a new window with a table. The table window and the main editor window are completely synchronized (changes made on one window will reflect on the other). The table window has buttons to create and delete objects. Selecting an object on the editor selects the corresponding line on the table. Adding or removing objects on the main windows will update the table accordingly.
+On these modes, the object list can be shown and edited on a table format. In order to do this, press the *Table* button. This button will show or hide a new window with a table. The table window and the main editor window are completely synchronized (changes made on one window will reflect on the other). The table window has buttons to create and delete objects. Selecting an object on the editor selects the corresponding line on the table. Adding or removing objects on the main windows will update the table accordingly.
 
 
-Once all the level has been edited, the map can be saved using the "Save As" in the "File" menu. This will create a file with all the settings and created objects. This level file can be added to the roadcoin game, or be opened again with the editor for further editing.
+Once all the level has been edited, the map can be saved using the *Save As* in the *File* menu. This will create a file with all the settings and created objects. This level file can be added to the roadcoin game, or be opened again with the editor for further editing.
