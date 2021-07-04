@@ -155,8 +155,8 @@
 
 
 [    ] Guardar mapa (respetando el orden y los comentarios).
-	[     ] Interfaz boton guardar
-	[     ] Funcion guardar respetando orden y comentarios
+	[BOOM] Interfaz boton guardar
+	[    ] Funcion guardar respetando orden y comentarios
 
 
 [BOOM] Añadir a las propiedades, los tres parametros para mostrar el fondo giratorio (gama, saturacion, tono).
