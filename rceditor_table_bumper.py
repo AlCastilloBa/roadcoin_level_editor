@@ -278,10 +278,10 @@ class Bumper_Table_Window():
 
 
 	def Highlight_Row( self, row_number ):
-		self.center_x_handler_dict.get( row_number ).configure( background = "yellow", foreground = "red", font="Bold" )
-		self.center_y_handler_dict.get( row_number ).configure( background = "yellow", foreground = "red", font="Bold" )
-		self.radius_handler_dict.get( row_number ).configure( background = "yellow", foreground = "red", font="Bold" )
-		self.speed_handler_dict.get( row_number ).configure( background = "yellow", foreground = "red", font="Bold" )
+		self.center_x_handler_dict.get( row_number ).configure( background = "yellow", foreground = "red") # , font="Bold" )
+		self.center_y_handler_dict.get( row_number ).configure( background = "yellow", foreground = "red") # , font="Bold" )
+		self.radius_handler_dict.get( row_number ).configure( background = "yellow", foreground = "red") # , font="Bold" )
+		self.speed_handler_dict.get( row_number ).configure( background = "yellow", foreground = "red") # , font="Bold" )
 		# Select bumper in the main window editor
 		self.owner_ref.canvas_mapview.UnHighlight_All()
 		self.owner_ref.canvas_mapview.Highlight_Bumpers( [row_number] )
@@ -412,6 +412,8 @@ class Bumper_Table_Window():
 				self.owner_ref.window_statusbar.set_field_1("%s %s %s", "Bumper ", self.selected_row_number , " borrado" )
 				# Redraw table
 				self.update_table_from_map_editor()
+				# No bumper is selected (4/7/2021)
+				self.selected_row_number = None
 			else:
 				tk.messagebox.showerror(title="Error", message="Ninguna fila seleccionada.")
 				logging.debug( "En funcion Delete_Bumper, error: ninguna fila seleccionada." )
@@ -424,6 +426,10 @@ class Bumper_Table_Window():
 	def New_Row_At_End_Of_Table( self ):
 		# This function creates a new row at the table, and declares this as a new bumper
 		if self.owner_ref.map_loaded == True:
+			# Before doing anything, we apply the currently selected row changes (or we will lose them) (4/7/2021)
+			if self.selected_row_number is not None:
+				self.Apply_Selected_Row_Changes( self.selected_row_number )
+			# Unselect everything
 			self.UnHighlight_All_Rows()
 			self.selected_row_number = None
 			# Declare new bumper data (with default values)
@@ -435,6 +441,8 @@ class Bumper_Table_Window():
 			self.owner_ref.canvas_mapview.DrawSingleBumperNumber( Map=self.map_ref, num_bumper=self.map_ref.pinball_bumpers_number-1 )
 			# Update table
 			self.update_table_from_map_editor()
+			# Move canvas to lower position (4/7/2021)
+			self.frame_table_frame.ScrollToBottom()
 
 
 

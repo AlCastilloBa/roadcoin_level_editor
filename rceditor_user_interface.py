@@ -1258,9 +1258,35 @@ class RC_editor_GUI():
 
 	def SaveMapButton(self):	# 3/1/2021
 		# (TODO) PENDIENTE
-		tk.messagebox.showerror(title="AVISO", message="Funcionalidad todavia no implementada")
-		pass
-			
+		# tk.messagebox.showerror(title="AVISO", message="Funcionalidad todavia no implementada")
+		# pass
+
+		if self.map_loaded == False:
+			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
+			logging.debug( "Se ha intentado guardar un mapa sin tener un mapa abierto. No hay nada que guardar." )
+			return	# Do nothing
+
+		# Apply properties frames changes (to avoid losing "last minute" changes that may not been applied)
+		self.Apply_General_Map_Changes()
+		self.Apply_Image_Map_Changes()
+		self.Apply_RotBg_Map_Changes()	
+
+		# Check for map errors
+		map_data_ok, error_list = self.mapa_cargado.CheckMapErrorList()
+		if map_data_ok == True:
+			# tk.messagebox.showinfo(title="Comprobación mapa", message="No se han encontrado errores.")
+			logging.debug( "Comprobación mapa: No se han encontrado errores." )
+		else:
+			tk.messagebox.showerror(title="Comprobación mapa", message="Se han encontrado los siguientes errores. \n" + error_list )
+			self.window_statusbar.set_field_1("%s", "Mapa no guardado debido a errores." )
+			return	# Do nothing
+
+		# Let's save the map
+		self.mapa_cargado.SaveFile_OverwriteAll( self.loaded_map_filename )
+		logging.debug( "Guardando mapa " + self.loaded_map_filename )
+		self.window_statusbar.set_field_1("%s %s %s", "Mapa ", self.loaded_map_filename , " guardado." )
+
+
 
 	def SaveMapAsButton(self):	# 3/1/2021
 		if self.map_loaded == False:
@@ -1280,6 +1306,7 @@ class RC_editor_GUI():
 			logging.debug( "Comprobación mapa: No se han encontrado errores." )
 		else:
 			tk.messagebox.showerror(title="Comprobación mapa", message="Se han encontrado los siguientes errores. \n" + error_list )
+			self.window_statusbar.set_field_1("%s", "Mapa no guardado debido a errores." )
 			return	# Do nothing
 
 
@@ -1291,6 +1318,11 @@ class RC_editor_GUI():
 			# Let's save the map
 			self.mapa_cargado.SaveFile_OverwriteAll( save_map_filename )
 			logging.debug( "Guardando mapa " + save_map_filename )
+			self.window_statusbar.set_field_1("%s %s %s", "Mapa ", save_map_filename , " guardado." )
+
+			# Set the open file name to the new file saved
+			self.loaded_map_filename = save_map_filename
+			self.window_main_editor.title( "RoadCoin Level Editor - " + self.loaded_map_filename )
 
 
 		#elif isinstance( chosen_new_game_path, unicode ):
