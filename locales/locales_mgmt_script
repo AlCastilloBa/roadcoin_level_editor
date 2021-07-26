@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+# Create POT file
+echo Create POT file
+xgettext ../rceditor_user_interface.py ../rceditor_preferences.py ../rceditor_help.py ../rceditor_table_segm.py ../rceditor_table_bumper.py ../rceditor_table_raccz.py ../rceditor_mapview.py ../rceditor_maps.py  -o messages.pot
+
+# If first time copy the template
+# if not, combine changes with existing templates
+if test -f "./en/LC_MESSAGES/rceditor.po"; then
+	echo Combine changes with existing templates
+	msgmerge --update ./en/LC_MESSAGES/rceditor.po messages.pot # > ./en/LC_MESSAGES/rceditor.po
+else
+	echo If first time, copy the template
+	cp messages.pot ./en/LC_MESSAGES/rceditor.po
+fi
+
+if test -f "./fr/LC_MESSAGES/rceditor.po"; then
+	echo Combine changes with existing templates
+	msgmerge --update ./fr/LC_MESSAGES/rceditor.po messages.pot # > ./fr/LC_MESSAGES/rceditor.po
+else
+	echo If first time, copy the template
+	cp messages.pot ./fr/LC_MESSAGES/rceditor.po
+fi
+
+
+
+echo Now you should translate the new texts \(marked with fuzzy\)
+echo Press any key when done
+read -n 1 -s -r -p "Press any key to continue"
+
+
+# Compile from po to mo
+echo Compile from po to mo
+msgfmt ./en/LC_MESSAGES/rceditor.po -o ./en/LC_MESSAGES/rceditor.mo
+msgfmt ./fr/LC_MESSAGES/rceditor.po -o ./fr/LC_MESSAGES/rceditor.mo
+
+echo Finished

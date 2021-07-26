@@ -1,0 +1,865 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-07-25 10:09+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../rceditor_user_interface.py:179 ../rceditor_user_interface.py:282
+#: ../rceditor_user_interface.py:289 ../rceditor_user_interface.py:295
+msgid "Nuevo"
+msgstr ""
+
+#: ../rceditor_user_interface.py:180
+msgid "Abrir"
+msgstr ""
+
+#: ../rceditor_user_interface.py:181
+msgid "Guardar"
+msgstr ""
+
+#: ../rceditor_user_interface.py:182
+msgid "Guardar como..."
+msgstr ""
+
+#: ../rceditor_user_interface.py:183 ../rceditor_user_interface.py:648
+#: ../rceditor_user_interface.py:655
+msgid "Cerrar"
+msgstr ""
+
+#: ../rceditor_user_interface.py:185
+msgid "Salir"
+msgstr ""
+
+#: ../rceditor_user_interface.py:186
+msgid "Archivo"
+msgstr ""
+
+#: ../rceditor_user_interface.py:188 ../rceditor_user_interface.py:649
+#: ../rceditor_user_interface.py:656
+msgid "Deshacer"
+msgstr ""
+
+#: ../rceditor_user_interface.py:189 ../rceditor_user_interface.py:650
+#: ../rceditor_user_interface.py:657
+msgid "Rehacer"
+msgstr ""
+
+#: ../rceditor_user_interface.py:191 ../rceditor_preferences.py:196
+msgid "Preferencias..."
+msgstr ""
+
+#: ../rceditor_user_interface.py:192 ../rceditor_user_interface.py:283
+#: ../rceditor_user_interface.py:290 ../rceditor_user_interface.py:296
+msgid "Editar"
+msgstr ""
+
+#: ../rceditor_user_interface.py:194 ../rceditor_user_interface.py:651
+#: ../rceditor_user_interface.py:658
+msgid "Redibujar todo"
+msgstr ""
+
+#: ../rceditor_user_interface.py:196 ../rceditor_user_interface.py:652
+#: ../rceditor_user_interface.py:659
+msgid "Volver a (0,0)"
+msgstr ""
+
+#: ../rceditor_user_interface.py:197
+msgid "Vista"
+msgstr ""
+
+#: ../rceditor_user_interface.py:200
+msgid "About..."
+msgstr ""
+
+#: ../rceditor_user_interface.py:201
+msgid "Ayuda"
+msgstr ""
+
+#: ../rceditor_user_interface.py:206
+msgid "Verificar datos mapa"
+msgstr ""
+
+#: ../rceditor_user_interface.py:207
+msgid "Reenumerar segmentos"
+msgstr ""
+
+#: ../rceditor_user_interface.py:208
+msgid "Actualizar propiedades"
+msgstr ""
+
+#: ../rceditor_user_interface.py:257
+msgid "Bienvenido al editor de niveles de Roadcoin"
+msgstr ""
+
+#: ../rceditor_user_interface.py:258
+msgid "CoordRaton"
+msgstr ""
+
+#: ../rceditor_user_interface.py:284 ../rceditor_user_interface.py:291
+#: ../rceditor_user_interface.py:297
+msgid "Eliminar"
+msgstr ""
+
+#: ../rceditor_user_interface.py:285 ../rceditor_user_interface.py:292
+#: ../rceditor_user_interface.py:298
+msgid "Tabla"
+msgstr ""
+
+#: ../rceditor_user_interface.py:286
+msgid "Alinear"
+msgstr ""
+
+#: ../rceditor_user_interface.py:315
+msgid "Nombre"
+msgstr ""
+
+#: ../rceditor_user_interface.py:316
+msgid "Descripcion"
+msgstr ""
+
+#: ../rceditor_user_interface.py:317
+msgid "Tipo rotacion mapa:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:325
+msgid "Centro de giro mapa:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:328 ../rceditor_user_interface.py:361
+msgid "Seleccionar centro giro"
+msgstr ""
+
+#: ../rceditor_user_interface.py:329
+msgid "Angulo maximo:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:333
+msgid "Seleccionar pos incial"
+msgstr ""
+
+#: ../rceditor_user_interface.py:334
+msgid "Gravedad:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:335
+msgid "Escala:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:336
+msgid "Musica"
+msgstr ""
+
+#: ../rceditor_user_interface.py:337
+msgid "Tiempo cuenta atras:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:340
+msgid "Imagen moneda"
+msgstr ""
+
+#: ../rceditor_user_interface.py:341
+msgid "Imagen fondo fijo"
+msgstr ""
+
+#: ../rceditor_user_interface.py:343
+msgid "Moneda no rota"
+msgstr ""
+
+#: ../rceditor_user_interface.py:344
+msgid "Imagen segmento pared"
+msgstr ""
+
+#: ../rceditor_user_interface.py:345
+msgid "Imagen segmento meta"
+msgstr ""
+
+#: ../rceditor_user_interface.py:346
+msgid "Imagen segmento muerte"
+msgstr ""
+
+#: ../rceditor_user_interface.py:347
+msgid "Imagen descripcion menu"
+msgstr ""
+
+#: ../rceditor_user_interface.py:351
+msgid "Fondo giratorio"
+msgstr ""
+
+#: ../rceditor_user_interface.py:352
+msgid "Imagen fondo giratorio"
+msgstr ""
+
+#: ../rceditor_user_interface.py:353
+msgid "Posicion fondo giratorio:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:354
+msgid "Izq X:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:355
+msgid "Arriba Y:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:356
+msgid "Der X:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:357
+msgid "Abajo Y:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:358
+msgid "Centro giro fondo giratorio:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:364
+msgid "Numero segmento:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:371
+msgid "Tipo segmento:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:380 ../rceditor_user_interface.py:406
+#: ../rceditor_table_segm.py:91 ../rceditor_table_segm.py:251
+#: ../rceditor_table_raccz.py:237
+msgid "Invisible"
+msgstr ""
+
+#: ../rceditor_user_interface.py:381 ../rceditor_user_interface.py:392
+#: ../rceditor_user_interface.py:407
+msgid "Forzar aplicar cambios"
+msgstr ""
+
+#: ../rceditor_user_interface.py:384 ../rceditor_user_interface.py:395
+msgid "Numero bumper:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:385 ../rceditor_user_interface.py:396
+msgid "Centro:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:388 ../rceditor_user_interface.py:389
+#: ../rceditor_user_interface.py:399 ../rceditor_user_interface.py:400
+msgid "Radio:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:390 ../rceditor_user_interface.py:1004
+msgid "Velocidad de salida:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:391
+msgid "V salida:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:401 ../rceditor_user_interface.py:402
+msgid "Angulo:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:403 ../rceditor_user_interface.py:404
+#: ../rceditor_user_interface.py:1069
+msgid "Aceleracion:"
+msgstr ""
+
+#: ../rceditor_user_interface.py:559 ../rceditor_user_interface.py:973
+msgid "Nuevo segmento: seleccione punto inicial"
+msgstr ""
+
+#: ../rceditor_user_interface.py:563
+msgid "Seleccione un segmento"
+msgstr ""
+
+#: ../rceditor_user_interface.py:596 ../rceditor_user_interface.py:1020
+msgid "Nuevo bumper: seleccione punto central"
+msgstr ""
+
+#: ../rceditor_user_interface.py:600
+msgid "Seleccione un bumper"
+msgstr ""
+
+#: ../rceditor_user_interface.py:632 ../rceditor_user_interface.py:1088
+msgid "Nueva zona acel circular: seleccione punto central"
+msgstr ""
+
+#: ../rceditor_user_interface.py:636
+msgid "Seleccione una zona de aceleracion circular"
+msgstr ""
+
+#: ../rceditor_user_interface.py:864 ../rceditor_user_interface.py:1737
+#: ../rceditor_table_segm.py:496 ../rceditor_maps.py:580
+#: ../rceditor_maps.py:583 ../rceditor_maps.py:586 ../rceditor_maps.py:589
+#: ../rceditor_maps.py:592 ../rceditor_maps.py:595
+msgid "Segmento "
+msgstr ""
+
+#: ../rceditor_user_interface.py:864
+msgid " seleccionado"
+msgstr ""
+
+#: ../rceditor_user_interface.py:869
+msgid "Segmentos deseleccionados"
+msgstr ""
+
+#: ../rceditor_user_interface.py:897
+msgid "Bumpers deseleccionados"
+msgstr ""
+
+#: ../rceditor_user_interface.py:924
+msgid "Zona acel circ "
+msgstr ""
+
+#: ../rceditor_user_interface.py:924
+msgid " seleccionada"
+msgstr ""
+
+#: ../rceditor_user_interface.py:929
+msgid "Zonas acel circ deseleccionadas"
+msgstr ""
+
+#: ../rceditor_user_interface.py:939
+msgid "Nuevo segmento: seleccione punto final"
+msgstr ""
+
+#: ../rceditor_user_interface.py:984
+msgid ""
+"Error de programacion: etapa actual de añadir segmento tiene un valor no "
+"valido "
+msgstr ""
+
+#: ../rceditor_user_interface.py:994
+msgid "Nuevo bumper: seleccione radio (clic en un punto de la circunferencia)"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1004
+msgid "Velocidad de salida"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1013 ../rceditor_user_interface.py:1080
+#: ../rceditor_preferences.py:315 ../rceditor_table_segm.py:320
+#: ../rceditor_table_bumper.py:259 ../rceditor_table_raccz.py:305
+msgid "Aviso"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1013
+msgid "No se ha creado el bumper."
+msgstr ""
+
+#: ../rceditor_user_interface.py:1031
+msgid ""
+"Error de programacion: etapa actual de añadir bumper tiene un valor no "
+"valido "
+msgstr ""
+
+#: ../rceditor_user_interface.py:1044
+msgid ""
+"Nueva zona acel circular: seleccione radio (clic en un punto de la "
+"circunferencia)"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1055
+msgid ""
+"Nueva zona acel circular: seleccione direccion (clic en un punto que defina "
+"el angulo)"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1069
+msgid "Aceleracion"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1080
+msgid "No se ha creado la zona circular de aceleracion."
+msgstr ""
+
+#: ../rceditor_user_interface.py:1099
+msgid ""
+"Error de programacion: etapa actual de añadir raccz tiene un valor no valido "
+msgstr ""
+
+#: ../rceditor_user_interface.py:1112
+msgid "Posicion inicial de la moneda actualizada"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1125
+msgid "Centro de giro actualizado"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1141
+msgid "Posicion centro de giro de fondo giratorio actualizado"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1188
+msgid "Cerrar programa"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1188
+msgid "¿Realmente desea cerrar el programa?"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1198 ../rceditor_user_interface.py:1225
+msgid "Abrir otro mapa"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1198 ../rceditor_user_interface.py:1225
+msgid ""
+"¿Desea abrir otro mapa?\n"
+"Se perderán las modificaciones realizadas en el mapa actual"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1210
+msgid "Sin nombre"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1215
+msgid "Nuevo mapa creado"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1253 ../rceditor_user_interface.py:1293
+#: ../rceditor_user_interface.py:1327
+msgid "Mapa "
+msgstr ""
+
+#: ../rceditor_user_interface.py:1253
+msgid " cargado"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1271 ../rceditor_user_interface.py:1299
+#: ../rceditor_user_interface.py:1491 ../rceditor_user_interface.py:1549
+#: ../rceditor_user_interface.py:1633 ../rceditor_user_interface.py:1700
+#: ../rceditor_user_interface.py:1745 ../rceditor_user_interface.py:1748
+#: ../rceditor_user_interface.py:1800 ../rceditor_user_interface.py:1840
+#: ../rceditor_user_interface.py:1843 ../rceditor_user_interface.py:1907
+#: ../rceditor_user_interface.py:1955 ../rceditor_user_interface.py:1958
+#: ../rceditor_user_interface.py:2006 ../rceditor_user_interface.py:2037
+#: ../rceditor_user_interface.py:2156 ../rceditor_user_interface.py:2186
+#: ../rceditor_user_interface.py:2227 ../rceditor_user_interface.py:2258
+#: ../rceditor_user_interface.py:2289 ../rceditor_user_interface.py:2354
+#: ../rceditor_user_interface.py:2362 ../rceditor_preferences.py:290
+#: ../rceditor_table_segm.py:413 ../rceditor_table_segm.py:441
+#: ../rceditor_table_segm.py:502 ../rceditor_table_segm.py:506
+#: ../rceditor_table_bumper.py:336 ../rceditor_table_bumper.py:364
+#: ../rceditor_table_bumper.py:421 ../rceditor_table_bumper.py:425
+#: ../rceditor_table_raccz.py:397 ../rceditor_table_raccz.py:425
+#: ../rceditor_table_raccz.py:468 ../rceditor_table_raccz.py:472
+#: ../rceditor_mapview.py:229
+msgid "Error"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1271 ../rceditor_user_interface.py:1299
+#: ../rceditor_user_interface.py:1748 ../rceditor_user_interface.py:1843
+#: ../rceditor_user_interface.py:1958 ../rceditor_user_interface.py:2354
+#: ../rceditor_table_segm.py:506 ../rceditor_table_bumper.py:425
+#: ../rceditor_table_raccz.py:472
+msgid "No hay ningún mapa cargado."
+msgstr ""
+
+#: ../rceditor_user_interface.py:1286 ../rceditor_user_interface.py:1314
+#: ../rceditor_user_interface.py:2350 ../rceditor_user_interface.py:2352
+msgid "Comprobación mapa"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1286 ../rceditor_user_interface.py:1314
+#: ../rceditor_user_interface.py:2352
+msgid "Se han encontrado los siguientes errores. \n"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1287 ../rceditor_user_interface.py:1315
+msgid "Mapa no guardado debido a errores."
+msgstr ""
+
+#: ../rceditor_user_interface.py:1293 ../rceditor_user_interface.py:1327
+msgid " guardado."
+msgstr ""
+
+#: ../rceditor_user_interface.py:1342
+msgid "Cerrar mapa"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1342
+msgid "¿Desea cerrar el mapa?"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1355
+msgid "Mapa cerrado"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1385 ../rceditor_user_interface.py:1396
+msgid "Aplicando zoom, espere por favor"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1390 ../rceditor_user_interface.py:1401
+msgid " aplicado. Listo"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1393
+msgid "Zoom minimo alcanzado"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1491 ../rceditor_user_interface.py:1549
+#: ../rceditor_user_interface.py:1633 ../rceditor_user_interface.py:1700
+#: ../rceditor_user_interface.py:1800 ../rceditor_user_interface.py:1907
+#: ../rceditor_preferences.py:290 ../rceditor_table_segm.py:413
+#: ../rceditor_table_bumper.py:336 ../rceditor_table_raccz.py:397
+msgid ""
+"Valores no válidos, no se tienen en cuenta las modificaciones.\n"
+"\n"
+"\n"
+"Excepcion: "
+msgstr ""
+
+#: ../rceditor_user_interface.py:1728 ../rceditor_table_segm.py:487
+msgid "Eliminar segmento"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1728 ../rceditor_table_segm.py:487
+msgid "¿Desea eliminar el segmento numero "
+msgstr ""
+
+#: ../rceditor_user_interface.py:1737 ../rceditor_user_interface.py:1833
+#: ../rceditor_table_segm.py:496 ../rceditor_table_bumper.py:415
+msgid " borrado"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1745
+msgid "El numero de segmento seleccionado ("
+msgstr ""
+
+#: ../rceditor_user_interface.py:1745 ../rceditor_user_interface.py:1840
+#: ../rceditor_user_interface.py:1955
+msgid ") no es valido."
+msgstr ""
+
+#: ../rceditor_user_interface.py:1824 ../rceditor_table_bumper.py:406
+msgid "Eliminar bumper"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1824 ../rceditor_table_bumper.py:406
+msgid "¿Desea eliminar el bumper numero "
+msgstr ""
+
+#: ../rceditor_user_interface.py:1833 ../rceditor_table_bumper.py:415
+#: ../rceditor_maps.py:603 ../rceditor_maps.py:606 ../rceditor_maps.py:609
+#: ../rceditor_maps.py:612
+msgid "Bumper "
+msgstr ""
+
+#: ../rceditor_user_interface.py:1840
+msgid "El numero de bumper seleccionado ("
+msgstr ""
+
+#: ../rceditor_user_interface.py:1938
+msgid "Eliminar zona acel circular"
+msgstr ""
+
+#: ../rceditor_user_interface.py:1938
+msgid "¿Desea eliminar la zona de aceleracion circular numero "
+msgstr ""
+
+#: ../rceditor_user_interface.py:1955
+msgid "El numero de zona aceleracion circular seleccionado ("
+msgstr ""
+
+#: ../rceditor_user_interface.py:2006 ../rceditor_user_interface.py:2037
+#: ../rceditor_user_interface.py:2156 ../rceditor_user_interface.py:2186
+#: ../rceditor_user_interface.py:2227 ../rceditor_user_interface.py:2258
+#: ../rceditor_user_interface.py:2289 ../rceditor_table_segm.py:441
+#: ../rceditor_table_bumper.py:364 ../rceditor_table_raccz.py:425
+msgid ""
+"Valor no válido, no es un número. No se tienen en cuenta las modificaciones."
+msgstr ""
+
+#: ../rceditor_user_interface.py:2350
+msgid "No se han encontrado errores."
+msgstr ""
+
+#: ../rceditor_user_interface.py:2387
+msgid "Seleccione punto inicial de la moneda"
+msgstr ""
+
+#: ../rceditor_user_interface.py:2394
+msgid "Seleccione centro de giro"
+msgstr ""
+
+#: ../rceditor_user_interface.py:2401
+msgid "Seleccione centro de giro del fondo giratorio"
+msgstr ""
+
+#: ../rceditor_preferences.py:201
+msgid "Ruta del juego:"
+msgstr ""
+
+#: ../rceditor_preferences.py:206
+msgid "Umbral para alin. auto.:"
+msgstr ""
+
+#: ../rceditor_preferences.py:220
+msgid "Idioma:"
+msgstr ""
+
+#: ../rceditor_preferences.py:253 ../rceditor_help.py:40
+#: ../rceditor_mapview.py:724
+msgid "Aceptar"
+msgstr ""
+
+#: ../rceditor_preferences.py:254 ../rceditor_mapview.py:725
+msgid "Cancelar"
+msgstr ""
+
+#: ../rceditor_preferences.py:315
+msgid "Este cambio no será efectivo hasta el siguiente reinicio del programa."
+msgstr ""
+
+#: ../rceditor_help.py:28
+msgid "Acerca de..."
+msgstr ""
+
+#: ../rceditor_help.py:37
+msgid "Editor de niveles para el juego Roadcoin.\n"
+msgstr ""
+
+#: ../rceditor_table_segm.py:57
+msgid "Tabla de segmentos"
+msgstr ""
+
+#: ../rceditor_table_segm.py:63 ../rceditor_table_bumper.py:59
+#: ../rceditor_table_raccz.py:62
+msgid "Nueva fila"
+msgstr ""
+
+#: ../rceditor_table_segm.py:65 ../rceditor_table_bumper.py:61
+#: ../rceditor_table_raccz.py:64
+msgid "Eliminar fila"
+msgstr ""
+
+#: ../rceditor_table_segm.py:69 ../rceditor_table_bumper.py:65
+#: ../rceditor_table_raccz.py:68
+msgid "Actualizar tabla (desde mapa editor)"
+msgstr ""
+
+#: ../rceditor_table_segm.py:79
+msgid "Num segm"
+msgstr ""
+
+#: ../rceditor_table_segm.py:89
+msgid "Tipo"
+msgstr ""
+
+#: ../rceditor_table_segm.py:320
+msgid "Para editar, seleccionar modo segmentos y modo editar."
+msgstr ""
+
+#: ../rceditor_table_segm.py:502 ../rceditor_table_bumper.py:421
+#: ../rceditor_table_raccz.py:468
+msgid "Ninguna fila seleccionada."
+msgstr ""
+
+#: ../rceditor_table_bumper.py:53
+msgid "Tabla de bumpers"
+msgstr ""
+
+#: ../rceditor_table_bumper.py:74
+msgid "Num bump"
+msgstr ""
+
+#: ../rceditor_table_bumper.py:259
+msgid "Para editar, seleccionar modo bumpers y modo editar."
+msgstr ""
+
+#: ../rceditor_table_raccz.py:56
+msgid "Tabla de zonas de aceleracion circulares"
+msgstr ""
+
+#: ../rceditor_table_raccz.py:78
+msgid "Num RACCZ"
+msgstr ""
+
+#: ../rceditor_table_raccz.py:305
+msgid "Para editar, seleccionar modo zona aceleracion circular y modo editar."
+msgstr ""
+
+#: ../rceditor_table_raccz.py:453
+msgid "Eliminar zona de aceleracion"
+msgstr ""
+
+#: ../rceditor_table_raccz.py:453
+msgid "¿Desea eliminar la zona de aceleracoin numero "
+msgstr ""
+
+#: ../rceditor_table_raccz.py:462
+msgid "Zona de aceleracion circular "
+msgstr ""
+
+#: ../rceditor_table_raccz.py:462
+msgid " borrada"
+msgstr ""
+
+#: ../rceditor_mapview.py:229
+msgid ""
+"No se ha podido cargar la imagen del fondo giratorio.\n"
+"\n"
+"\n"
+"Excepcion: "
+msgstr ""
+
+#: ../rceditor_mapview.py:703
+msgid "Seleccione zoom..."
+msgstr ""
+
+#: ../rceditor_maps.py:496
+msgid "Nombre del mapa no definido.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:499
+msgid "Descripción del mapa no definida.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:502
+msgid "Numero de segmentos no definido.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:505
+msgid "Tipo rotacion no definida.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:510
+msgid "Centro de giro no definido (y rotacion alrededor de punto fijo).\n"
+msgstr ""
+
+#: ../rceditor_maps.py:513
+msgid "Alguna componente del centro de giro no definido.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:516
+msgid "Angulo máximo no definido.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:519
+msgid "Punto de inicio de la moneda no definido.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:522
+msgid "Alguna componente del punto de inicio de la moneda no definido.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:525
+msgid "La gravedad no está definida.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:528
+msgid "La imagen de la moneda no está definida.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:531
+msgid "La imagen del fondo fijo no está definida.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:543
+msgid "Se espera imagen fondo giratorio, pero no está definido.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:547
+msgid ""
+"Se espera imagen fondo giratorio, pero falta definir alguna posición del "
+"fondo.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:551
+msgid ""
+"Se espera imagen fondo giratorio, pero el centro de giro no está definido.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:554
+msgid ""
+"Se espera imagen fondo giratorio, pero alguna componente del centro de giro "
+"no está definido.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:577
+msgid "Indice de segmento "
+msgstr ""
+
+#: ../rceditor_maps.py:577 ../rceditor_maps.py:600 ../rceditor_maps.py:617
+msgid " parece incorrecto.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:580
+msgid ", no definido punto start.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:583
+msgid ", alguna coordenada de punto start no está definida.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:586
+msgid ", no definido punto end.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:589
+msgid ", alguna coordenada de punto end no está definida.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:592
+msgid ", tipo de segmento no definido.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:595 ../rceditor_maps.py:632
+msgid ", visibilidad no definida.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:600
+msgid "Indice de bumper "
+msgstr ""
+
+#: ../rceditor_maps.py:603 ../rceditor_maps.py:620
+msgid ", no definido punto centro.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:606 ../rceditor_maps.py:623
+msgid ", alguna coordenada de punto centro no está definida.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:609 ../rceditor_maps.py:626
+msgid ", radio no definido o valor incorrecto.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:612
+msgid ", valocidad de salida no definida o valor incorrecto.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:617
+msgid "Indice de zona aceleracion circular "
+msgstr ""
+
+#: ../rceditor_maps.py:620 ../rceditor_maps.py:623 ../rceditor_maps.py:626
+#: ../rceditor_maps.py:629 ../rceditor_maps.py:632
+msgid "Zona de aceleración circular "
+msgstr ""
+
+#: ../rceditor_maps.py:629
+msgid ", aceleracion no definida o valor incorrecto.\n"
+msgstr ""
+
+#: ../rceditor_maps.py:640
+msgid "Los siguientes numeros de segmentos no están definidos: "
+msgstr ""
+
+#: ../rceditor_maps.py:646
+msgid "Los siguientes numeros de bumpers no están definidos: "
+msgstr ""
+
+#: ../rceditor_maps.py:652
+msgid ""
+"Los siguientes numeros de zonas de aceleracion circular no están definidos: "
+msgstr ""
