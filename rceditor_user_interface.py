@@ -1,3 +1,4 @@
+# coding=UTF-8
 
 import tkinter as tk
 import logging
@@ -19,6 +20,8 @@ import rceditor_table_segm
 import rceditor_table_bumper
 import rceditor_table_raccz
 import rceditor_help
+
+import rceditor_lang
 
 
 def do_nothing():
@@ -158,6 +161,9 @@ class RC_editor_GUI():
 		self.preferences = rceditor_preferences.Preferences()
 		self.preferences.LoadPreferences()
 
+		# Activate translations language (TODO 17/7/2021)
+		_ = rceditor_lang.Initialize_Translations_Language(  self.preferences.Language  )
+
 		logging.debug( "Inicializando ventana principal del editor" )
 		self.window_main_editor = tk.Tk()
 		self.window_main_editor.title( "RoadCoin Level Editor" )
@@ -170,36 +176,36 @@ class RC_editor_GUI():
 		logging.debug( "Inicializando menu principal del editor" )
 		self.menubar_mainmenu = tk.Menu( self.window_main_editor )
 		self.filemenu = tk.Menu( self.menubar_mainmenu, tearoff=0)
-		self.filemenu.add_command(label="Nuevo", image = self.img_new_icon, compound = tk.LEFT, command = self.NewMapButton )
-		self.filemenu.add_command(label="Abrir", image = self.img_open_icon, compound = tk.LEFT, command = self.LoadMapButton )
-		self.filemenu.add_command(label="Guardar", image = self.img_save_icon, compound = tk.LEFT, command = self.SaveMapButton )			# 3/1/2021
-		self.filemenu.add_command(label="Guardar como...", image = self.img_save_icon, compound = tk.LEFT, command = self.SaveMapAsButton )	# 3/1/2021
-		self.filemenu.add_command(label="Cerrar", image = self.img_close_icon, compound = tk.LEFT, command=self.CloseMapButton )
+		self.filemenu.add_command(label= _("Nuevo") , image = self.img_new_icon, compound = tk.LEFT, command = self.NewMapButton )
+		self.filemenu.add_command(label= _("Abrir") , image = self.img_open_icon, compound = tk.LEFT, command = self.LoadMapButton )
+		self.filemenu.add_command(label= _("Guardar") , image = self.img_save_icon, compound = tk.LEFT, command = self.SaveMapButton )			# 3/1/2021
+		self.filemenu.add_command(label= _("Guardar como...") , image = self.img_save_icon, compound = tk.LEFT, command = self.SaveMapAsButton )	# 3/1/2021
+		self.filemenu.add_command(label= _("Cerrar") , image = self.img_close_icon, compound = tk.LEFT, command=self.CloseMapButton )
 		self.filemenu.add_separator()
-		self.filemenu.add_command(label="Salir", image = self.img_quit_icon, compound = tk.LEFT, command = self.window_main_editor.quit)
-		self.menubar_mainmenu.add_cascade(label="Archivo", menu = self.filemenu)
+		self.filemenu.add_command(label= _("Salir"), image = self.img_quit_icon, compound = tk.LEFT, command = self.window_main_editor.quit)
+		self.menubar_mainmenu.add_cascade(label= _("Archivo") , menu = self.filemenu)
 		self.editmenu = tk.Menu(self.menubar_mainmenu, tearoff=0)
-		self.editmenu.add_command(label="Deshacer", command = do_nothing)
-		self.editmenu.add_command(label="Rehacer", command = do_nothing)
+		self.editmenu.add_command(label= _("Deshacer") , command = do_nothing)
+		self.editmenu.add_command(label= _("Rehacer") , command = do_nothing)
 		self.editmenu.add_separator()
-		self.editmenu.add_command(label="Preferencias...", command = self.ShowPreferencesWindowButton )
-		self.menubar_mainmenu.add_cascade(label="Editar", menu=self.editmenu)
+		self.editmenu.add_command(label= _("Preferencias...") , command = self.ShowPreferencesWindowButton )
+		self.menubar_mainmenu.add_cascade(label= _("Editar") , menu=self.editmenu)
 		self.viewmenu = tk.Menu(self.menubar_mainmenu, tearoff=0)
-		self.viewmenu.add_command(label="Redibujar todo", image=self.img_reload_icon, compound = tk.LEFT, command = self.RedrawAllButton )
+		self.viewmenu.add_command(label= _("Redibujar todo") , image=self.img_reload_icon, compound = tk.LEFT, command = self.RedrawAllButton )
 		self.viewmenu.add_separator()
-		self.viewmenu.add_command(label="Volver a (0,0)", image=self.img_origin_icon, compound = tk.LEFT, command = self.GoTo_Origin )
-		self.menubar_mainmenu.add_cascade(label="Vista", menu=self.viewmenu)
+		self.viewmenu.add_command(label= _("Volver a (0,0)") , image=self.img_origin_icon, compound = tk.LEFT, command = self.GoTo_Origin )
+		self.menubar_mainmenu.add_cascade(label= _("Vista") , menu=self.viewmenu)
 		self.helpmenu = tk.Menu(self.menubar_mainmenu, tearoff=0)
-		self.helpmenu.add_command(label="Help Index", command = do_nothing)
-		self.helpmenu.add_command(label="About...", command = self.AboutWindowButton)
-		self.menubar_mainmenu.add_cascade(label="Ayuda", menu=self.helpmenu)
+		self.helpmenu.add_command(label= "Help Index", command = do_nothing)
+		self.helpmenu.add_command(label= _("About...") , command = self.AboutWindowButton)
+		self.menubar_mainmenu.add_cascade(label= _("Ayuda") , menu=self.helpmenu)
 		self.window_main_editor.config( menu = self.menubar_mainmenu )
 		# Nota: añadir imagenes a los menus con image=self._img4, compound='left',...etc
 		if debugmode==True:
 			self.debugmenu = tk.Menu(self.menubar_mainmenu, tearoff=0)
-			self.debugmenu.add_command(label="Verificar datos mapa", command = self.Check_Map_Data)
-			self.debugmenu.add_command(label="Reenumerar segmentos", command = self.ReenumerateSegments)
-			self.debugmenu.add_command(label="Actualizar propiedades", command = self.Update_All_Properties)
+			self.debugmenu.add_command(label= _("Verificar datos mapa") , command = self.Check_Map_Data)
+			self.debugmenu.add_command(label= _("Reenumerar segmentos") , command = self.ReenumerateSegments)
+			self.debugmenu.add_command(label= _("Actualizar propiedades") , command = self.Update_All_Properties)
 			self.menubar_mainmenu.add_cascade(label="Debug", menu=self.debugmenu)		
 
 
@@ -248,8 +254,8 @@ class RC_editor_GUI():
 		#self.window_statusbar.set("%s", "Holaaaaaaaa")
 		#self.window_statusbar.pack(side=tk.BOTTOM, fill=tk.X)
 		self.window_statusbar = rceditor_custom_widgets.StatusBar_MultiFields( self.window_main_editor )
-		self.window_statusbar.set_field_1("%s", "Bienvenido al editor de niveles de Roadcoin")
-		self.window_statusbar.set_field_2("%s", "CoordRaton")	
+		self.window_statusbar.set_field_1("%s", _("Bienvenido al editor de niveles de Roadcoin") )
+		self.window_statusbar.set_field_2("%s", _("CoordRaton") )	
 		self.window_statusbar.set_field_3("%s", "Zoom: 100%")	
 		self.window_statusbar.pack(side=tk.BOTTOM, fill=tk.X)
 
@@ -273,23 +279,23 @@ class RC_editor_GUI():
 		self.button_rotbg3 = tk.Button( master = self.frame_left_toolbar, text="Rotbg3", width=6, command = do_nothing)
 		self.buttons_rotbg_list = [ self.button_rotbg1, self.button_rotbg2, self.button_rotbg3 ]
 		# Segment mode buttons
-		self.button_new_segm = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_segm_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_SegmentSubMode, Segment_SubMode.add) )
-		self.button_edit_segm = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_segm_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_SegmentSubMode, Segment_SubMode.edit ) )
-		self.button_del_segm = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_segm_icon, compound=tk.LEFT, width=None, state="disabled", command = self.Delete_Selected_Segment )
-		self.button_table_segm = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = self.Toggle_Show_Hide_Segment_Table )
-		self.button_snap_point_segm = tk.Button( master = self.frame_left_toolbar, text="Alinear", image=self.img_snap_point_icon, compound=tk.LEFT, width=None, command = self.Toggle_SnapToPoint_Segm_Button )
+		self.button_new_segm = tk.Button( master = self.frame_left_toolbar, text= _("Nuevo") , image=self.img_new_segm_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_SegmentSubMode, Segment_SubMode.add) )
+		self.button_edit_segm = tk.Button( master = self.frame_left_toolbar, text= _("Editar") , image=self.img_edit_segm_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_SegmentSubMode, Segment_SubMode.edit ) )
+		self.button_del_segm = tk.Button( master = self.frame_left_toolbar, text= _("Eliminar") , image=self.img_del_segm_icon, compound=tk.LEFT, width=None, state="disabled", command = self.Delete_Selected_Segment )
+		self.button_table_segm = tk.Button( master = self.frame_left_toolbar, text= _("Tabla") , image=self.img_table_icon, compound=tk.LEFT, width=None, command = self.Toggle_Show_Hide_Segment_Table )
+		self.button_snap_point_segm = tk.Button( master = self.frame_left_toolbar, text= _("Alinear") , image=self.img_snap_point_icon, compound=tk.LEFT, width=None, command = self.Toggle_SnapToPoint_Segm_Button )
 		self.buttons_segm_list = [ self.button_new_segm, self.button_edit_segm, self.button_del_segm, self.button_table_segm, self.button_snap_point_segm ]
 		# Bumpers mode buttons
-		self.button_new_bumper = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.add))
-		self.button_edit_bumper = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.edit ) )
-		self.button_del_bumper = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_bumper_icon, compound=tk.LEFT, width=None, state="disabled", command = self.Delete_Selected_Bumper )
-		self.button_table_bumper = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = self.Toggle_Show_Hide_Bumper_Table )
+		self.button_new_bumper = tk.Button( master = self.frame_left_toolbar, text= _("Nuevo") , image=self.img_new_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.add))
+		self.button_edit_bumper = tk.Button( master = self.frame_left_toolbar, text= _("Editar") , image=self.img_edit_bumper_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_BumperSubMode, Bumper_SubMode.edit ) )
+		self.button_del_bumper = tk.Button( master = self.frame_left_toolbar, text= _("Eliminar") , image=self.img_del_bumper_icon, compound=tk.LEFT, width=None, state="disabled", command = self.Delete_Selected_Bumper )
+		self.button_table_bumper = tk.Button( master = self.frame_left_toolbar, text= _("Tabla") , image=self.img_table_icon, compound=tk.LEFT, width=None, command = self.Toggle_Show_Hide_Bumper_Table )
 		self.buttons_bump_list = [ self.button_new_bumper, self.button_edit_bumper, self.button_del_bumper, self.button_table_bumper, self.button_snap_point_segm ]
 		# RACCZ mode buttons
-		self.button_new_raccz = tk.Button( master = self.frame_left_toolbar, text="Nuevo", image=self.img_new_raccz_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_RACCZSubMode, RACCZ_SubMode.add))
-		self.button_edit_raccz = tk.Button( master = self.frame_left_toolbar, text="Editar", image=self.img_edit_raccz_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_RACCZSubMode, RACCZ_SubMode.edit ) )
-		self.button_del_raccz = tk.Button( master = self.frame_left_toolbar, text="Eliminar", image=self.img_del_raccz_icon, compound=tk.LEFT, width=None, state="disabled", command = self.Delete_Selected_RACCZ )
-		self.button_table_raccz = tk.Button( master = self.frame_left_toolbar, text="Tabla", image=self.img_table_icon, compound=tk.LEFT, width=None, command = self.Toggle_Show_Hide_RACCZ_Table )
+		self.button_new_raccz = tk.Button( master = self.frame_left_toolbar, text= _("Nuevo"), image=self.img_new_raccz_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_RACCZSubMode, RACCZ_SubMode.add))
+		self.button_edit_raccz = tk.Button( master = self.frame_left_toolbar, text= _("Editar") , image=self.img_edit_raccz_icon, compound=tk.LEFT, width=None, command = partial(self.Reconf_UI_To_RACCZSubMode, RACCZ_SubMode.edit ) )
+		self.button_del_raccz = tk.Button( master = self.frame_left_toolbar, text= _("Eliminar") , image=self.img_del_raccz_icon, compound=tk.LEFT, width=None, state="disabled", command = self.Delete_Selected_RACCZ )
+		self.button_table_raccz = tk.Button( master = self.frame_left_toolbar, text= _("Tabla") , image=self.img_table_icon, compound=tk.LEFT, width=None, command = self.Toggle_Show_Hide_RACCZ_Table )
 		self.buttons_raccz_list = [ self.button_new_raccz, self.button_edit_raccz, self.button_del_raccz, self.button_table_raccz, self.button_snap_point_segm ]
 
 
@@ -306,9 +312,9 @@ class RC_editor_GUI():
 		Bumper_RealNumber_Validation = self.window_main_editor.register(self.Bumper_Property_RealNumber_Change_FocusOut_Validation_Callback)
 		RACCZ_RealNumber_Validation = self.window_main_editor.register(self.RACCZ_Property_RealNumber_Change_FocusOut_Validation_Callback)
 		# General mode properties widgets (21/1/2020)
-		self.property_gen_map_name = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Nombre", validatecommand=General_String_Validation )
-		self.property_gen_description = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Descripcion", validatecommand=General_String_Validation )
-		self.property_gen_rot_type_label = tk.Label(master=self.frame_properties, text="Tipo rotacion mapa:")
+		self.property_gen_map_name = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Nombre") , validatecommand=General_String_Validation )
+		self.property_gen_description = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Descripcion") , validatecommand=General_String_Validation )
+		self.property_gen_rot_type_label = tk.Label(master=self.frame_properties, text= _("Tipo rotacion mapa:") )
 		self.property_gen_rot_type_variable = tk.StringVar()
 		self.property_gen_rot_type_choices = [ rceditor_maps.Rotation_Type_Names.get(rceditor_maps.Rotation_Type.camera), \
 							rceditor_maps.Rotation_Type_Names.get(rceditor_maps.Rotation_Type.fixed_point), \
@@ -316,53 +322,53 @@ class RC_editor_GUI():
 							rceditor_maps.Rotation_Type_Names.get(rceditor_maps.Rotation_Type.origin), \
 							rceditor_maps.Rotation_Type_Names.get(rceditor_maps.Rotation_Type.no_rot)  ]
 		self.property_gen_rot_type = tk.OptionMenu( self.frame_properties, self.property_gen_rot_type_variable, *self.property_gen_rot_type_choices, command=self.General_Property_OptionMenu_Click_Callback )
-		self.property_gen_rot_center_label = tk.Label(master=self.frame_properties, text="Centro de giro mapa:")
+		self.property_gen_rot_center_label = tk.Label(master=self.frame_properties, text= _("Centro de giro mapa:") )
 		self.property_gen_rot_center_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=General_OPTIONAL_RealNumber_Validation )
 		self.property_gen_rot_center_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=General_OPTIONAL_RealNumber_Validation )
-		self.property_gen_rot_center_select = tk.Button( master = self.frame_properties, text="Seleccionar centro giro", command=self.Choose_Rotation_Center_Button_Callback )
-		self.property_gen_max_angle = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Angulo maximo:", validatecommand=General_RealNumber_Validation )
+		self.property_gen_rot_center_select = tk.Button( master = self.frame_properties, text= _("Seleccionar centro giro") , command=self.Choose_Rotation_Center_Button_Callback )
+		self.property_gen_max_angle = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Angulo maximo:") , validatecommand=General_RealNumber_Validation )
 		self.property_gen_coin_start_pos_label = tk.Label(master=self.frame_properties,text="Posicion inicial moneda:")
 		self.property_gen_coin_start_pos_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=General_RealNumber_Validation )
 		self.property_gen_coin_start_pos_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=General_RealNumber_Validation )
-		self.property_gen_coin_start_pos_select = tk.Button( master = self.frame_properties, text="Seleccionar pos incial", command=self.Choose_Coin_Starting_Point_Button_Callback )
-		self.property_gen_gravity = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Gravedad:", validatecommand=General_RealNumber_Validation )
-		self.property_gen_scale = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Escala:", validatecommand=General_OPTIONAL_RealNumber_Validation )
-		self.property_gen_music_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Musica", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
-		self.property_gen_timeout = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Tiempo cuenta atras:", validatecommand=General_OPTIONAL_RealNumber_Validation )
+		self.property_gen_coin_start_pos_select = tk.Button( master = self.frame_properties, text= _("Seleccionar pos incial") , command=self.Choose_Coin_Starting_Point_Button_Callback )
+		self.property_gen_gravity = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Gravedad:") , validatecommand=General_RealNumber_Validation )
+		self.property_gen_scale = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Escala:") , validatecommand=General_OPTIONAL_RealNumber_Validation )
+		self.property_gen_music_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description= _("Musica") , validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
+		self.property_gen_timeout = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Tiempo cuenta atras:") , validatecommand=General_OPTIONAL_RealNumber_Validation )
 		self.properties_gen_list = [ self.property_gen_map_name, self.property_gen_description, self.property_gen_rot_type_label, self.property_gen_rot_type, self.property_gen_rot_center_label, self.property_gen_rot_center_x, self.property_gen_rot_center_y, self.property_gen_rot_center_select, self.property_gen_max_angle, self.property_gen_coin_start_pos_label, self.property_gen_coin_start_pos_x, self.property_gen_coin_start_pos_y, self.property_gen_coin_start_pos_select, self.property_gen_gravity, self.property_gen_scale, self.property_gen_music_path, self.property_gen_timeout ]
 		# Image mode properties widgets
-		self.property_img_coin_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen moneda", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
-		self.property_img_background_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen fondo fijo", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
+		self.property_img_coin_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description= _("Imagen moneda") , validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
+		self.property_img_background_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description= _("Imagen fondo fijo") , validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
 		self.property_img_norot_coin_variable = tk.BooleanVar()
-		self.property_img_norot_coin = tk.Checkbutton(master=self.frame_properties, text="Moneda no rota", var=self.property_img_norot_coin_variable, command=self.Image_Property_Checkbox_Click_Callback )
-		self.property_img_wall_segm_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen segmento pared", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
-		self.property_img_goal_segm_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen segmento meta", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
-		self.property_img_death_segm_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen segmento muerte", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
-		self.property_img_description_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen descripcion menu", validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
+		self.property_img_norot_coin = tk.Checkbutton(master=self.frame_properties, text= _("Moneda no rota") , var=self.property_img_norot_coin_variable, command=self.Image_Property_Checkbox_Click_Callback )
+		self.property_img_wall_segm_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description= _("Imagen segmento pared") , validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
+		self.property_img_goal_segm_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description= _("Imagen segmento meta") , validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
+		self.property_img_death_segm_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description= _("Imagen segmento muerte") , validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
+		self.property_img_description_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description= _("Imagen descripcion menu") , validatecommand=Image_String_Validation, initialdir=self.preferences.GamePath )
 		self.properties_img_list = [ self.property_img_coin_path, self.property_img_background_path, self.property_img_norot_coin, self.property_img_wall_segm_path, self.property_img_goal_segm_path, self.property_img_death_segm_path, self.property_img_description_path ]
 		# Rotating background mode properties widgets
 		self.property_rotbg_exists_variable = tk.BooleanVar()
-		self.property_rotbg_exists = tk.Checkbutton(master=self.frame_properties, text="Fondo giratorio", var=self.property_rotbg_exists_variable, command=self.RotBg_Property_Checkbox_Click_Callback )
-		self.property_rotbg_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description="Imagen fondo giratorio", validatecommand=RotBg_String_Validation, initialdir=self.preferences.GamePath )
-		self.property_rotbg_pos_label = tk.Label(master=self.frame_properties,text="Posicion fondo giratorio:")
-		self.property_rotbg_left_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Izq X:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
-		self.property_rotbg_up_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Arriba Y:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
-		self.property_rotbg_right_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Der X:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
-		self.property_rotbg_down_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Abajo Y:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
-		self.property_rotbg_rot_center_pos_label = tk.Label(master=self.frame_properties,text="Centro giro fondo giratorio:")
+		self.property_rotbg_exists = tk.Checkbutton(master=self.frame_properties, text= _("Fondo giratorio") , var=self.property_rotbg_exists_variable, command=self.RotBg_Property_Checkbox_Click_Callback )
+		self.property_rotbg_path = rceditor_custom_widgets.PathSelectionWithDescription( master=self.frame_properties, description= _("Imagen fondo giratorio"), validatecommand=RotBg_String_Validation, initialdir=self.preferences.GamePath )
+		self.property_rotbg_pos_label = tk.Label(master=self.frame_properties,text= _("Posicion fondo giratorio:") )
+		self.property_rotbg_left_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Izq X:") , validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
+		self.property_rotbg_up_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Arriba Y:") , validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
+		self.property_rotbg_right_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Der X:") , validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
+		self.property_rotbg_down_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Abajo Y:") , validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
+		self.property_rotbg_rot_center_pos_label = tk.Label(master=self.frame_properties,text= _("Centro giro fondo giratorio:") )
 		self.property_rotbg_center_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
 		self.property_rotbg_center_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=RotBg_OPTIONAL_RealNumber_Validation )
-		self.property_rotbg_center_select = tk.Button( master = self.frame_properties, text="Seleccionar centro giro", command=self.Choose_Rotating_Background_Rotation_Center_Button_Callback )
+		self.property_rotbg_center_select = tk.Button( master = self.frame_properties, text= _("Seleccionar centro giro") , command=self.Choose_Rotating_Background_Rotation_Center_Button_Callback )
 		self.properties_rotbg_list = [ self.property_rotbg_exists, self.property_rotbg_path, self.property_rotbg_pos_label, self.property_rotbg_left_x, self.property_rotbg_up_y, self.property_rotbg_right_x, self.property_rotbg_down_y, self.property_rotbg_rot_center_pos_label, self.property_rotbg_center_x, self.property_rotbg_center_y, self.property_rotbg_center_select ]
 		# Segment mode properties widgets
-		self.property_segm_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero segmento:", validatecommand=do_nothing, state='readonly' )
+		self.property_segm_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Numero segmento:") , validatecommand=do_nothing, state='readonly' )
 		self.property_segm_start_label = tk.Label(master=self.frame_properties,text="Start:")
 		self.property_segm_start_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=Segment_RealNumber_Validation )
 		self.property_segm_start_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=Segment_RealNumber_Validation )
 		self.property_segm_end_label = tk.Label(master=self.frame_properties,text="End:")
 		self.property_segm_end_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=Segment_RealNumber_Validation )
 		self.property_segm_end_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=Segment_RealNumber_Validation )
-		self.property_segm_type_label = tk.Label(master=self.frame_properties, text="Tipo segmento:")
+		self.property_segm_type_label = tk.Label(master=self.frame_properties, text= _("Tipo segmento:") )
 		self.property_segm_type_variable = tk.StringVar()
 		self.property_segm_type_choices = [ rceditor_maps.Segment_Type_Names.get(rceditor_maps.Segment_Type.wall), \
 							rceditor_maps.Segment_Type_Names.get(rceditor_maps.Segment_Type.goal), \
@@ -371,34 +377,34 @@ class RC_editor_GUI():
 							rceditor_maps.Segment_Type_Names.get(rceditor_maps.Segment_Type.pinball_flipper_R)  ]
 		self.property_segm_type = tk.OptionMenu( self.frame_properties, self.property_segm_type_variable, *self.property_segm_type_choices, command=self.Segment_Property_OptionMenu_Click_Callback )
 		self.property_segm_invis_variable = tk.BooleanVar()
-		self.property_segm_invis = tk.Checkbutton(master=self.frame_properties, text="Invisible", var=self.property_segm_invis_variable, command=self.Segment_Property_Checkbox_Click_Callback )
-		self.property_segm_apply = tk.Button( master = self.frame_properties, text="Forzar aplicar cambios", command = self.Apply_Selected_Segment_Changes)
+		self.property_segm_invis = tk.Checkbutton(master=self.frame_properties, text= _("Invisible") , var=self.property_segm_invis_variable, command=self.Segment_Property_Checkbox_Click_Callback )
+		self.property_segm_apply = tk.Button( master = self.frame_properties, text= _("Forzar aplicar cambios") , command = self.Apply_Selected_Segment_Changes)
 		self.properties_segm_list = [ self.property_segm_number, self.property_segm_start_label, self.property_segm_start_x, self.property_segm_start_y, self.property_segm_end_label, self.property_segm_end_x, self.property_segm_end_y, self.property_segm_type_label, self.property_segm_type, self.property_segm_type, self.property_segm_invis, self.property_segm_apply ]
 		# Bumpers mode properties widgets
-		self.property_bumper_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero bumper:", validatecommand=do_nothing, state='readonly' )
-		self.property_bumper_center_label = tk.Label(master=self.frame_properties,text="Centro:")
+		self.property_bumper_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Numero bumper:") , validatecommand=do_nothing, state='readonly' )
+		self.property_bumper_center_label = tk.Label(master=self.frame_properties,text= _("Centro:") )
 		self.property_bumper_center_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=Bumper_RealNumber_Validation )
 		self.property_bumper_center_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=Bumper_RealNumber_Validation )
-		self.property_bumper_radius_label = tk.Label(master=self.frame_properties,text="Radio:")
-		self.property_bumper_radius = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Radio:", validatecommand=Bumper_RealNumber_Validation )
-		self.property_bumper_speed_label = tk.Label(master=self.frame_properties, text="Velocidad de salida:")
-		self.property_bumper_speed = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="V salida:", validatecommand=Bumper_RealNumber_Validation )
-		self.property_bumper_apply = tk.Button( master = self.frame_properties, text="Forzar aplicar cambios", command = self.Apply_Selected_Bumper_Changes)
+		self.property_bumper_radius_label = tk.Label(master=self.frame_properties,text= _("Radio:") )
+		self.property_bumper_radius = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Radio:") , validatecommand=Bumper_RealNumber_Validation )
+		self.property_bumper_speed_label = tk.Label(master=self.frame_properties, text= _("Velocidad de salida:") )
+		self.property_bumper_speed = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("V salida:") , validatecommand=Bumper_RealNumber_Validation )
+		self.property_bumper_apply = tk.Button( master = self.frame_properties, text= _("Forzar aplicar cambios") , command = self.Apply_Selected_Bumper_Changes)
 		self.properties_bump_list = [ self.property_bumper_number, self.property_bumper_center_label, self.property_bumper_center_x, self.property_bumper_center_y, self.property_bumper_radius_label, self.property_bumper_radius, self.property_bumper_speed_label, self.property_bumper_speed, self.property_bumper_apply ]
 		# RACCZ mode properties widgets
-		self.property_raccz_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Numero bumper:", validatecommand=do_nothing, state='readonly' )
-		self.property_raccz_center_label = tk.Label(master=self.frame_properties,text="Centro:")
+		self.property_raccz_number = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Numero bumper:") , validatecommand=do_nothing, state='readonly' )
+		self.property_raccz_center_label = tk.Label(master=self.frame_properties,text= _("Centro:") )
 		self.property_raccz_center_x = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="X:", validatecommand=RACCZ_RealNumber_Validation )
 		self.property_raccz_center_y = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Y:", validatecommand=RACCZ_RealNumber_Validation )
-		self.property_raccz_radius_label = tk.Label(master=self.frame_properties,text="Radio:")
-		self.property_raccz_radius = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Radio:", validatecommand=RACCZ_RealNumber_Validation )
-		self.property_raccz_angle_label = tk.Label(master=self.frame_properties,text="Angulo:")
-		self.property_raccz_angle = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Angulo:", validatecommand=RACCZ_RealNumber_Validation )
-		self.property_raccz_accel_label = tk.Label(master=self.frame_properties, text="Aceleracion:")
-		self.property_raccz_accel = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description="Aceleracion:", validatecommand=RACCZ_RealNumber_Validation )
+		self.property_raccz_radius_label = tk.Label(master=self.frame_properties,text= _("Radio:") )
+		self.property_raccz_radius = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Radio:") , validatecommand=RACCZ_RealNumber_Validation )
+		self.property_raccz_angle_label = tk.Label(master=self.frame_properties,text= _("Angulo:") )
+		self.property_raccz_angle = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Angulo:") , validatecommand=RACCZ_RealNumber_Validation )
+		self.property_raccz_accel_label = tk.Label(master=self.frame_properties, text= _("Aceleracion:") )
+		self.property_raccz_accel = rceditor_custom_widgets.TextBoxWithDescription( master=self.frame_properties, description= _("Aceleracion:") , validatecommand=RACCZ_RealNumber_Validation )
 		self.property_raccz_invis_variable = tk.BooleanVar()
-		self.property_raccz_invis = tk.Checkbutton(master=self.frame_properties, text="Invisible", var=self.property_raccz_invis_variable, command=self.RACCZ_Property_Checkbox_Click_Callback )
-		self.property_raccz_apply = tk.Button( master = self.frame_properties, text="Forzar aplicar cambios", command = self.Apply_Selected_RACCZ_Changes)
+		self.property_raccz_invis = tk.Checkbutton(master=self.frame_properties, text= _("Invisible") , var=self.property_raccz_invis_variable, command=self.RACCZ_Property_Checkbox_Click_Callback )
+		self.property_raccz_apply = tk.Button( master = self.frame_properties, text= _("Forzar aplicar cambios") , command = self.Apply_Selected_RACCZ_Changes)
 		self.properties_raccz_list = [ self.property_raccz_number, self.property_raccz_center_label, self.property_raccz_center_x, self.property_raccz_center_y, self.property_raccz_radius_label, self.property_raccz_radius, self.property_raccz_angle_label, self.property_raccz_angle, self.property_raccz_accel_label, self.property_raccz_accel, self.property_raccz_invis, self.property_raccz_apply ]
 
 
@@ -550,11 +556,11 @@ class RC_editor_GUI():
 			if new_segment_submode == Segment_SubMode.add:
 				self.button_new_segm.configure( bg = "green" )
 				current_segment_add_stage = Segment_Add_Stages.St0_Choose_Start
-				self.window_statusbar.set_field_1("%s", "Nuevo segmento: seleccione punto inicial")
+				self.window_statusbar.set_field_1("%s", _("Nuevo segmento: seleccione punto inicial") )
 				self.canvas_mapview.Set_Cursor_Cross()
 			elif new_segment_submode == Segment_SubMode.edit:
 				self.button_edit_segm.configure( bg = "green" )
-				self.window_statusbar.set_field_1("%s", "Seleccione un segmento")
+				self.window_statusbar.set_field_1("%s", _("Seleccione un segmento") )
 				self.canvas_mapview.Set_Cursor_Arrow()
 			#elif new_segment_submode == Segment_SubMode.delete:
 			#	self.button_del_segm.configure( bg = "green" )
@@ -587,11 +593,11 @@ class RC_editor_GUI():
 			if new_bumper_submode == Bumper_SubMode.add:
 				self.button_new_bumper.configure( bg = "green" )
 				current_bumper_add_stage = Bumper_Add_Stages.St0_Choose_Center
-				self.window_statusbar.set_field_1("%s", "Nuevo bumper: seleccione punto central")
+				self.window_statusbar.set_field_1("%s", _("Nuevo bumper: seleccione punto central") )
 				self.canvas_mapview.Set_Cursor_Cross()
 			elif new_bumper_submode == Bumper_SubMode.edit:
 				self.button_edit_bumper.configure( bg = "green" )
-				self.window_statusbar.set_field_1("%s", "Seleccione un bumper")
+				self.window_statusbar.set_field_1("%s", _("Seleccione un bumper") )
 				self.canvas_mapview.Set_Cursor_Arrow()
 			#elif new_bumper_submode == Bumper_SubMode.delete:
 			#	self.button_del_bumper.configure( bg = "green" )
@@ -623,11 +629,11 @@ class RC_editor_GUI():
 			if new_raccz_submode == RACCZ_SubMode.add:
 				self.button_new_raccz.configure( bg = "green" )
 				current_raccz_add_stage = RACCZ_Add_Stages.St0_Choose_Center
-				self.window_statusbar.set_field_1("%s", "Nueva zona acel circular: seleccione punto central")
+				self.window_statusbar.set_field_1("%s", _("Nueva zona acel circular: seleccione punto central") )
 				self.canvas_mapview.Set_Cursor_Cross()
 			elif new_raccz_submode == RACCZ_SubMode.edit:
 				self.button_edit_raccz.configure( bg = "green" )
-				self.window_statusbar.set_field_1("%s", "Seleccione una zona de aceleracion circular")
+				self.window_statusbar.set_field_1("%s", _("Seleccione una zona de aceleracion circular") )
 				self.canvas_mapview.Set_Cursor_Arrow()
 			#elif new_raccz_submode == RACCZ_SubMode.delete:
 			#	self.button_del_raccz.configure( bg = "green" )
@@ -639,18 +645,18 @@ class RC_editor_GUI():
 
 
 	def EnableMenuItems_MapLoaded( self ):
-		self.filemenu.entryconfig("Cerrar", state="normal")
-		self.editmenu.entryconfig("Deshacer", state="normal")
-		self.editmenu.entryconfig("Rehacer", state="normal")
-		self.viewmenu.entryconfig("Redibujar todo", state="normal")
-		self.viewmenu.entryconfig("Volver a (0,0)", state="normal")
+		self.filemenu.entryconfig( _("Cerrar") , state="normal")
+		self.editmenu.entryconfig( _("Deshacer") , state="normal")
+		self.editmenu.entryconfig( _("Rehacer") , state="normal")
+		self.viewmenu.entryconfig( _("Redibujar todo") , state="normal")
+		self.viewmenu.entryconfig( _("Volver a (0,0)") , state="normal")
 
 	def DisableMenuItems_MapUnloaded( self ):
-		self.filemenu.entryconfig("Cerrar", state="disabled")
-		self.editmenu.entryconfig("Deshacer", state="disabled")
-		self.editmenu.entryconfig("Rehacer", state="disabled")
-		self.viewmenu.entryconfig("Redibujar todo", state="disabled")
-		self.viewmenu.entryconfig("Volver a (0,0)", state="disabled")
+		self.filemenu.entryconfig( _("Cerrar") , state="disabled")
+		self.editmenu.entryconfig( _("Deshacer") , state="disabled")
+		self.editmenu.entryconfig( _("Rehacer") , state="disabled")
+		self.viewmenu.entryconfig( _("Redibujar todo") , state="disabled")
+		self.viewmenu.entryconfig( _("Volver a (0,0)") , state="disabled")
 
 	def Load_UI_Icons(self):
 		logging.debug( "Cargando iconos del editor" )
@@ -855,12 +861,12 @@ class RC_editor_GUI():
 						self.canvas_mapview.UnHighlight_Segments()
 						self.canvas_mapview.Highlight_Segments( [ segment_found ] )		# Type cast into list
 						self.Update_Selected_Segment_Properties( segment_found )
-						self.window_statusbar.set_field_1("%s %d %s", "Segmento ", segment_found ," seleccionado" )
+						self.window_statusbar.set_field_1("%s %d %s", _("Segmento ") , segment_found ,  _(" seleccionado") )
 					else:
 						logging.debug("No se ha encontrado ningun segmento.")
 						self.UnSelect_Segment()
 						self.canvas_mapview.UnHighlight_Segments()
-						self.window_statusbar.set_field_1("%s", "Segmentos deseleccionados" )
+						self.window_statusbar.set_field_1("%s", _("Segmentos deseleccionados") )
 
 				if self.current_mode == Mode.bumper and self.current_bumper_submode == Bumper_SubMode.edit:
 					logging.debug("Los objetos encima son " + str( self.canvas_mapview.viewer.find_overlapping(canvas_x-10, canvas_y-10, canvas_x+10, canvas_y+10) ) )
@@ -888,7 +894,7 @@ class RC_editor_GUI():
 						logging.debug("No se ha encontrado ningun bumper.")
 						self.UnSelect_Bumper()
 						self.canvas_mapview.UnHighlight_Bumpers()
-						self.window_statusbar.set_field_1("%s", "Bumpers deseleccionados" )
+						self.window_statusbar.set_field_1("%s", _("Bumpers deseleccionados") )
 
 				if self.current_mode == Mode.round_accel_zone and self.current_raccz_submode == RACCZ_SubMode.edit:
 					logging.debug("Los objetos encima son " + str( self.canvas_mapview.viewer.find_overlapping(canvas_x-10, canvas_y-10, canvas_x+10, canvas_y+10) ) )
@@ -915,12 +921,12 @@ class RC_editor_GUI():
 						self.canvas_mapview.UnHighlight_RACCZ()
 						self.canvas_mapview.Highlight_RACCZ( [ raccz_found ] )		# Type cast into list
 						self.Update_Selected_RACCZ_Properties( raccz_found )
-						self.window_statusbar.set_field_1("%s %d %s", "Zona acel circ ", raccz_found ," seleccionada" )
+						self.window_statusbar.set_field_1("%s %d %s", _("Zona acel circ ") , raccz_found , _(" seleccionada") )
 					else:
 						logging.debug("No se ha encontrado ninguna zona de aceleracion circular.")
 						self.UnSelect_RACCZ()
 						self.canvas_mapview.UnHighlight_RACCZ()
-						self.window_statusbar.set_field_1("%s", "Zonas acel circ deseleccionadas" )
+						self.window_statusbar.set_field_1("%s", _("Zonas acel circ deseleccionadas") )
 
 				if self.current_mode == Mode.segment and self.current_segment_submode == Segment_SubMode.add:
 					if ( self.current_segment_add_stage == Segment_Add_Stages.St0_Choose_Start):
@@ -930,7 +936,7 @@ class RC_editor_GUI():
 						logging.debug( "Seleccionado como punto inicial: x = " + str(map_x) + ", y = " + str(map_y) )
 						self.temp_segment_data_to_create.start.x = map_x
 						self.temp_segment_data_to_create.start.y = map_y
-						self.window_statusbar.set_field_1("%s", "Nuevo segmento: seleccione punto final")
+						self.window_statusbar.set_field_1("%s",  _("Nuevo segmento: seleccione punto final") )
 						self.current_segment_add_stage = Segment_Add_Stages.St1_Choose_End
 					elif ( self.current_segment_add_stage == Segment_Add_Stages.St1_Choose_End):
 						if ( self.snap_to_segm_point == True ):
@@ -964,7 +970,7 @@ class RC_editor_GUI():
 						self.temp_segment_data_to_create.segm_type = None
 						self.temp_segment_data_to_create.invisible = None
 						# Change stage
-						self.window_statusbar.set_field_1("%s", "Nuevo segmento: seleccione punto inicial")
+						self.window_statusbar.set_field_1("%s", _("Nuevo segmento: seleccione punto inicial") )
 						self.current_segment_add_stage = Segment_Add_Stages.St0_Choose_Start
 						# We delete the segment preview (26/11/2020)
 						self.canvas_mapview.Hide_SegmentBeingCreated( )
@@ -975,7 +981,7 @@ class RC_editor_GUI():
 							self.segment_table.update_table_from_map_editor()
 
 					else:
-						logging.error( "Error de programacion: etapa actual de añadir segmento tiene un valor no valido " + str(self.current_segment_add_stage) )
+						logging.error( _("Error de programacion: etapa actual de añadir segmento tiene un valor no valido ") + str(self.current_segment_add_stage) )
 
 				if self.current_mode == Mode.bumper and self.current_bumper_submode == Bumper_SubMode.add:
 					if ( self.current_bumper_add_stage == Bumper_Add_Stages.St0_Choose_Center ):
@@ -985,7 +991,7 @@ class RC_editor_GUI():
 						logging.debug( "Seleccionado como punto central: x = " + str(map_x) + ", y = " + str(map_y) )
 						self.temp_pinball_bumper_data_to_create.center.x = map_x
 						self.temp_pinball_bumper_data_to_create.center.y = map_y
-						self.window_statusbar.set_field_1("%s", "Nuevo bumper: seleccione radio (clic en un punto de la circunferencia)")
+						self.window_statusbar.set_field_1("%s", _("Nuevo bumper: seleccione radio (clic en un punto de la circunferencia)") )
 						self.current_bumper_add_stage = Bumper_Add_Stages.St1_Choose_Radius
 					elif ( self.current_bumper_add_stage == Bumper_Add_Stages.St1_Choose_Radius ):
 						if ( self.snap_to_segm_point == True ):
@@ -995,7 +1001,7 @@ class RC_editor_GUI():
 						# Calculate the radius
 						self.temp_pinball_bumper_data_to_create.radius = math.sqrt( ( map_x - self.temp_pinball_bumper_data_to_create.center.x )**2 + ( map_y - self.temp_pinball_bumper_data_to_create.center.y )**2 )
 						# Ask for the exit speed
-						exit_speed_answer = simpledialog.askfloat("Velocidad de salida", "Velocidad de salida:", parent=self.window_main_editor, initialvalue=50, minvalue=0.0, maxvalue=100000.0) 
+						exit_speed_answer = simpledialog.askfloat( _("Velocidad de salida"), _("Velocidad de salida:"), parent=self.window_main_editor, initialvalue=50, minvalue=0.0, maxvalue=100000.0) 
 						if (exit_speed_answer is not None ):
 							self.temp_pinball_bumper_data_to_create.exit_speed = float(exit_speed_answer)
 							# Create bumper
@@ -1004,14 +1010,14 @@ class RC_editor_GUI():
 							self.canvas_mapview.DrawSingleBumper( Map=self.mapa_cargado, num_bumper=self.mapa_cargado.pinball_bumpers_number-1 )
 							self.canvas_mapview.DrawSingleBumperNumber( Map=self.mapa_cargado, num_bumper=self.mapa_cargado.pinball_bumpers_number-1 )
 						else:
-							tk.messagebox.showwarning(title="Aviso", message="No se ha creado el bumper.")
+							tk.messagebox.showwarning(title= _("Aviso") , message= _("No se ha creado el bumper.") )
 						# Clear all data in temporal bumper data
 						self.temp_pinball_bumper_data_to_create.center.x = None
 						self.temp_pinball_bumper_data_to_create.center.y = None
 						self.temp_pinball_bumper_data_to_create.radius = None
 						self.temp_pinball_bumper_data_to_create.exit_speed = None
 						# Change stage
-						self.window_statusbar.set_field_1("%s", "Nuevo bumper: seleccione punto central")
+						self.window_statusbar.set_field_1("%s", _("Nuevo bumper: seleccione punto central") )
 						self.current_bumper_add_stage = Bumper_Add_Stages.St0_Choose_Center
 						# We delete the bumper preview
 						self.canvas_mapview.Hide_PinballBumperBeingCreated( )
@@ -1022,7 +1028,7 @@ class RC_editor_GUI():
 							self.bumper_table.update_table_from_map_editor()
 
 					else:
-						logging.error( "Error de programacion: etapa actual de añadir bumper tiene un valor no valido " + str(self.current_bumper_add_stage) )
+						logging.error( _("Error de programacion: etapa actual de añadir bumper tiene un valor no valido ") + str(self.current_bumper_add_stage) )
 
 
 
@@ -1035,7 +1041,7 @@ class RC_editor_GUI():
 						logging.debug( "Seleccionado como punto central: x = " + str(map_x) + ", y = " + str(map_y) )
 						self.temp_raccz_data_to_create.center.x = map_x
 						self.temp_raccz_data_to_create.center.y = map_y
-						self.window_statusbar.set_field_1("%s", "Nueva zona acel circular: seleccione radio (clic en un punto de la circunferencia)")
+						self.window_statusbar.set_field_1("%s", _("Nueva zona acel circular: seleccione radio (clic en un punto de la circunferencia)") )
 						self.current_raccz_add_stage = RACCZ_Add_Stages.St1_Choose_Radius
 
 					elif ( self.current_raccz_add_stage == RACCZ_Add_Stages.St1_Choose_Radius ):
@@ -1046,7 +1052,7 @@ class RC_editor_GUI():
 						logging.debug( "Seleccionado como punto de la circunferencia: x = " + str(map_x) + ", y = " + str(map_y) )
 						# Calculate the radius
 						self.temp_raccz_data_to_create.radius = math.sqrt( ( map_x - self.temp_raccz_data_to_create.center.x )**2 + ( map_y - self.temp_raccz_data_to_create.center.y )**2 )
-						self.window_statusbar.set_field_1("%s", "Nueva zona acel circular: seleccione direccion (clic en un punto que defina el angulo)")
+						self.window_statusbar.set_field_1("%s", _("Nueva zona acel circular: seleccione direccion (clic en un punto que defina el angulo)") )
 						self.current_raccz_add_stage = RACCZ_Add_Stages.St2_Choose_Angle
 
 					elif ( self.current_raccz_add_stage == RACCZ_Add_Stages.St2_Choose_Angle ):
@@ -1060,7 +1066,7 @@ class RC_editor_GUI():
 						# We set the "visibility" property that is currently displayed in the properties frame
 						self.temp_raccz_data_to_create.invisible = self.property_raccz_invis_variable.get() 
 						# Ask for acceleration
-						acceleration_answer = simpledialog.askfloat("Aceleracion", "Aceleracion:", parent=self.window_main_editor, initialvalue=50, minvalue=0.0, maxvalue=100000.0)
+						acceleration_answer = simpledialog.askfloat( _("Aceleracion") , _("Aceleracion:") , parent=self.window_main_editor, initialvalue=50, minvalue=0.0, maxvalue=100000.0)
 						# self.temp_raccz_data_to_create.acceleration = float( simpledialog.askfloat("Aceleracion", "Aceleracion:", parent=self.window_main_editor, initialvalue=50, minvalue=0.0, maxvalue=100000.0) )
 						# if (self.temp_raccz_data_to_create.acceleration is not None ):
 						if ( acceleration_answer is not None ):
@@ -1071,7 +1077,7 @@ class RC_editor_GUI():
 							self.canvas_mapview.DrawSingleRACCZ( Map=self.mapa_cargado, num_raccz=self.mapa_cargado.round_accel_zones_number-1 )
 							self.canvas_mapview.DrawSingleRACCZNumber( Map=self.mapa_cargado, num_raccz=self.mapa_cargado.round_accel_zones_number-1 )
 						else:
-							tk.messagebox.showwarning(title="Aviso", message="No se ha creado la zona circular de aceleracion.")
+							tk.messagebox.showwarning(title= _("Aviso") , message= _("No se ha creado la zona circular de aceleracion.") )
 						# Clear all data in temporal raccz data
 						self.temp_raccz_data_to_create.center.x = None
 						self.temp_raccz_data_to_create.center.y = None
@@ -1079,7 +1085,7 @@ class RC_editor_GUI():
 						self.temp_raccz_data_to_create.acceleration = None
 						self.temp_raccz_data_to_create.invisible = None
 						# Change stage
-						self.window_statusbar.set_field_1("%s", "Nueva zona acel circular: seleccione punto central")
+						self.window_statusbar.set_field_1("%s", _("Nueva zona acel circular: seleccione punto central") )
 						self.current_raccz_add_stage = RACCZ_Add_Stages.St0_Choose_Center
 						# We delete the raccz preview
 						self.canvas_mapview.Hide_RACCZ_BeingCreated(  )
@@ -1090,7 +1096,7 @@ class RC_editor_GUI():
 							self.RACCZ_table.update_table_from_map_editor()
 
 					else:
-						logging.error( "Error de programacion: etapa actual de añadir raccz tiene un valor no valido " + str(self.current_raccz_add_stage) )	
+						logging.error( _("Error de programacion: etapa actual de añadir raccz tiene un valor no valido ")  + str(self.current_raccz_add_stage) )	
 
 				if self.current_mode == Mode.general and self.current_general_submode == General_SubMode.choose_coin_start_pos:	# 14/2/2021
 					logging.debug( "Seleccionado como punto inicio moneda: x = " + str(map_x) + ", y = " + str(map_y) )
@@ -1103,7 +1109,7 @@ class RC_editor_GUI():
 					self.canvas_mapview.Show_Coin_Start_Position( self.mapa_cargado )
 					# Change submode to no mode
 					self.current_general_submode = General_SubMode.no_mode
-					self.window_statusbar.set_field_1("%s", "Posicion inicial de la moneda actualizada")
+					self.window_statusbar.set_field_1("%s", _("Posicion inicial de la moneda actualizada") )
 					self.canvas_mapview.Set_Cursor_Arrow()
 				if self.current_mode == Mode.general and self.current_general_submode == General_SubMode.choose_rotarion_center:	# 15/2/2021
 					logging.debug( "Seleccionado como punto giro mapa: x = " + str(map_x) + ", y = " + str(map_y) )
@@ -1116,7 +1122,7 @@ class RC_editor_GUI():
 					self.canvas_mapview.Show_Rotation_Center( self.mapa_cargado )
 					# Change submode to no mode
 					self.current_general_submode = General_SubMode.no_mode
-					self.window_statusbar.set_field_1("%s", "Centro de giro actualizado")
+					self.window_statusbar.set_field_1("%s", _("Centro de giro actualizado") )
 					self.canvas_mapview.Set_Cursor_Arrow()
 
 				if self.current_mode == Mode.rot_bg and self.current_rotbg_submode == RotBg_SubMode.choose_rotbg_center:	# 16/2/2021
@@ -1132,7 +1138,7 @@ class RC_editor_GUI():
 					self.canvas_mapview.Show_RotBg_Rotation_Center( self.mapa_cargado )
 					# Change submode to no mode
 					self.current_rotbg_submode = RotBg_SubMode.no_mode
-					self.window_statusbar.set_field_1("%s", "Posicion centro de giro de fondo giratorio actualizado")
+					self.window_statusbar.set_field_1("%s", _("Posicion centro de giro de fondo giratorio actualizado") )
 					self.canvas_mapview.Set_Cursor_Arrow()
 
 
@@ -1179,7 +1185,7 @@ class RC_editor_GUI():
 	def window_close_button_handler( self ):
 		logging.debug( "Se intenta cerrar la ventana principal.")
 		if self.map_loaded == True:
-			if messagebox.askokcancel("Cerrar programa", "¿Realmente desea cerrar el programa?"):
+			if messagebox.askokcancel( _("Cerrar programa") , _("¿Realmente desea cerrar el programa?") ):
 				self.window_main_editor.destroy()
 		else:		# no map loaded
 			self.window_main_editor.destroy()
@@ -1189,7 +1195,7 @@ class RC_editor_GUI():
 
 	def NewMapButton(self):			# 17/2/2021
 		if self.map_loaded == True:
-			answer = tk.messagebox.askyesnocancel("Abrir otro mapa", "¿Desea abrir otro mapa?\nSe perderán las modificaciones realizadas en el mapa actual")
+			answer = tk.messagebox.askyesnocancel( _("Abrir otro mapa"), _("¿Desea abrir otro mapa?\nSe perderán las modificaciones realizadas en el mapa actual") )
 			logging.debug( "Pregunta abrir otro mapa, el usuario ha respondido answer = " + str(answer) )
 			if (answer is None) or (answer == False) :
 				return	# Do nothing
@@ -1201,12 +1207,12 @@ class RC_editor_GUI():
 		# Create a new empty map
 		self.mapa_cargado = rceditor_maps.Map()
 		self.mapa_cargado.Initialize_New_Map_Values()
-		self.loaded_map_filename = "Sin nombre"
+		self.loaded_map_filename = _("Sin nombre")
 		# Set user interface
 		self.window_main_editor.title( "RoadCoin Level Editor - " + self.loaded_map_filename )
 		self.map_loaded = True
 		self.EnableMenuItems_MapLoaded()
-		self.window_statusbar.set_field_1("%s", "Nuevo mapa creado" )
+		self.window_statusbar.set_field_1("%s", _("Nuevo mapa creado") )
 		logging.debug( "Representando mapa en editor... " )
 		self.canvas_mapview.DrawAll( self.mapa_cargado )
 		# Update properties frames
@@ -1216,7 +1222,7 @@ class RC_editor_GUI():
 
 	def LoadMapButton(self):
 		if self.map_loaded == True:
-			answer = tk.messagebox.askyesnocancel("Abrir otro mapa", "¿Desea abrir otro mapa?\nSe perderán las modificaciones realizadas en el mapa actual")
+			answer = tk.messagebox.askyesnocancel( _("Abrir otro mapa") , _("¿Desea abrir otro mapa?\nSe perderán las modificaciones realizadas en el mapa actual") )
 			logging.debug( "Pregunta abrir otro mapa, el usuario ha respondido answer = " + str(answer) )
 			if (answer is None) or (answer == False) :
 				return	# Do nothing
@@ -1244,7 +1250,7 @@ class RC_editor_GUI():
 			self.map_loaded = True
 			self.EnableMenuItems_MapLoaded()
 
-			self.window_statusbar.set_field_1("%s %s %s", "Mapa ", open_map_filename ," cargado" )
+			self.window_statusbar.set_field_1("%s %s %s", _("Mapa ") , open_map_filename , _(" cargado") )
 
 			# Update properties frames
 			self.Update_All_Properties()
@@ -1262,7 +1268,7 @@ class RC_editor_GUI():
 		# pass
 
 		if self.map_loaded == False:
-			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
+			tk.messagebox.showerror(title= _("Error") , message= _("No hay ningún mapa cargado.") )
 			logging.debug( "Se ha intentado guardar un mapa sin tener un mapa abierto. No hay nada que guardar." )
 			return	# Do nothing
 
@@ -1277,20 +1283,20 @@ class RC_editor_GUI():
 			# tk.messagebox.showinfo(title="Comprobación mapa", message="No se han encontrado errores.")
 			logging.debug( "Comprobación mapa: No se han encontrado errores." )
 		else:
-			tk.messagebox.showerror(title="Comprobación mapa", message="Se han encontrado los siguientes errores. \n" + error_list )
-			self.window_statusbar.set_field_1("%s", "Mapa no guardado debido a errores." )
+			tk.messagebox.showerror(title= _("Comprobación mapa") , message= _("Se han encontrado los siguientes errores. \n") + error_list )
+			self.window_statusbar.set_field_1("%s", _("Mapa no guardado debido a errores.") )
 			return	# Do nothing
 
 		# Let's save the map
 		self.mapa_cargado.SaveFile_OverwriteAll( self.loaded_map_filename )
 		logging.debug( "Guardando mapa " + self.loaded_map_filename )
-		self.window_statusbar.set_field_1("%s %s %s", "Mapa ", self.loaded_map_filename , " guardado." )
+		self.window_statusbar.set_field_1("%s %s %s", _("Mapa ") , self.loaded_map_filename , _(" guardado.") )
 
 
 
 	def SaveMapAsButton(self):	# 3/1/2021
 		if self.map_loaded == False:
-			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
+			tk.messagebox.showerror(title= _("Error"), message= _("No hay ningún mapa cargado.") )
 			logging.debug( "Se ha intentado guardar un mapa sin tener un mapa abierto. No hay nada que guardar." )
 			return	# Do nothing
 
@@ -1305,8 +1311,8 @@ class RC_editor_GUI():
 			# tk.messagebox.showinfo(title="Comprobación mapa", message="No se han encontrado errores.")
 			logging.debug( "Comprobación mapa: No se han encontrado errores." )
 		else:
-			tk.messagebox.showerror(title="Comprobación mapa", message="Se han encontrado los siguientes errores. \n" + error_list )
-			self.window_statusbar.set_field_1("%s", "Mapa no guardado debido a errores." )
+			tk.messagebox.showerror(title= _("Comprobación mapa") , message= _("Se han encontrado los siguientes errores. \n")  + error_list )
+			self.window_statusbar.set_field_1("%s", _("Mapa no guardado debido a errores.") )
 			return	# Do nothing
 
 
@@ -1318,7 +1324,7 @@ class RC_editor_GUI():
 			# Let's save the map
 			self.mapa_cargado.SaveFile_OverwriteAll( save_map_filename )
 			logging.debug( "Guardando mapa " + save_map_filename )
-			self.window_statusbar.set_field_1("%s %s %s", "Mapa ", save_map_filename , " guardado." )
+			self.window_statusbar.set_field_1("%s %s %s", _("Mapa ") , save_map_filename , _(" guardado.") )
 
 			# Set the open file name to the new file saved
 			self.loaded_map_filename = save_map_filename
@@ -1333,7 +1339,7 @@ class RC_editor_GUI():
 
 
 	def CloseMapButton(self):
-		answer = tk.messagebox.askyesnocancel("Cerrar mapa", "¿Desea cerrar el mapa?")
+		answer = tk.messagebox.askyesnocancel( _("Cerrar mapa") , _("¿Desea cerrar el mapa?") )
 		if (answer is not None) and (answer != False) :
 			self.UnloadMap()
 
@@ -1346,7 +1352,7 @@ class RC_editor_GUI():
 		self.window_main_editor.title( "RoadCoin Level Editor" )
 		self.map_loaded = False
 		self.DisableMenuItems_MapUnloaded()
-		self.window_statusbar.set_field_1("%s", "Mapa cerrado" )
+		self.window_statusbar.set_field_1("%s", _("Mapa cerrado") )
 
 
 	def ShowPreferencesWindowButton(self):
@@ -1376,23 +1382,23 @@ class RC_editor_GUI():
 
 	def ChangeZoomLevel(self, zoom_increment ):
 		if self.canvas_mapview.zoomlevel + zoom_increment > 0.01:
-			self.window_statusbar.set_field_1("%s", "Aplicando zoom, espere por favor" )
+			self.window_statusbar.set_field_1("%s", _("Aplicando zoom, espere por favor") )
 			self.canvas_mapview.zoomlevel += zoom_increment
 			self.canvas_mapview.DrawAll( self.mapa_cargado )
 			self.window_statusbar.set_field_3("%s", "Zoom: " + str(int(self.canvas_mapview.zoomlevel*100)) + "%")
 			logging.debug("Nivel de zoom = " + str(self.canvas_mapview.zoomlevel) + " (incrementado)" )
-			self.window_statusbar.set_field_1("%s %f %s", "Zoom ", self.canvas_mapview.zoomlevel , "aplicado. Listo" )
+			self.window_statusbar.set_field_1("%s %f %s", "Zoom ", self.canvas_mapview.zoomlevel , _(" aplicado. Listo") )
 		else:
 			logging.debug("Ya estamos en el minimo zoom, no se cambia")
-			self.window_statusbar.set_field_1("%s", "Zoom minimo alcanzado" )
+			self.window_statusbar.set_field_1("%s", _("Zoom minimo alcanzado") )
 
 	def SetZoomLevel(self, zoomlevel):
-		self.window_statusbar.set_field_1("%s", "Aplicando zoom, espere por favor" )
+		self.window_statusbar.set_field_1("%s", _("Aplicando zoom, espere por favor") )
 		self.canvas_mapview.zoomlevel = zoomlevel
 		self.canvas_mapview.DrawAll( self.mapa_cargado )
 		self.window_statusbar.set_field_3("%s", "Zoom: " + str(int(self.canvas_mapview.zoomlevel*100)) + "%")
 		logging.debug("Nivel de zoom = " + str(self.canvas_mapview.zoomlevel) + " (ajustado)" )
-		self.window_statusbar.set_field_1("%s %f %s", "Zoom ", self.canvas_mapview.zoomlevel , "aplicado. Listo" )
+		self.window_statusbar.set_field_1("%s %f %s", "Zoom ", self.canvas_mapview.zoomlevel , _(" aplicado. Listo") )
 
 
 	def Unselect_All( self ):
@@ -1482,7 +1488,7 @@ class RC_editor_GUI():
 
 			except Exception as e:
 				logging.exception(e)
-				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+				tk.messagebox.showerror(title= _("Error") , message= _("Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: ") + str( sys.exc_info()[0] ) + "\n" + str(e) )
 		else:
 			logging.debug( "Funcion Apply_General_Map_Changes llamada, pero en el modo incorrecto. No se hace nada." )
 
@@ -1540,7 +1546,7 @@ class RC_editor_GUI():
 
 			except Exception as e:
 				logging.exception(e)
-				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+				tk.messagebox.showerror(title= _("Error") , message= _("Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: ") + str( sys.exc_info()[0] ) + "\n" + str(e) )
 		else:
 			logging.debug( "Funcion Apply_Image_Map_Changes llamada, pero en el modo incorrecto. No se hace nada." )
 
@@ -1624,7 +1630,7 @@ class RC_editor_GUI():
 				self.canvas_mapview.DrawAll( self.mapa_cargado )
 			except Exception as e:
 				logging.exception(e)
-				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+				tk.messagebox.showerror(title= _("Error") , message= _("Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: ")  + str( sys.exc_info()[0] ) + "\n" + str(e) )
 		else:
 			logging.debug( "Funcion Apply_RotBg_Map_Changes llamada, pero en el modo incorrecto. No se hace nada." )
 
@@ -1691,7 +1697,7 @@ class RC_editor_GUI():
 
 			except Exception as e:
 				logging.exception(e)
-				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+				tk.messagebox.showerror(title= _("Error") , message= _("Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: ") + str( sys.exc_info()[0] ) + "\n" + str(e) )
 		else:
 			logging.debug( "Funcion Apply_Selected_Segment_Changes llamada, pero en el modo incorrecto. No se hace nada." )
 
@@ -1719,7 +1725,7 @@ class RC_editor_GUI():
 		if self.map_loaded == True:
 			selected_segment =  self.property_segm_number.get_value_string()
 			if ( selected_segment != "" ) and ( selected_segment.isnumeric() == True ):
-				answer = tk.messagebox.askyesnocancel("Eliminar segmento", "¿Desea eliminar el segmento numero " + selected_segment + "?")
+				answer = tk.messagebox.askyesnocancel( _("Eliminar segmento"), _("¿Desea eliminar el segmento numero ") + selected_segment + "?")
 				logging.debug( "Pregunta eliminar segmento, el usuario ha respondido answer = " + str(answer) )
 				if (answer is None) or (answer == False) :
 					return	# Do nothing
@@ -1728,7 +1734,7 @@ class RC_editor_GUI():
 				self.mapa_cargado.Segments_Reenumerate()
 				self.canvas_mapview.DrawAll( self.mapa_cargado )
 				self.Unselect_All()
-				self.window_statusbar.set_field_1("%s %s %s", "Segmento ", selected_segment , " borrado" )
+				self.window_statusbar.set_field_1("%s %s %s", _("Segmento ") , selected_segment , _(" borrado") )
 				
 				### Redraw segment table (if the table is displayed)  # 16/3/2021
 				if self.segment_table is not None:
@@ -1736,10 +1742,10 @@ class RC_editor_GUI():
 					self.segment_table.update_table_from_map_editor()
 
 			else:
-				tk.messagebox.showerror(title="Error", message="El numero de segmento seleccionado (" + selected_segment + ") no es valido.")
+				tk.messagebox.showerror(title= _("Error") , message= _("El numero de segmento seleccionado (") + selected_segment + _(") no es valido." ) )
 				logging.debug( "Error de programación: El numero de segmento seleccionado (" + selected_segment + ") no es valido." )
 		else:
-			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
+			tk.messagebox.showerror(title=_("Error"), message= _("No hay ningún mapa cargado.") )
 
 
 	def Update_Selected_Bumper_Properties( self, bumper_number ):
@@ -1791,7 +1797,7 @@ class RC_editor_GUI():
 
 			except Exception as e:
 				logging.exception(e)
-				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+				tk.messagebox.showerror(title= _("Error") , message= _("Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: ") + str( sys.exc_info()[0] ) + "\n" + str(e) )
 		else:
 			logging.debug( "Funcion Apply_Selected_Bumper_Changes llamada, pero en el modo incorrecto. No se hace nada." )
 
@@ -1815,7 +1821,7 @@ class RC_editor_GUI():
 		if self.map_loaded == True:
 			selected_bumper =  self.property_bumper_number.get_value_string()
 			if ( selected_bumper != "" ) and ( selected_bumper.isnumeric() == True ):
-				answer = tk.messagebox.askyesnocancel("Eliminar bumper", "¿Desea eliminar el bumper numero " + selected_bumper + "?")
+				answer = tk.messagebox.askyesnocancel( _("Eliminar bumper") , _("¿Desea eliminar el bumper numero ")  + selected_bumper + "?")
 				logging.debug( "Pregunta eliminar bumper, el usuario ha respondido answer = " + str(answer) )
 				if (answer is None) or (answer == False) :
 					return	# Do nothing
@@ -1824,17 +1830,17 @@ class RC_editor_GUI():
 				self.mapa_cargado.Bumpers_Reenumerate()
 				self.canvas_mapview.DrawAll( self.mapa_cargado )
 				self.Unselect_All()
-				self.window_statusbar.set_field_1("%s %s %s", "Bumper ", selected_bumper , " borrado" )
+				self.window_statusbar.set_field_1("%s %s %s", _("Bumper ") , selected_bumper , _(" borrado") )
 
 				### Redraw bumper table (if the table is displayed)  # 18/3/2021
 				if self.bumper_table is not None:
 					logging.debug( "La interfaz principal indica a la tabla de bumpers que debe actualizarse." )
 					self.bumper_table.update_table_from_map_editor()
 			else:
-				tk.messagebox.showerror(title="Error", message="El numero de bumper seleccionado (" + selected_bumper + ") no es valido.")
+				tk.messagebox.showerror(title= _("Error") , message= _("El numero de bumper seleccionado (") + selected_bumper + _(") no es valido.") )
 				logging.dialog( "Error de programación: El numero de bumper seleccionado (" + selected_bumper + ") no es valido." )
 		else:
-			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
+			tk.messagebox.showerror(title= _("Error") , message= _("No hay ningún mapa cargado.") )
 
 	def Update_Selected_RACCZ_Properties( self, raccz_number ):
 		# When a raccz is selected, this function updates the properties frame on the right
@@ -1898,7 +1904,7 @@ class RC_editor_GUI():
 
 			except Exception as e:
 				logging.exception(e)
-				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+				tk.messagebox.showerror(title= _("Error") , message= _("Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: ") + str( sys.exc_info()[0] ) + "\n" + str(e) )
 		else:
 			logging.debug( "Funcion Apply_Selected_RACCZ_Changes llamada, pero en el modo incorrecto. No se hace nada." )
 
@@ -1929,7 +1935,7 @@ class RC_editor_GUI():
 		if self.map_loaded == True:
 			selected_raccz =  self.property_raccz_number.get_value_string()
 			if ( selected_raccz != "" ) and ( selected_raccz.isnumeric() == True ):
-				answer = tk.messagebox.askyesnocancel("Eliminar zona acel circular", "¿Desea eliminar la zona de aceleracion circular numero " + selected_raccz + "?")
+				answer = tk.messagebox.askyesnocancel( _("Eliminar zona acel circular"), _("¿Desea eliminar la zona de aceleracion circular numero ") + selected_raccz + "?")
 				logging.debug( "Pregunta eliminar zona de aceleracion circular, el usuario ha respondido answer = " + str(answer) )
 				if (answer is None) or (answer == False) :
 					return	# Do nothing
@@ -1946,10 +1952,10 @@ class RC_editor_GUI():
 					self.RACCZ_table.update_table_from_map_editor()
 
 			else:
-				tk.messagebox.showerror(title="Error", message="El numero de zona aceleracion circular seleccionado (" + selected_raccz + ") no es valido.")
+				tk.messagebox.showerror(title= _("Error") , message= _("El numero de zona aceleracion circular seleccionado (") + selected_raccz + _(") no es valido.") )
 				logging.dialog( "Error de programación: El numero de zona de aceleracion circular seleccionado (" + selected_raccz + ") no es valido." )
 		else:
-			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
+			tk.messagebox.showerror(title= _("Error") , message= _("No hay ningún mapa cargado.") )
 
 
 	def Toggle_Show_Hide_Segment_Table( self ):
@@ -1997,7 +2003,7 @@ class RC_editor_GUI():
 					return(True)
 				else:
 					logging.debug("El nuevo texto no es un numero.")
-					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+					tk.messagebox.showerror(title= _("Error") , message= _("Valor no válido, no es un número. No se tienen en cuenta las modificaciones.") )
 					return(False)
 			else:
 				logging.debug("Modo incorrecto. No se hace nada.")
@@ -2028,7 +2034,7 @@ class RC_editor_GUI():
 					return(True)
 				else:
 					logging.debug("El nuevo texto no es un numero.")
-					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+					tk.messagebox.showerror(title= _("Error") , message= _("Valor no válido, no es un número. No se tienen en cuenta las modificaciones.") )
 					return(False)
 			else:
 				logging.debug("Modo incorrecto. No se hace nada.")
@@ -2147,7 +2153,7 @@ class RC_editor_GUI():
 					return(True)
 				else:
 					logging.debug("El nuevo texto no es un numero.")
-					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+					tk.messagebox.showerror(title= _("Error") , message= _("Valor no válido, no es un número. No se tienen en cuenta las modificaciones.") )
 					return(False)
 			else:
 				logging.debug("Modo incorrecto. No se hace nada.")
@@ -2177,7 +2183,7 @@ class RC_editor_GUI():
 					return(True)
 				else:
 					logging.debug("El nuevo texto no es un numero.")
-					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+					tk.messagebox.showerror(title= _("Error") , message= _("Valor no válido, no es un número. No se tienen en cuenta las modificaciones.") )
 					return(False)
 			else:
 				logging.debug("Modo incorrecto. No se hace nada.")
@@ -2218,7 +2224,7 @@ class RC_editor_GUI():
 						return(True)
 					else:
 						logging.debug("El nuevo texto no es un numero.")
-						tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+						tk.messagebox.showerror(title= _("Error") , message= _("Valor no válido, no es un número. No se tienen en cuenta las modificaciones.") )
 						return(False)
 				else:
 					logging.debug("Ningun segmento seleccionado. No se hace nada.")
@@ -2249,7 +2255,7 @@ class RC_editor_GUI():
 						return(True)
 					else:
 						logging.debug("El nuevo texto no es un numero.")
-						tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+						tk.messagebox.showerror(title= _("Error") , message= _("Valor no válido, no es un número. No se tienen en cuenta las modificaciones.") )
 						return(False)
 				else:
 					logging.debug("Ningun bumper seleccionado. No se hace nada.")
@@ -2280,7 +2286,7 @@ class RC_editor_GUI():
 						return(True)
 					else:
 						logging.debug("El nuevo texto no es un numero.")
-						tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+						tk.messagebox.showerror(title= _("Error") , message= _("Valor no válido, no es un número. No se tienen en cuenta las modificaciones.") )
 						return(False)
 				else:
 					logging.debug("Ninguna zona de aceleracion circular seleccionada. No se hace nada.")
@@ -2341,11 +2347,11 @@ class RC_editor_GUI():
 		if self.map_loaded == True:
 			map_data_ok, error_list = self.mapa_cargado.CheckMapErrorList()
 			if map_data_ok == True:
-				tk.messagebox.showinfo(title="Comprobación mapa", message="No se han encontrado errores.")
+				tk.messagebox.showinfo(title= _("Comprobación mapa") , message= _("No se han encontrado errores.") )
 			else:
-				tk.messagebox.showerror(title="Comprobación mapa", message="Se han encontrado los siguientes errores. \n" + error_list )		
+				tk.messagebox.showerror(title= _("Comprobación mapa") , message= _("Se han encontrado los siguientes errores. \n") + error_list )		
 		else:
-			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
+			tk.messagebox.showerror(title= _("Error") , message= _("No hay ningún mapa cargado.") )
 
 	def ReenumerateSegments( self ):
 		# For DEBUG purposes	
@@ -2353,7 +2359,7 @@ class RC_editor_GUI():
 			self.mapa_cargado.Segments_Reenumerate()
 			self.canvas_mapview.DrawAll( self.mapa_cargado )
 		else:
-			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
+			tk.messagebox.showerror(title= _("Error") , message= ("No hay ningún mapa cargado.") )
 
 
 	def Toggle_SnapToPoint_Segm_Button( self ):
@@ -2378,21 +2384,21 @@ class RC_editor_GUI():
 
 	def Choose_Coin_Starting_Point_Button_Callback( self ):
 		if self.map_loaded == True:
-			self.window_statusbar.set_field_1("%s", "Seleccione punto inicial de la moneda" )
+			self.window_statusbar.set_field_1("%s", _("Seleccione punto inicial de la moneda")  )
 			self.current_general_submode = General_SubMode.choose_coin_start_pos
 			self.canvas_mapview.Set_Cursor_Cross()
 
 
 	def Choose_Rotation_Center_Button_Callback( self ):
 		if self.map_loaded == True:
-			self.window_statusbar.set_field_1("%s", "Seleccione centro de giro" )
+			self.window_statusbar.set_field_1("%s", _("Seleccione centro de giro")  )
 			self.current_general_submode = General_SubMode.choose_rotarion_center
 			self.canvas_mapview.Set_Cursor_Cross()			
 
 
 	def Choose_Rotating_Background_Rotation_Center_Button_Callback( self ):
 		if self.map_loaded == True:
-			self.window_statusbar.set_field_1("%s", "Seleccione centro de giro del fondo giratorio" )
+			self.window_statusbar.set_field_1("%s", _("Seleccione centro de giro del fondo giratorio") )
 			self.current_rotbg_submode = RotBg_SubMode.choose_rotbg_center
 			self.canvas_mapview.Set_Cursor_Cross()
 

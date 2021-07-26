@@ -1,4 +1,4 @@
-
+# coding=UTF-8
 
 import tkinter as tk
 from tkinter import ttk		# Textbox
@@ -6,6 +6,8 @@ from PIL import ImageTk, Image		# Pillow
 from tkinter import filedialog
 import logging
 import sys
+
+import rceditor_lang
 
 
 def do_nothing():
@@ -18,6 +20,7 @@ class Preferences():
 	RotBG_Color = None		# Real
 	RotBG_Contrast = None		# Real
 	RotBG_Brightness = None		# Real
+	Language = None			# String (23/7/2021)
 	
 	def LoadPreferences( self ):
 		logging.debug( "Leyendo fichero settings" )
@@ -53,6 +56,9 @@ class Preferences():
 			elif line.find("RotBG_Brightness") != -1:
 				self.RotBG_Brightness = float( line.split("=",1)[1].strip() )
 				logging.debug( "Encontrado RotBG_Brightness = " + str( self.RotBG_Brightness ) )
+			elif line.find("Language") != -1:	# (23/7/2021)
+				self.Language = line.split("=",1)[1].strip()
+				logging.debug( "Encontrado Language = " + self.GamePath )
 			####################################################
 			# Add new options at this point
 			####################################################
@@ -72,6 +78,7 @@ class Preferences():
 		file1.write( "RotBG_Color=" + self.RotBG_Color )
 		file1.write( "RotBG_Contrast=" + self.RotBG_Contrast )
 		file1.write( "RotBG_Brightness=" + self.RotBG_Brightness )
+		file1.write( "Language=" + self.Language )		# (23/7/2021)
 		####################################################
 		# Add new options at this point
 		####################################################
@@ -84,6 +91,7 @@ class Preferences():
 		RotBG_Color_Written = False
 		RotBG_Contrast_Written = False
 		RotBG_Brightness_Written = False
+		Language_Written = False
 		####################################################
 		# Add new options at this point
 		####################################################
@@ -134,6 +142,10 @@ class Preferences():
 				if RotBG_Brightness_Written == False:
 					file1.write( "RotBG_Brightness=" + str(self.RotBG_Brightness) + right_side_remark + "\n")
 					RotBG_Brightness_Written = True
+			elif line.find("Language") != -1:		# (23/7/2021)
+				if Language_Written == False:
+					file1.write( "Language=" + str(self.Language) + right_side_remark + "\n")
+					Language_Written = True
 			####################################################
 			# Add new options at this point
 			####################################################
@@ -157,6 +169,9 @@ class Preferences():
 		if RotBG_Brightness_Written == False:
 			file1.write( "RotBG_Brightness=" + str(self.RotBG_Brightness)  )
 			RotBG_Brightness_Written = True
+		if Language_Written == False:		# (23/7/2021)
+			file1.write( "Language=" + self.Language )
+			RotBG_Brightness_Written = True
 		####################################################
 		# Add new options at this point
 		####################################################
@@ -178,21 +193,21 @@ class PreferencesWindow():
 		self.PrefWindow.protocol('WM_DELETE_WINDOW',do_nothing)		# Close window button behaviour
 		# self.PrefWindow.attributes('-topmost', 'true')		# Stay on top of all others
 		self.PrefWindow.resizable( False, False )	# Not resizable
-		self.PrefWindow.title("Preferencias...")
+		self.PrefWindow.title( _("Preferencias...") )
 
 		self.Load_UI_Icons()
 
 		self.frame_preferences = tk.Frame( master=self.PrefWindow )
-		self.label_game_path = tk.Label(master=self.frame_preferences,text="Ruta del juego:")
+		self.label_game_path = tk.Label(master=self.frame_preferences,text= _("Ruta del juego:") )
 		self.textbox_game_path = ttk.Entry(master=self.frame_preferences, width = 15 )
 		self.textbox_game_path.insert(0, preferences.GamePath)
 		self.button_choose_game_path = tk.Button(master=self.frame_preferences, width=6, image = self.img_folder_icon, command = self.ChooseGamePathButton )
 
-		self.label_SnapTo_Threshold = tk.Label(master=self.frame_preferences,text="Umbral para alin. auto.:")
+		self.label_SnapTo_Threshold = tk.Label(master=self.frame_preferences,text= _("Umbral para alin. auto.:") )
 		self.textbox_SnapTo_Threshold = ttk.Entry(master=self.frame_preferences, width = 15 )
 		self.textbox_SnapTo_Threshold.insert(0, str(preferences.SnapTo_Threshold))
 
-		self.label_RotBG_Color = tk.Label(master=self.frame_preferences,text="RotBG Color:")
+		self.label_RotBG_Color = tk.Label(master=self.frame_preferences,text= "RotBG Color:")
 		self.textbox_RotBG_Color = ttk.Entry(master=self.frame_preferences, width = 15 )
 		self.textbox_RotBG_Color.insert(0, str(preferences.RotBG_Color))
 		self.label_RotBG_Contrast = tk.Label(master=self.frame_preferences,text="RotBG Contrast:")
@@ -202,11 +217,17 @@ class PreferencesWindow():
 		self.textbox_RotBG_Brightness = ttk.Entry(master=self.frame_preferences, width = 15 )
 		self.textbox_RotBG_Brightness.insert(0, str(preferences.RotBG_Brightness))
 
+		self.label_language = tk.Label(master=self.frame_preferences,text= _("Idioma:") )	# (23/7/2021)
+		self.optionmenu_language_variable = tk.StringVar()
+		self.optionmenu_language = tk.OptionMenu( self.frame_preferences, self.optionmenu_language_variable, *rceditor_lang.supported_languages, command=self.Warn_Restart_Required_OptionMenu )
+		self.optionmenu_language_variable.set( self.preferences_ref.Language )
+
+
 
 		self.frame_preferences.columnconfigure( 0, weight=0, minsize=200)
 		self.frame_preferences.columnconfigure( 1, weight=1, minsize=200)
 		self.frame_preferences.columnconfigure( 2, weight=1, minsize=100)
-		self.frame_preferences.rowconfigure( list(range(5)) , weight=0, minsize=10)
+		self.frame_preferences.rowconfigure( list(range(6)) , weight=0, minsize=10)
 
 		self.label_game_path.grid( row=0, column=0,  padx=2, pady=2, sticky="nsew" )
 		self.textbox_game_path.grid( row=0, column=1,  padx=2, pady=2, sticky="nsew" )
@@ -224,12 +245,13 @@ class PreferencesWindow():
 		self.label_RotBG_Brightness.grid( row=4, column=0, padx=2, pady=2, sticky="nsew" )
 		self.textbox_RotBG_Brightness.grid( row=4, column=1,  padx=2, pady=2, sticky="nsew" )
 
-
+		self.label_language.grid( row=5, column=0, padx=2, pady=2, sticky="nsew" )		# (23/7/2021)
+		self.optionmenu_language.grid( row=5, column=1,  padx=2, pady=2, sticky="nsew" )
 
 
 		self.frame_accept_cancel = tk.Frame( master=self.PrefWindow )
-		self.button_accept = tk.Button(master=self.frame_accept_cancel, text="Aceptar", image = self.img_green_tick_icon, compound = tk.LEFT, command = self.AcceptButton )
-		self.button_cancel = tk.Button(master=self.frame_accept_cancel, text="Cancelar", image = self.img_red_x_icon, compound = tk.LEFT, command = self.CancelButton )
+		self.button_accept = tk.Button(master=self.frame_accept_cancel, text= _("Aceptar") , image = self.img_green_tick_icon, compound = tk.LEFT, command = self.AcceptButton )
+		self.button_cancel = tk.Button(master=self.frame_accept_cancel, text= _("Cancelar") , image = self.img_red_x_icon, compound = tk.LEFT, command = self.CancelButton )
 
 		self.button_accept.grid( row=0, column=0,  padx=2, pady=2, sticky="nsew" )
 		self.button_cancel.grid( row=0, column=1,  padx=2, pady=2, sticky="nsew" )
@@ -257,6 +279,7 @@ class PreferencesWindow():
 		self.preferences_ref.RotBG_Color = float( self.textbox_RotBG_Color.get() ) 
 		self.preferences_ref.RotBG_Contrast = float(  self.textbox_RotBG_Contrast.get() )
 		self.preferences_ref.RotBG_Brightness = float(  self.textbox_RotBG_Brightness.get() )
+		self.preferences_ref.Language = self.optionmenu_language_variable.get()		# (23/7/2021)
 
 
 	def AcceptButton( self ):
@@ -264,7 +287,7 @@ class PreferencesWindow():
 			self.UpdatePreferences()
 		except Exception as e:
 			logging.exception(e)
-			tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+			tk.messagebox.showerror(title= _("Error"), message= _("Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: ") + str( sys.exc_info()[0] ) + "\n" + str(e) )
 		else:
 			#self.preferences_ref.SavePreferences_OverwriteAll()
 			self.preferences_ref.SavePreferences_UpdateExisting()
@@ -288,6 +311,7 @@ class PreferencesWindow():
 
 
 
-
+	def Warn_Restart_Required_OptionMenu( self, ChosenOption ):
+		tk.messagebox.showwarning(title= _("Aviso") , message= _("Este cambio no será efectivo hasta el siguiente reinicio del programa.") )
 
 

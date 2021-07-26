@@ -1,3 +1,5 @@
+# coding=UTF-8
+
 import tkinter as tk
 from tkinter import ttk		# Textbox
 from PIL import ImageTk, Image		# Pillow
@@ -12,6 +14,7 @@ import scrframe
 import rceditor_maps
 import rceditor_user_interface
 
+import rceditor_lang
 
 
 def do_nothing():
@@ -47,19 +50,19 @@ class Bumper_Table_Window():
 		# self.BumperTableWindow.grab_set()			# Make this window Modal
 		# self.BumperTableWindow.protocol('WM_DELETE_WINDOW',do_nothing)		# Close window button behaviour
 		# self.PrefWindow.attributes('-topmost', 'true')		# Stay on top of all others
-		self.BumperTableWindow.title("Tabla de bumpers")
+		self.BumperTableWindow.title( _("Tabla de bumpers") )
 		self.BumperTableWindow.protocol("WM_DELETE_WINDOW", self.window_close_button_handler)
 
 		self.Load_UI_Icons()
 
 		self.frame_upper_buttons = tk.Frame( master=self.BumperTableWindow )
-		self.button_new_row = tk.Button(master=self.frame_upper_buttons, text="Nueva fila", image = self.img_new_row_icon, compound = tk.LEFT, command = self.New_Row_At_End_Of_Table )
+		self.button_new_row = tk.Button(master=self.frame_upper_buttons, text= _("Nueva fila") , image = self.img_new_row_icon, compound = tk.LEFT, command = self.New_Row_At_End_Of_Table )
 		self.button_new_row.pack( side=tk.LEFT, fill=tk.BOTH, expand=False )
-		self.button_delete_row = tk.Button(master=self.frame_upper_buttons, text="Eliminar fila", image = self.img_delete_row_icon, compound = tk.LEFT, command = self.Delete_Selected_Bumper )
+		self.button_delete_row = tk.Button(master=self.frame_upper_buttons, text= _("Eliminar fila") , image = self.img_delete_row_icon, compound = tk.LEFT, command = self.Delete_Selected_Bumper )
 		self.button_delete_row.pack( side=tk.LEFT, fill=tk.BOTH, expand=False )
 		# self.button_update_canvas = tk.Button(master=self.frame_upper_buttons, text="Actualizar mapa editor (desde tabla)", image = self.img_update_icon, compound = tk.LEFT, command = do_nothing )
 		# self.button_update_canvas.pack( side=tk.TOP, fill=tk.BOTH, expand=False )
-		self.button_update_table = tk.Button(master=self.frame_upper_buttons, text="Actualizar tabla (desde mapa editor)", image = self.img_update_icon, compound = tk.LEFT, command = self.update_table_from_map_editor )
+		self.button_update_table = tk.Button(master=self.frame_upper_buttons, text= _("Actualizar tabla (desde mapa editor)") , image = self.img_update_icon, compound = tk.LEFT, command = self.update_table_from_map_editor )
 		self.button_update_table.pack( side=tk.TOP, fill=tk.BOTH, expand=False )
 		self.frame_upper_buttons.pack( side=tk.TOP, fill=tk.BOTH, expand=False )
 
@@ -68,7 +71,7 @@ class Bumper_Table_Window():
 		self.frame_upper_first_row.columnconfigure( [0, 1, 2, 3, 4], weight=1)
 		self.frame_upper_first_row.columnconfigure( 5, weight=0)		# Scrollbar gap does not grow with window resizing
 		self.frame_upper_first_row.rowconfigure( 0, weight=0 )
-		self.first_row_bumper_number = tk.Button( master=self.frame_upper_first_row, text="Num bump", command = do_nothing, width = 3 )
+		self.first_row_bumper_number = tk.Button( master=self.frame_upper_first_row, text= _("Num bump") , command = do_nothing, width = 3 )
 		self.first_row_bumper_number.grid( row=0, column=0,  padx=0, pady=0, sticky="nsew" )
 		self.first_row_center_x = tk.Button( master=self.frame_upper_first_row, text="Center X", command = do_nothing, width = 15 )
 		self.first_row_center_x.grid( row=0, column=1,  padx=0, pady=0, sticky="nsew" )
@@ -253,7 +256,7 @@ class Bumper_Table_Window():
 			logging.debug( "FocusIn: Se ha llamado a la funcion Focus_In_Callback en el modo incorrecto." )
 			# We focus on another object (to prevent to focus in again and keep calling this function forever)
 			self.frame_upper_buttons.focus()
-			tk.messagebox.showinfo(title="Aviso", message="Para editar, seleccionar modo bumpers y modo editar.")
+			tk.messagebox.showinfo(title= _("Aviso") , message= _("Para editar, seleccionar modo bumpers y modo editar.") )
 			self.UnHighlight_All_Rows()
 			self.selected_row_number = None
 
@@ -330,7 +333,7 @@ class Bumper_Table_Window():
 						", speed= " + str( self.map_ref.pinball_bumpers_dict.get(bumper_number).speed)  )
 			except Exception as e:
 				logging.exception(e)
-				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+				tk.messagebox.showerror(title= _("Error") , message= _("Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: ") + str( sys.exc_info()[0] ) + "\n" + str(e) )
 		else:
 			logging.debug( "Funcion Apply_Selected_Row_Changes llamada, pero en el modo incorrecto. No se hace nada." )
 
@@ -358,7 +361,7 @@ class Bumper_Table_Window():
 					#return(True)
 				else:
 					logging.debug("FocusOut: El nuevo texto no es un numero.")
-					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+					tk.messagebox.showerror(title= _("Error") , message= _("Valor no válido, no es un número. No se tienen en cuenta las modificaciones.") )
 					#return(False)
 			else:
 				logging.debug("FocusOut: Modo incorrecto. No se hace nada.")
@@ -400,7 +403,7 @@ class Bumper_Table_Window():
 		# When a bumper is selected and the delete button is pressed, this function makes the actions to delete it.
 		if self.owner_ref.map_loaded == True:
 			if self.selected_row_number is not None:
-				answer = tk.messagebox.askyesnocancel("Eliminar bumper", "¿Desea eliminar el bumper numero " + str(self.selected_row_number) + "?")
+				answer = tk.messagebox.askyesnocancel( _("Eliminar bumper") , _("¿Desea eliminar el bumper numero ") + str(self.selected_row_number) + "?")
 				logging.debug( "Pregunta eliminar bumper, el usuario ha respondido answer = " + str(answer) )
 				if (answer is None) or (answer == False) :
 					return	# Do nothing
@@ -409,17 +412,17 @@ class Bumper_Table_Window():
 				self.owner_ref.mapa_cargado.Bumpers_Reenumerate()
 				self.owner_ref.canvas_mapview.DrawAll( self.owner_ref.mapa_cargado )
 				self.owner_ref.Unselect_All()
-				self.owner_ref.window_statusbar.set_field_1("%s %s %s", "Bumper ", self.selected_row_number , " borrado" )
+				self.owner_ref.window_statusbar.set_field_1("%s %s %s", _("Bumper ") , self.selected_row_number , _(" borrado") )
 				# Redraw table
 				self.update_table_from_map_editor()
 				# No bumper is selected (4/7/2021)
 				self.selected_row_number = None
 			else:
-				tk.messagebox.showerror(title="Error", message="Ninguna fila seleccionada.")
+				tk.messagebox.showerror(title= _("Error") , message= _("Ninguna fila seleccionada.") )
 				logging.debug( "En funcion Delete_Bumper, error: ninguna fila seleccionada." )
 
 		else:
-			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
+			tk.messagebox.showerror(title= _("Error"), message= _("No hay ningún mapa cargado.") )
 
 
 

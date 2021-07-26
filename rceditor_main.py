@@ -39,11 +39,11 @@ if __name__ == "__main__":
 
 	log.debug("Programa iniciado")
 
-	# Set the local directory
-	localedir = './locale'
-	# Set up your magic function _()
-	translate = gettext.translation('rceditor', localedir, fallback=True)
-	_ = translate.gettext
+##	# Set the local directory
+##	localedir = './locale'
+##	# Set up your magic function _()
+##	translate = gettext.translation('rceditor', localedir, fallback=True)
+##	_ = translate.gettext
 
 	main_window_editor = rceditor_user_interface.RC_editor_GUI( debugmode )
 

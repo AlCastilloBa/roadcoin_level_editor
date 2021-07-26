@@ -1,7 +1,11 @@
+# coding=UTF-8
 
 from enum import Enum
 import logging
 import sys
+
+import rceditor_lang
+
 
 
 class Segment_Type(Enum):
@@ -482,48 +486,49 @@ class Map():
 		# It returns a tuple containing:
 		#  - map_data_ok = True/False
 		#  - error_list. String containing the error list. If no errors found, then the string will be empty
+
 		
 		map_data_ok = True
 		error_list = ""
 		# Checking if data is defined
 		if (self.map_name is None) or (self.map_name==""):			# String
 			map_data_ok = False
-			error_list = error_list + "Nombre del mapa no definido.\n"
+			error_list = error_list + _("Nombre del mapa no definido.\n")
 		if (self.map_description is None) or (self.map_description==""):	# String
 			map_data_ok = False
-			error_list = error_list + "Descripción del mapa no definida.\n"
+			error_list = error_list + _("Descripción del mapa no definida.\n")
 		if (self.segment_number is None) or (self.segment_number==0):		# Int
 			map_data_ok = False
-			error_list = error_list + "Numero de segmentos no definido.\n"
+			error_list = error_list + _("Numero de segmentos no definido.\n")
 		if (self.rotation_type is None ) or ( self.rotation_type not in [item.value for item in Rotation_Type] ):	# Class Rotation_Type
 			map_data_ok = False
-			error_list = error_list + "Tipo rotacion no definida.\n"
+			error_list = error_list + _("Tipo rotacion no definida.\n")
 		else:
 			if (self.rotation_type == Rotation_Type.fixed_point):
 				if (self.rotation_center is None ):  # Class Point
 					map_data_ok = False
-					error_list = error_list + "Centro de giro no definido (y rotacion alrededor de punto fijo).\n"
+					error_list = error_list + _("Centro de giro no definido (y rotacion alrededor de punto fijo).\n")
 				elif (self.rotation_center.x is None) or (self.rotation_center.y is None):
 					map_data_ok = False
-					error_list = error_list + "Alguna componente del centro de giro no definido.\n"
+					error_list = error_list + _("Alguna componente del centro de giro no definido.\n")
 		if (self.max_angle is None ):        # Real
 			map_data_ok = False
-			error_list = error_list + "Angulo máximo no definido.\n"
+			error_list = error_list + _("Angulo máximo no definido.\n")
 		if (self.coin_starting_point is None ):			  # Class Point
 			map_data_ok = False
-			error_list = error_list + "Punto de inicio de la moneda no definido.\n"
+			error_list = error_list + _("Punto de inicio de la moneda no definido.\n")
 		elif (self.coin_starting_point.x is None ) or (self.coin_starting_point.y is None ):
 			map_data_ok = False
-			error_list = error_list + "Alguna componente del punto de inicio de la moneda no definido.\n"
+			error_list = error_list + _("Alguna componente del punto de inicio de la moneda no definido.\n")
 		if (self.gravity is None ) or (self.gravity == 0 ) :		# Real
 			map_data_ok = False
-			error_list = error_list + "La gravedad no está definida.\n"
+			error_list = error_list + _("La gravedad no está definida.\n")
 		if ( self.coin_image_path is None ) or ( self.coin_image_path=="" ):	# String
 			map_data_ok = False
-			error_list = error_list + "La imagen de la moneda no está definida.\n"
+			error_list = error_list +  _("La imagen de la moneda no está definida.\n")
 		if (self.fixed_background_path is None ) or (self.fixed_background_path=="" ):	# String
 			map_data_ok = False
-			error_list = error_list + "La imagen del fondo fijo no está definida.\n"
+			error_list = error_list + _("La imagen del fondo fijo no está definida.\n")
 		#Note: coin_does_not_rotate = None is possible 	# Boolean
 
 		#Note: countdown_time = None is possible		# Int
@@ -535,18 +540,18 @@ class Map():
 		if ( self.rotating_background is not None ): 	# Boolean
 			if (self.rotating_background==True) and (( self.rotating_background_path is None ) or ( self.rotating_background_path=="" ) ):  # String
 				map_data_ok = False
-				error_list = error_list + "Se espera imagen fondo giratorio, pero no está definido.\n"
+				error_list = error_list + _("Se espera imagen fondo giratorio, pero no está definido.\n")
 			if (self.rotating_background==True) and ( (self.rotating_background_left_x_pos is None) or ( self.rotating_background_up_y_pos is None) or \
 				(self.rotating_background_right_x_pos is None) or (self.rotating_background_down_y_pos is None) ):	# Int
 				map_data_ok = False
-				error_list = error_list + "Se espera imagen fondo giratorio, pero falta definir alguna posición del fondo.\n"
+				error_list = error_list + _("Se espera imagen fondo giratorio, pero falta definir alguna posición del fondo.\n")
 			if (self.rotating_background==True): 
 				if ( self.rotating_background_center is None ):    # Class Point
 					map_data_ok = False
-					error_list = error_list + "Se espera imagen fondo giratorio, pero el centro de giro no está definido.\n"
+					error_list = error_list + _("Se espera imagen fondo giratorio, pero el centro de giro no está definido.\n")
 				elif ( self.rotating_background_center.x is None ) or ( self.rotating_background_center.y is None ):
 					map_data_ok = False
-					error_list = error_list + "Se espera imagen fondo giratorio, pero alguna componente del centro de giro no está definido.\n"
+					error_list = error_list + _("Se espera imagen fondo giratorio, pero alguna componente del centro de giro no está definido.\n")
 
 		# Note: wall_segment_image_path = None	is possible	# String
 		# Note: goal_segment_image_path = None	is possible	# String
@@ -569,62 +574,62 @@ class Map():
 		for current_segm_index, current_segment in self.segment_dict.items():
 			if ( current_segm_index > self.segment_number ) or ( current_segm_index < 0 ):
 				map_data_ok = False
-				error_list = error_list + "Indice de segmento " + current_segm_index + " parece incorrecto.\n"	
+				error_list = error_list + _("Indice de segmento ") + current_segm_index + _(" parece incorrecto.\n")	
 			if ( current_segment.start is None ):	# Class Point
 				map_data_ok = False
-				error_list = error_list + "Segmento " + current_segm_index + ", no definido punto start.\n"
+				error_list = error_list + _("Segmento ") + current_segm_index + _(", no definido punto start.\n")
 			elif ( current_segment.start.x is None ) or ( current_segment.start.y is None ):
 				map_data_ok = False
-				error_list = error_list + "Segmento " + current_segm_index + ", alguna coordenada de punto start no está definida.\n"			
+				error_list = error_list + _("Segmento ") + current_segm_index + _(", alguna coordenada de punto start no está definida.\n")			
 			if ( current_segment.end is None ):	# Class Point
 				map_data_ok = False
-				error_list = error_list + "Segmento " + current_segm_index + ", no definido punto end.\n"
+				error_list = error_list + _("Segmento ") + current_segm_index + _(", no definido punto end.\n")
 			elif ( current_segment.end.x is None ) or ( current_segment.end.y is None ):
 				map_data_ok = False
-				error_list = error_list + "Segmento " + current_segm_index + ", alguna coordenada de punto end no está definida.\n"	
+				error_list = error_list + _("Segmento ") + current_segm_index + _(", alguna coordenada de punto end no está definida.\n")	
 			if ( current_segment.segm_type is None ) or ( current_segment.segm_type not in [item.value for item in Segment_Type] ):	# Class Segment Type
 				map_data_ok = False
-				error_list = error_list + "Segmento " + current_segm_index + ", tipo de segmento no definido.\n"
+				error_list = error_list + _("Segmento ") + current_segm_index + _(", tipo de segmento no definido.\n")
 			if ( current_segment.invisible is None ): # Boolean
 				map_data_ok = False
-				error_list = error_list + "Segmento " + current_segm_index + ", visibilidad no definida.\n"
+				error_list = error_list + _("Segmento ") + current_segm_index + _(", visibilidad no definida.\n")
 
 		for current_bumper_index, current_bumper in self.pinball_bumpers_dict.items():
 			if ( current_bumper_index > self.pinball_bumpers_number ) or ( current_bumper_index < 0 ):
 				map_data_ok = False
-				error_list = error_list + "Indice de bumper " + current_bumper_index + " parece incorrecto.\n"	
+				error_list = error_list + _("Indice de bumper ") + current_bumper_index + _(" parece incorrecto.\n")	
 			if ( current_bumper.center is None):	# Class Point
 				map_data_ok = False
-				error_list = error_list + "Bumper " + current_bumper_index + ", no definido punto centro.\n"
+				error_list = error_list + _("Bumper ") + current_bumper_index + _(", no definido punto centro.\n")
 			elif ( current_bumper.center.x is None ) or ( current_bumper.center.y is None ):
 				map_data_ok = False
-				error_list = error_list + "Bumper " + current_bumper_index + ", alguna coordenada de punto centro no está definida.\n"	
+				error_list = error_list + _("Bumper ") + current_bumper_index + _(", alguna coordenada de punto centro no está definida.\n")	
 			if ( current_bumper.radius is None ) or ( current_bumper.radius < 0 ): 		# Real
 				map_data_ok = False
-				error_list = error_list + "Bumper " + current_bumper_index + ", radio no definido o valor incorrecto.\n"		
+				error_list = error_list + _("Bumper ") + current_bumper_index + _(", radio no definido o valor incorrecto.\n")		
 			if ( current_bumper.exit_speed is None ) or ( current_bumper.exit_speed < 0 ): 		# Real
 				map_data_ok = False
-				error_list = error_list + "Bumper " + current_bumper_index + ", valocidad de salida no definida o valor incorrecto.\n"	
+				error_list = error_list + _("Bumper ") + current_bumper_index + _(", valocidad de salida no definida o valor incorrecto.\n")	
 
 		for current_raccz_index, current_raccz in self.dict_round_acel_zones.items():
 			if ( current_raccz_index > self.round_accel_zones_number ) or ( current_raccz_index < 0 ):
 				map_data_ok = False
-				error_list = error_list + "Indice de zona aceleracion circular " + current_raccz_index + " parece incorrecto.\n"
+				error_list = error_list + _("Indice de zona aceleracion circular ") + current_raccz_index + _(" parece incorrecto.\n")
 			if ( current_raccz.center is None):	# Class Point
 				map_data_ok = False
-				error_list = error_list + "Zona de aceleración circular " + current_raccz_index + ", no definido punto centro.\n"
+				error_list = error_list + _("Zona de aceleración circular ") + current_raccz_index + _(", no definido punto centro.\n")
 			elif ( current_raccz.center.x is None ) or ( current_raccz.center.y is None ):
 				map_data_ok = False
-				error_list = error_list + "Zona de aceleración circular " + current_raccz_index + ", alguna coordenada de punto centro no está definida.\n"			
+				error_list = error_list + _("Zona de aceleración circular ") + current_raccz_index + _(", alguna coordenada de punto centro no está definida.\n")			
 			if ( current_raccz.radius is None ) or ( current_raccz.radius < 0 ): 		# Real
 				map_data_ok = False
-				error_list = error_list + "Zona de aceleración circular " + current_raccz_index + ", radio no definido o valor incorrecto.\n"		
+				error_list = error_list + _("Zona de aceleración circular ") + current_raccz_index + _(", radio no definido o valor incorrecto.\n")		
 			if ( current_raccz.acceleration is None ) or ( current_raccz.acceleration < 0 ): 		# Real
 				map_data_ok = False
-				error_list = error_list + "Zona de aceleración circular " + current_raccz_index + ", aceleracion no definida o valor incorrecto.\n"
+				error_list = error_list + _("Zona de aceleración circular ") + current_raccz_index + _(", aceleracion no definida o valor incorrecto.\n")
 			if ( current_raccz.invisible is None ): # Boolean
 				map_data_ok = False
-				error_list = error_list + "Zona de aceleración circular " + current_raccz_index + ", visibilidad no definida.\n"
+				error_list = error_list + _("Zona de aceleración circular ") + current_raccz_index + _(", visibilidad no definida.\n")
 
 		# Check for unused numbers in dictionaries.
 		if (self.segment_number is not None):
@@ -632,19 +637,19 @@ class Map():
 				unused_segment_numbers = [ x for x in range(0, self.segment_number-1 ) if x not in self.segment_dict.keys() ]
 				if unused_segment_numbers:		# If the list is not empty	
 					map_data_ok = False
-					error_list = error_list + "Los siguientes numeros de segmentos no están definidos: " + str( unused_segment_numbers )
+					error_list = error_list + _("Los siguientes numeros de segmentos no están definidos: ") + str( unused_segment_numbers )
 		if (self.pinball_bumpers_number is not None):
 			if (self.pinball_bumpers_number != 0 ):
 				unused_bumper_numbers = [ x for x in range(0, self.pinball_bumpers_number-1 ) if x not in self.pinball_bumpers_dict.keys() ]
 				if unused_bumper_numbers:		# If the list is not empty
 					map_data_ok = False
-					error_list = error_list + "Los siguientes numeros de bumpers no están definidos: " + str( unused_bumper_numbers )
+					error_list = error_list + _("Los siguientes numeros de bumpers no están definidos: ") + str( unused_bumper_numbers )
 		if (self.round_accel_zones_number is not None):
 			if (self.round_accel_zones_number != 0):
 				unused_raccz_numbers = [ x for x in range(0, self.round_accel_zones_number-1 ) if x not in self.dict_round_acel_zones.keys() ]
 				if unused_raccz_numbers:		# If the list is not empty
 					map_data_ok = False
-					error_list = error_list + "Los siguientes numeros de zonas de aceleracion circular no están definidos: " + str( unused_raccz_numbers )
+					error_list = error_list + _("Los siguientes numeros de zonas de aceleracion circular no están definidos: ") + str( unused_raccz_numbers )
 
 		return map_data_ok, error_list
 

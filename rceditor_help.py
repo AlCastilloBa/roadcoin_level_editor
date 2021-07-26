@@ -1,6 +1,10 @@
+# coding=UTF-8
+
 import tkinter as tk
 from PIL import ImageTk, Image		# Pillow
 import logging
+
+import rceditor_lang
 
 
 
@@ -12,13 +16,16 @@ class AboutWindow():
 	
 	def __init__( self, master ):
 
+		# Activate translations language (TODO 21/7/2021)
+		_ = rceditor_lang.Get_Current_Gettext_Function()
+
 		self.AboutWindow = tk.Toplevel( master )
 		self.AboutWindow.transient( master )		# Make this window be child of parent
 		self.AboutWindow.grab_set()			# Make this window Modal
 		# self.AboutWindow.protocol('WM_DELETE_WINDOW',do_nothing)		# Close window button behaviour
 		# self.PrefWindow.attributes('-topmost', 'true')		# Stay on top of all others
 		self.AboutWindow.resizable( False, False )	# Not resizable
-		self.AboutWindow.title("Acerca de...")
+		self.AboutWindow.title(  _("Acerca de...")  )
 
 		self.Load_UI_Icons()
 		
@@ -27,10 +34,10 @@ class AboutWindow():
 
 		self.label_credits_text = tk.Label(master=self.AboutWindow, \
 			text=	"Roadcoin Editor\n" + \
-				"Editor de niveles para el juego Roadcoin.\n" + \
+				_("Editor de niveles para el juego Roadcoin.\n") + \
 				"\n " + \
 				"Alberto Castillo Baquero, 2020-2021" )
-		self.button_acept = tk.Button(master=self.AboutWindow, text = "Aceptar", image = self.img_green_tick_icon, compound = tk.LEFT, command = self.AcceptButton )
+		self.button_acept = tk.Button(master=self.AboutWindow, text = _("Aceptar"), image = self.img_green_tick_icon, compound = tk.LEFT, command = self.AcceptButton )
 
 
 		self.canvas_logo_image.pack(side=tk.TOP, padx=2, pady=2)

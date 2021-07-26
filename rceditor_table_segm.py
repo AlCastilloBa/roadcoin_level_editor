@@ -1,3 +1,4 @@
+# coding=UTF-8
 
 import tkinter as tk
 from tkinter import ttk		# Textbox
@@ -12,6 +13,8 @@ import scrframe
 
 import rceditor_maps
 import rceditor_user_interface
+
+import rceditor_lang
 
 
 
@@ -51,19 +54,19 @@ class Segment_Table_Window():
 		# self.SegmentTableWindow.grab_set()			# Make this window Modal
 		# self.SegmentTableWindow.protocol('WM_DELETE_WINDOW',do_nothing)		# Close window button behaviour
 		# self.PrefWindow.attributes('-topmost', 'true')		# Stay on top of all others
-		self.SegmentTableWindow.title("Tabla de segmentos")
+		self.SegmentTableWindow.title(  _("Tabla de segmentos")  )
 		self.SegmentTableWindow.protocol("WM_DELETE_WINDOW", self.window_close_button_handler)
 
 		self.Load_UI_Icons()
 
 		self.frame_upper_buttons = tk.Frame( master=self.SegmentTableWindow )
-		self.button_new_row = tk.Button(master=self.frame_upper_buttons, text="Nueva fila", image = self.img_new_row_icon, compound = tk.LEFT, command = self.New_Row_At_End_Of_Table )
+		self.button_new_row = tk.Button(master=self.frame_upper_buttons, text= _("Nueva fila") , image = self.img_new_row_icon, compound = tk.LEFT, command = self.New_Row_At_End_Of_Table )
 		self.button_new_row.pack( side=tk.LEFT, fill=tk.BOTH, expand=False )
-		self.button_delete_row = tk.Button(master=self.frame_upper_buttons, text="Eliminar fila", image = self.img_delete_row_icon, compound = tk.LEFT, command = self.Delete_Selected_Segment )
+		self.button_delete_row = tk.Button(master=self.frame_upper_buttons, text= _("Eliminar fila") , image = self.img_delete_row_icon, compound = tk.LEFT, command = self.Delete_Selected_Segment )
 		self.button_delete_row.pack( side=tk.LEFT, fill=tk.BOTH, expand=False )
 		# self.button_update_canvas = tk.Button(master=self.frame_upper_buttons, text="Actualizar mapa editor (desde tabla)", image = self.img_update_icon, compound = tk.LEFT, command = do_nothing )
 		# self.button_update_canvas.pack( side=tk.TOP, fill=tk.BOTH, expand=False )
-		self.button_update_table = tk.Button(master=self.frame_upper_buttons, text="Actualizar tabla (desde mapa editor)", image = self.img_update_icon, compound = tk.LEFT, command = self.update_table_from_map_editor )
+		self.button_update_table = tk.Button(master=self.frame_upper_buttons, text= _("Actualizar tabla (desde mapa editor)") , image = self.img_update_icon, compound = tk.LEFT, command = self.update_table_from_map_editor )
 		self.button_update_table.pack( side=tk.TOP, fill=tk.BOTH, expand=False )
 		self.frame_upper_buttons.pack( side=tk.TOP, fill=tk.BOTH, expand=False )
 		
@@ -73,7 +76,7 @@ class Segment_Table_Window():
 		self.frame_upper_first_row.columnconfigure( [0, 1, 2, 3, 4, 5, 6], weight=1)
 		self.frame_upper_first_row.columnconfigure( 7, weight=0)		# Scrollbar gap does not grow with window resizing
 		self.frame_upper_first_row.rowconfigure( 0, weight=0 )
-		self.first_row_segm_number = tk.Button( master=self.frame_upper_first_row, text="Num segm", command = do_nothing, width = 3 )
+		self.first_row_segm_number = tk.Button( master=self.frame_upper_first_row, text= _("Num segm") , command = do_nothing, width = 3 )
 		self.first_row_segm_number.grid( row=0, column=0,  padx=0, pady=0, sticky="nsew" )
 		self.first_row_start_x = tk.Button( master=self.frame_upper_first_row, text="Start X", command = do_nothing, width = 15 )
 		self.first_row_start_x.grid( row=0, column=1,  padx=0, pady=0, sticky="nsew" )
@@ -83,9 +86,9 @@ class Segment_Table_Window():
 		self.first_row_end_x.grid( row=0, column=3,  padx=0, pady=0, sticky="nsew" )
 		self.first_row_end_y = tk.Button( master=self.frame_upper_first_row, text="End Y", command = do_nothing, width = 15 )
 		self.first_row_end_y.grid( row=0, column=4,  padx=0, pady=0, sticky="nsew" )
-		self.first_type = tk.Button( master=self.frame_upper_first_row, text="Tipo", command = do_nothing, width = 15 )
+		self.first_type = tk.Button( master=self.frame_upper_first_row, text= _("Tipo") , command = do_nothing, width = 15 )
 		self.first_type.grid( row=0, column=5,  padx=0, pady=0, sticky="nsew" )
-		self.first_invis = tk.Button( master=self.frame_upper_first_row, text="Invisible", command = do_nothing, width = 15 )
+		self.first_invis = tk.Button( master=self.frame_upper_first_row, text= _("Invisible") , command = do_nothing, width = 15 )
 		self.first_invis.grid( row=0, column=6,  padx=0, pady=0, sticky="nsew" )
 		# self.first_row_scrollbar_gap = tk.Button( master=self.frame_upper_first_row, text="", command = do_nothing, width = 0.3 )
 		self.first_row_scrollbar_gap = tk.Scrollbar(master=self.frame_upper_first_row, orient=tk.VERTICAL)
@@ -245,7 +248,7 @@ class Segment_Table_Window():
 			type_ref.bind( "<Button-1>", self.Focus_In_Callback )
 			# Invis
 			invis_variable = tk.BooleanVar()
-			invis_ref = tk.Checkbutton(master=self.frame_table_frame.interior, text="Invisible", var=invis_variable, width = 12, command = self.Segment_Table_Checkbox_Click_Callback )
+			invis_ref = tk.Checkbutton(master=self.frame_table_frame.interior, text= _("Invisible") , var=invis_variable, width = 12, command = self.Segment_Table_Checkbox_Click_Callback )
 			if self.map_ref.segment_dict.get(row).invisible == True:
 				invis_ref.select()
 			else:
@@ -314,7 +317,7 @@ class Segment_Table_Window():
 			logging.debug( "FocusIn: Se ha llamado a la funcion Focus_In_Callback en el modo incorrecto." )
 			# We focus on another object (to prevent to focus in again and keep calling this function forever)
 			self.frame_upper_buttons.focus()
-			tk.messagebox.showinfo(title="Aviso", message="Para editar, seleccionar modo segmentos y modo editar.")
+			tk.messagebox.showinfo(title= _("Aviso") , message= _("Para editar, seleccionar modo segmentos y modo editar.") )
 			self.UnHighlight_All_Rows()
 			self.selected_row_number = None
 
@@ -407,7 +410,7 @@ class Segment_Table_Window():
 						". Invisible = " + str( self.map_ref.segment_dict.get(segm_number).invisible ) )
 			except Exception as e:
 				logging.exception(e)
-				tk.messagebox.showerror(title="Error", message="Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+				tk.messagebox.showerror(title= _("Error") , message= _("Valores no válidos, no se tienen en cuenta las modificaciones.\n\n\nExcepcion: ") + str( sys.exc_info()[0] ) + "\n" + str(e) )
 		else:
 			logging.debug( "Funcion Apply_Selected_Row_Changes llamada, pero en el modo incorrecto. No se hace nada." )
 
@@ -435,7 +438,7 @@ class Segment_Table_Window():
 					#return(True)
 				else:
 					logging.debug("FocusOut: El nuevo texto no es un numero.")
-					tk.messagebox.showerror(title="Error", message="Valor no válido, no es un número. No se tienen en cuenta las modificaciones.")
+					tk.messagebox.showerror(title= _("Error") , message= _("Valor no válido, no es un número. No se tienen en cuenta las modificaciones.") )
 					#return(False)
 			else:
 				logging.debug("FocusOut: Modo incorrecto. No se hace nada.")
@@ -481,7 +484,7 @@ class Segment_Table_Window():
 		# When a segment is selected and the delete button is pressed, this function makes the actions to delete it.
 		if self.owner_ref.map_loaded == True:
 			if self.selected_row_number is not None:
-				answer = tk.messagebox.askyesnocancel("Eliminar segmento", "¿Desea eliminar el segmento numero " + str(self.selected_row_number) + "?")
+				answer = tk.messagebox.askyesnocancel( _("Eliminar segmento") , _("¿Desea eliminar el segmento numero ") + str(self.selected_row_number) + "?")
 				logging.debug( "Pregunta eliminar segmento, el usuario ha respondido answer = " + str(answer) )
 				if (answer is None) or (answer == False) :
 					return	# Do nothing
@@ -490,17 +493,17 @@ class Segment_Table_Window():
 				self.owner_ref.mapa_cargado.Segments_Reenumerate()
 				self.owner_ref.canvas_mapview.DrawAll( self.owner_ref.mapa_cargado )
 				self.owner_ref.Unselect_All()
-				self.owner_ref.window_statusbar.set_field_1("%s %s %s", "Segmento ", self.selected_row_number , " borrado" )
+				self.owner_ref.window_statusbar.set_field_1("%s %s %s", _("Segmento ") , self.selected_row_number , _(" borrado") )
 				# Redraw table
 				self.update_table_from_map_editor()
 				# No segment is selected (4/7/2021)
 				self.selected_row_number = None
 			else:
-				tk.messagebox.showerror(title="Error", message="Ninguna fila seleccionada.")
+				tk.messagebox.showerror(title= _("Error") , message= _("Ninguna fila seleccionada.") )
 				logging.debug( "En funcion Delete_Selected_Segment, error: ninguna fila seleccionada." )
 
 		else:
-			tk.messagebox.showerror(title="Error", message="No hay ningún mapa cargado.")
+			tk.messagebox.showerror(title= _("Error") , message= _("No hay ningún mapa cargado.") )
 
 
 

@@ -1,3 +1,4 @@
+# coding=UTF-8
 
 import tkinter as tk
 from PIL import ImageTk, Image, ImageEnhance		# Pillow
@@ -6,6 +7,8 @@ import sys
 import math
 
 from rceditor_maps import Segment_Type, Segment_Type_Names
+
+import rceditor_lang
 
 
 def do_nothing():
@@ -69,6 +72,7 @@ class Canvas_WithScrollbars(tk.Frame):
 
 		# Save original canvas color in order to restore it later
 		self.orig_viewer_color = self.viewer.cget("background")
+
 
 	
 	def ZoomButtonPressed( self ):
@@ -222,7 +226,7 @@ class Canvas_WithScrollbars(tk.Frame):
 
 			except Exception as e:
 				logging.exception(e)
-				tk.messagebox.showerror(title="Error", message="No se ha podido cargar la imagen del fondo giratorio.\n\n\nExcepcion: " + str( sys.exc_info()[0] ) + "\n" + str(e) )
+				tk.messagebox.showerror(title= _("Error") , message= _("No se ha podido cargar la imagen del fondo giratorio.\n\n\nExcepcion: ") + str( sys.exc_info()[0] ) + "\n" + str(e) )
 			else:
 				logging.debug( "Imagen " + preferences.GamePath + "/" + Map.rotating_background_path + " cargada.")
 		else:	# TODO Prueba 1/11/2020
@@ -688,12 +692,15 @@ class ZoomLevelSelectWindow():
 	def __init__( self, master, owner_object ):
 		self.owner_object = owner_object	# Store reference to the object that owns this "Canvas_WithScrollbars"
 
+		# Activate translations language (TODO 21/7/2021)
+		_ = rceditor_lang.Get_Current_Gettext_Function()
+
 		self.ZoomWindow = tk.Toplevel( master )
 		self.ZoomWindow.transient( master )		# Make this window be child of parent
 		self.ZoomWindow.grab_set()			# Make this window Modal
 		self.ZoomWindow.protocol('WM_DELETE_WINDOW',do_nothing)		# Close window button behaviour
 		# self.PrefWindow.attributes('-topmost', 'true')		# Stay on top of all others
-		self.ZoomWindow.title("Seleccione zoom...")
+		self.ZoomWindow.title( _("Seleccione zoom...") )
 
 		self.Load_UI_Icons()
 
@@ -714,8 +721,8 @@ class ZoomLevelSelectWindow():
 			rb.pack( side=tk.TOP, padx=2, pady=2 )
 
 		self.frame_accept_cancel = tk.Frame( master=self.ZoomWindow )
-		self.button_accept = tk.Button(master=self.frame_accept_cancel, text="Aceptar", image = self.img_green_tick_icon, compound = tk.LEFT, command = self.AcceptButton,  state=tk.DISABLED )
-		self.button_cancel = tk.Button(master=self.frame_accept_cancel, text="Cancelar", image = self.img_red_x_icon, compound = tk.LEFT, command = self.CancelButton )
+		self.button_accept = tk.Button(master=self.frame_accept_cancel, text= _("Aceptar") , image = self.img_green_tick_icon, compound = tk.LEFT, command = self.AcceptButton,  state=tk.DISABLED )
+		self.button_cancel = tk.Button(master=self.frame_accept_cancel, text= _("Cancelar") , image = self.img_red_x_icon, compound = tk.LEFT, command = self.CancelButton )
 
 		self.button_accept.grid( row=0, column=0,  padx=2, pady=2, sticky="nsew" )
 		self.button_cancel.grid( row=0, column=1,  padx=2, pady=2, sticky="nsew" )
