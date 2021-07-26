@@ -29,7 +29,7 @@ Currently on the final stages of development. The application can load and show 
 
 The required funcitonality for editing is implemented. The application is currently being used to create new levels. Intense debugging is expected at this stage.
 
-Support for other languages is yet to be implemented.
+Support for other languages is implemented. The language can be selected from the preferences dialog. Supported languages are spanish, english and french. A [bash script](https://github.com/AlCastilloBa/roadcoin_level_editor/locales/locales_mgmt_script) manages the creation and compilation of translation templates. New languages can be added easily.
 
 # How to use this program
 
